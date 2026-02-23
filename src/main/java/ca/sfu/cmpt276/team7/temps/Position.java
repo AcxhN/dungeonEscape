@@ -1,8 +1,8 @@
 package main.java.ca.sfu.cmpt276.team7.temps;
 
 /**
- * Temporary stub for Position.
- * Replace with Member 2's real implementation when completed
+ * Temporary for Position.
+ * Replace with real implementation when completed
  */
 public class Position 
 {
