@@ -4,6 +4,8 @@ import javax.swing.ImageIcon;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -26,6 +28,17 @@ public class DrawQueue {
     }
 
     public void renderAll(Graphics g) {
+        List<RenderItem> items = new ArrayList<>(queue);
+        items.sort((a, b) -> Integer.compare(a.getLayer(), b.getLayer()));
+
+        for (RenderItem item : items) {
+            g.setColor(item.getColor());
+            g.fillRect(item.getX(), item.getY(), item.getWidth(), item.getHeight());
+        }
+    }
+
+    /*
+    public void renderAll(Graphics g) {
         for (RenderItem item : queue) {
             // RenderItemの種類に応じて描画する
             switch (item.getKind()) {
@@ -47,4 +60,5 @@ public class DrawQueue {
             }
         }
     }
+    */
 }

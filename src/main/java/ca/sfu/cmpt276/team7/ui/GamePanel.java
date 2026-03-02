@@ -4,7 +4,6 @@ import java.awt.Dimension;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.util.List;
-
 import javax.swing.JPanel;
 
 /*実際の描画
@@ -14,61 +13,81 @@ import javax.swing.JPanel;
 
 public class GamePanel extends JPanel {
 
-    private final DrawQueue drawQueue;
-    private final Game game;
-    private final Board board;
+    private DrawQueue drawQueue = new DrawQueue();
+    private Game game;
+    private Board board;
+
+    public GamePanel(Game game, Board board) {
+        this.game = game;
+        this.board = board;
+    }
+
+    private int cellLayer = 0;
+    private int characterLayer = 1;
+
+    private int cellWidth = 50; //例
+    private int cellHeight = 50; //例
+    private int characterWidth = 30; //例
+    private int characterHeight = 30; //例
+
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(board.getWidth(), board.getHeight()); //widthとheightが何の値を取るのかは要確認
+        return new Dimension(board.getWidth() * cellWidth, board.getHeight() * cellHeight); //widthとheightが何の値を取るのかは要確認
     }
 
 
     private void enqueueFloor(int x, int y) {
         // 床セルを描画するためのRenderItemを作成してdrawQueueに追加する
-        RenderItem floor = new RenderItem(0, RenderKind.IMAGE, x, y, 50, 50, Color.LIGHT_GRAY, null, null); //例
+        RenderItem floor = new RenderItem(cellLayer, RenderKind.IMAGE, x, y, cellWidth, cellHeight, Color.LIGHT_GRAY, null, null); //例
         drawQueue.enqueue(floor);
     }
+
     private void enqueueWall(int x, int y) {
         // 壁セルを描画するためのRenderItemを作成してdrawQueueに追加する
-        RenderItem wall = new RenderItem(0, RenderKind.IMAGE, x, y, 50, 50, Color.DARK_GRAY, null, null); //例
+        RenderItem wall = new RenderItem(cellLayer, RenderKind.IMAGE, x, y, cellWidth, cellHeight, Color.DARK_GRAY, null, null); //例
         drawQueue.enqueue(wall);
     } 
+
     private void enqueueBarrier(int x, int y) {
         // バリアセルを描画するためのRenderItemを作成してdrawQueueに追加する
-        RenderItem barrier = new RenderItem(0, RenderKind.IMAGE, x, y, 50, 50, Color.GRAY, null, null); //例
+        RenderItem barrier = new RenderItem(cellLayer, RenderKind.IMAGE, x, y, cellWidth, cellHeight, Color.GRAY, null, null); //例
         drawQueue.enqueue(barrier);
     }
+
     private void enqueueBonusReward(int x, int y) {
         // ボーナス報酬を描画するためのRenderItemを作成してdrawQueueに追加する
-        RenderItem bonusReward = new RenderItem(0, RenderKind.IMAGE, x, y, 50, 50, Color.YELLOW, null, null); //例
+        RenderItem bonusReward = new RenderItem(cellLayer, RenderKind.IMAGE, x, y, cellWidth, cellHeight, Color.YELLOW, null, null); //例
         drawQueue.enqueue(bonusReward);
     }
+    
     private void enqueueRegularReward(int x, int y) {
         // レギュラー報酬を描画するためのRenderItemを作成してdrawQueueに追加する
-        RenderItem regularReward = new RenderItem(0, RenderKind.IMAGE, x, y, 50, 50, Color.ORANGE, null, null); //例
+        RenderItem regularReward = new RenderItem(cellLayer, RenderKind.IMAGE, x, y, cellWidth, cellHeight, Color.ORANGE, null, null); //例
         drawQueue.enqueue(regularReward);
     }
+
     private void enqueuePunishment(int x, int y) {
         // トラップを描画するためのRenderItemを作成してdrawQueueに追加する
-        RenderItem punishment = new RenderItem(0, RenderKind.IMAGE, x, y, 50, 50, Color.GREEN, null, null); //例
+        RenderItem punishment = new RenderItem(cellLayer, RenderKind.IMAGE, x, y, cellWidth, cellHeight, Color.GREEN, null, null); //例
         drawQueue.enqueue(punishment);
     }
+
     private void enqueueCells(Board board) { //壁床バリアセル参照cell[][]参照
         // ゲーム画面をdrawQueueに追加する.セルの種類を判別して描く
         Cell[][] grid = board.getGrid();
         for (int i = 0; i < grid.length; i++) {
             for (int j = 0; j < grid[i].length; j++) {
                 Cell cell = grid[i][j];
-                int x = j * 50; //例: セルの幅が50ピクセルの場合
-                int y = i * 50; //例: セルの高さが50ピクセルの場合
-                if (cell.isWall()) {
+                int x = j * cellWidth; //例: セルの幅が50ピクセルの場合
+                int y = i * cellHeight; //例: セルの高さが50ピクセルの場合
+                if (cell instanceof WallCell) {
                     enqueueWall(x, y);
                 } else if (cell instanceof FloorCell) {
                     enqueueFloor(x, y);
                 } else if (cell instanceof BarrierCell) {
                     enqueueBarrier(x, y);
-                } else if (cell instanceof BonusReward) {
+                } else if (cell instanceof BonusReward) { // ここから下は二重にしてもいいかも
                     enqueueBonusReward(x, y);
                 } else if (cell instanceof RegularReward) {
                     enqueueRegularReward(x, y);
@@ -82,29 +101,36 @@ public class GamePanel extends JPanel {
 
     private void enqueuePlayer(int x, int y) {
         // プレイヤーを描画するためのRenderItemを作成してdrawQueueに追加する
-        RenderItem player = new RenderItem(1, RenderKind.IMAGE, x, y, 30, 30, Color.BLUE, null, null); //例
+        RenderItem player = new RenderItem(characterLayer, RenderKind.IMAGE, x, y, characterWidth, characterHeight, Color.BLUE, null, null); //例
         drawQueue.enqueue(player);
     }
+
     private void enqueueGoblin(int x, int y) {
         // ゴブリンを描画するためのRenderItemを作成してdrawQueueに追加する
-        RenderItem goblin = new RenderItem(1, RenderKind.IMAGE, x, y, 30, 30, Color.RED, null, null); //例
+        RenderItem goblin = new RenderItem(characterLayer, RenderKind.IMAGE, x, y, characterWidth, characterHeight, Color.RED, null, null); //例
         drawQueue.enqueue(goblin);
     }
+
     private void enqueueOgre(int x, int y) {
         // オーグを描画するためのRenderItemを作成してdrawQueueに追加する
-        RenderItem ogre = new RenderItem(1, RenderKind.IMAGE, x, y, 30, 30, Color.MAGENTA, null, null); //例
+        RenderItem ogre = new RenderItem(characterLayer, RenderKind.IMAGE, x, y, characterWidth, characterHeight, Color.MAGENTA, null, null); //例
         drawQueue.enqueue(ogre);
     }
+
     private void enqueueCharacters(Board board) { //ボードのキャラリスト、それに付随する位置情報、ボードにある初期座標を参照
         // キャラクターをdrawQueueに追加する
+        // positionのxとyをpixelに変換する必要があるか確認
         List<Character> characters = board.getCharacters();
         for (Character character : characters) {
+            int x = character.getPosition().getX() * cellWidth;
+            int y = character.getPosition().getY() * cellHeight;
+            
             if (character instanceof Player) {
-                enqueuePlayer(character.getPosition().getX(), character.getPosition().getY());
+                enqueuePlayer(x, y);
             } else if (character instanceof Goblin) {
-                enqueueGoblin(character.getPosition().getX(), character.getPosition().getY());
+                enqueueGoblin(x, y);
             } else if (character instanceof Ogre) {
-                enqueueOgre(character.getPosition().getX(), character.getPosition().getY());
+                enqueueOgre(x, y);
             }
         }
     }
@@ -176,7 +202,7 @@ public class GamePanel extends JPanel {
     protected void paintComponent(Graphics g) {
         //ウィンドウ作って最初に背景を黒く塗る
         super.paintComponent(g);
-        buildDrawQueue(board);
+        buildDrawQueue(game, board);
         // drawQueueからアイテムを取り出して描画する
         drawQueue.renderAll(g);
     }
@@ -187,15 +213,17 @@ public class GamePanel extends JPanel {
 import javax.swing.*;
 SwingUtilities.invokeLater(() -> {
     Game game = new Game(); //仮
-    GamePanel gamePanel = new GamePanel(game);  // 引数は仮
+    Board board = new Board(); //仮
+    GamePanel gamePanel = new GamePanel(game, board);  // 引数は仮
 
-    JFrame frame = new JFrame("My Game");
+    JFrame frame = new JFrame("Team7's Game");
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+    frame.add(gamePanel);
     frame.pack();　// panel.getPreferredSize()が使われる
+
     frame.setLocationRelativeTo(null);
     frame.setResizable(false);
-
-    frame.add(panel);
     frame.setVisible(true);
 });
 
