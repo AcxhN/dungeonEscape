@@ -1,9 +1,10 @@
 package ca.sfu.cmpt276.team7.board;
 
-import ca.sfu.cmpt276.team7.cells.*;
-import ca.sfu.cmpt276.team7.core.*;
-import ca.sfu.cmpt276.team7.punishments.*;
-import ca.sfu.cmpt276.team7.rewards.*;
+import ca.sfu.cmpt276.team7.cells.BarrierCell;
+import ca.sfu.cmpt276.team7.cells.Cell;
+import ca.sfu.cmpt276.team7.cells.FloorCell;
+import ca.sfu.cmpt276.team7.cells.WallCell;
+import ca.sfu.cmpt276.team7.core.Position;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,7 +12,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-
 
 /**
  * Loads a {@link Board} from a simple ASCII map file.
@@ -23,32 +23,47 @@ import java.util.List;
  *   <li>B = Barrier</li>
  *   <li>S = Start (stored as FloorCell + board.setStartPosition)</li>
  *   <li>E = Exit  (stored as FloorCell + board.setEndPosition)</li>
- *   <li>K = Key (RewardCell with RegularReward)</li>
- *   <li>T = Trap (PunishmentCell with SpikeTrapPunishment)</li>
- *   <li>G = Goblin spawn (stored as FloorCell; position added to goblinSpawns)</li>
- *   <li>O = Ogre spawn   (stored as FloorCell; position added to ogreSpawns)</li>
+ *   <li>K = Key marker (stored as FloorCell; position added to keyPositions)</li>
+ *   <li>T = Trap marker (stored as FloorCell; position added to trapPositions)</li>
+ *   <li>G = Goblin spawn marker (stored as FloorCell; position added to goblinSpawns)</li>
+ *   <li>O = Ogre spawn marker (stored as FloorCell; position added to ogreSpawns)</li>
  * </ul>
+ * </p>
+ * <p>
+ * Note: This loader does NOT create reward/punishment objects.
+ * It only builds the Board's structural grid and records marker positions.
+ * Gameplay systems can later interpret markers and place rewards/traps/enemies.
  * </p>
  */
 public final class BoardLoader {
 
     /**
-     * a simple container for the loaded Board plus spawn positions
+     * Container for the loaded Board plus marker/spawn positions.
      */
     public static final class Result {
         private final Board board;
         private final List<Position> goblinSpawns;
         private final List<Position> ogreSpawns;
+        private final List<Position> keyPositions;
+        private final List<Position> trapPositions;
 
         /**
          * @param board loaded board
-         * @param goblinSpawns list of goblin spawn positions
-         * @param ogreSpawns list of ogre spawn positions
+         * @param goblinSpawns goblin spawn marker positions
+         * @param ogreSpawns ogre spawn marker positions
+         * @param keyPositions key marker positions
+         * @param trapPositions trap marker positions
          */
-        public Result(Board board, List<Position> goblinSpawns, List<Position> ogreSpawns) {
+        public Result(Board board,
+                      List<Position> goblinSpawns,
+                      List<Position> ogreSpawns,
+                      List<Position> keyPositions,
+                      List<Position> trapPositions) {
             this.board = board;
             this.goblinSpawns = goblinSpawns;
             this.ogreSpawns = ogreSpawns;
+            this.keyPositions = keyPositions;
+            this.trapPositions = trapPositions;
         }
 
         /** @return loaded board */
@@ -56,14 +71,24 @@ public final class BoardLoader {
             return board;
         }
 
-        /** @return goblin spawn positions */
+        /** @return goblin spawn marker positions */
         public List<Position> getGoblinSpawns() {
             return goblinSpawns;
         }
 
-        /** @return ogre spawn positions */
+        /** @return ogre spawn marker positions */
         public List<Position> getOgreSpawns() {
             return ogreSpawns;
+        }
+
+        /** @return key marker positions */
+        public List<Position> getKeyPositions() {
+            return keyPositions;
+        }
+
+        /** @return trap marker positions */
+        public List<Position> getTrapPositions() {
+            return trapPositions;
         }
     }
 
@@ -72,10 +97,10 @@ public final class BoardLoader {
     }
 
     /**
-     * loads a Board from an ASCII map file
+     * Loads a Board from an ASCII map file.
      *
      * @param mapPath path to the map file
-     * @return result containing board + spawn lists
+     * @return result containing board + marker lists
      * @throws IOException if file cannot be read
      * @throws IllegalArgumentException if map is invalid (non-rectangular, missing S/E, unknown chars)
      */
@@ -89,14 +114,22 @@ public final class BoardLoader {
         int width = lines.get(0).length();
 
         for (int i = 0; i < lines.size(); i++) {
-            if (lines.get(i).length() != width) throw new IllegalArgumentException("Map must be rectangular. Line " + (i + 1) + " has different length");
+            if (lines.get(i).length() != width) {
+                throw new IllegalArgumentException(
+                        "Map must be rectangular. Line " + (i + 1) + " has different length"
+                );
+            }
         }
 
         Cell[][] grid = new Cell[height][width];
-        Board board = new Board(grid); // temporary; we'll fill grid next
+
+        Position start = null;
+        Position end = null;
 
         List<Position> goblinSpawns = new ArrayList<Position>();
         List<Position> ogreSpawns = new ArrayList<Position>();
+        List<Position> keyPositions = new ArrayList<Position>();
+        List<Position> trapPositions = new ArrayList<Position>();
 
         for (int y = 0; y < height; y++) {
             String row = lines.get(y);
@@ -107,37 +140,45 @@ public final class BoardLoader {
                 Cell cell;
                 switch (c) {
                     case '#':
-                        cell = new WallCell(pos); // concrete class in cells 
+                        cell = new WallCell(pos);
                         break;
                     case 'B':
-                        cell = new BarrierCell(pos); // concrete class in cells 
+                        cell = new BarrierCell(pos);
                         break;
                     case '.':
-                        cell = new FloorCell(pos); // concrete class in cells 
+                        cell = new FloorCell(pos);
                         break;
+
                     case 'S':
-                        board.setStartPosition(pos);
-                        cell = new FloorCell(pos); // concrete class in cells 
+                        start = pos;
+                        cell = new FloorCell(pos);
                         break;
+
                     case 'E':
-                        board.setEndPosition(pos);
-                        cell = new FloorCell(pos); // concrete class in cells 
+                        end = pos;
+                        cell = new FloorCell(pos);
                         break;
+
                     case 'K':
-                        // keep values simple; can tweak later
-                        cell = new RewardCell(pos, new RegularReward(1)); // concrete class in cells 
+                        keyPositions.add(pos);
+                        cell = new FloorCell(pos);
                         break;
+
                     case 'T':
-                        cell = new PunishmentCell(pos, new SpikeTrapPunishment(5));
+                        trapPositions.add(pos);
+                        cell = new FloorCell(pos);
                         break;
+
                     case 'G':
                         goblinSpawns.add(pos);
-                        cell = new FloorCell(pos); // concrete class in cells 
+                        cell = new FloorCell(pos);
                         break;
+
                     case 'O':
                         ogreSpawns.add(pos);
-                        cell = new FloorCell(pos); // concrete class in cells 
+                        cell = new FloorCell(pos);
                         break;
+
                     default:
                         throw new IllegalArgumentException("Unknown map char '" + c + "' at (" + x + "," + y + ")");
                 }
@@ -146,23 +187,18 @@ public final class BoardLoader {
             }
         }
 
-        if (board.getStartPosition() == null) throw new IllegalArgumentException("Map missing start 'S'.");
-        if (board.getEndPosition() == null) throw new IllegalArgumentException("Map missing exit 'E'.");
+        if (start == null) throw new IllegalArgumentException("Map missing start 'S'");
+        if (end == null) throw new IllegalArgumentException("Map missing exit 'E'");
 
-        // Board constructor validated grid for nulls; now it's filled, so we are good
-        // However, note: we constructed Board before filling. That means validation ran too early
-        // To keep it clean, we should construct Board AFTER filling
-        //
-        // do that properly:
-        Board finalBoard = new Board(grid);
-        finalBoard.setStartPosition(board.getStartPosition());
-        finalBoard.setEndPosition(board.getEndPosition());
+        Board board = new Board(grid);
+        board.setStartPosition(start);
+        board.setEndPosition(end);
 
-        return new Result(finalBoard, goblinSpawns, ogreSpawns);
+        return new Result(board, goblinSpawns, ogreSpawns, keyPositions, trapPositions);
     }
 
     /**
-     * Reads all non empty lines from the map file
+     * Reads all non-empty lines from the map file
      *
      * @param mapPath map file path
      * @return list of non-empty lines
