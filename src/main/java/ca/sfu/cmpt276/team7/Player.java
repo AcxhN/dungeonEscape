@@ -1,10 +1,19 @@
 package ca.sfu.cmpt276.team7;
 
+import javax.swing.text.Position;
+
+/**
+ * Represents the player character in the game.
+ * Handles movement, score updates, and interactions with rewards and punishments.
+ */
+
 public class Player extends Character {
 
     private int totalScore;
     private BonusReward activeBonus;
-
+    /**
+     * Creates a player at the given starting position on the board.
+     */
     public Player(Board board, Position start) {
         super(board);
         this.position = start;
@@ -56,7 +65,10 @@ public class Player extends Character {
     public boolean canMoveTo(Cell cell) {
         return cell.isWalkable();
     }
-
+/**
+ * Applies the effects of a collected reward.
+ * Regular rewards add points; bonus rewards activate a timed effect. 
+*/
     public void collectReward(Reward reward) {
         if (reward instanceof RegularReward reg) {
             totalScore += reg.getValue();
@@ -64,14 +76,19 @@ public class Player extends Character {
             this.activeBonus = bonus;
         }
     }
-
+/** 
+ * Applies the effects of a punishment by reducing the player's score. 
+ */
     public void applyPunishment(Punishment punishment) {
         totalScore -= punishment.getValue();
         if (totalScore < 0) {
             totalScore = 0;
         }
     }
-
+    /**
+     * Updates the active bonus effect each game tick.
+     * Removes the bonus when its duration expires.
+     */
     public void tickBonus() {
         if (activeBonus != null) {
             activeBonus.tick();
