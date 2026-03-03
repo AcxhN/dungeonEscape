@@ -1,6 +1,7 @@
 package ca.sfu.cmpt276.team7.ui;
 
 import java.awt.Color;
+import java.awt.Font;
 /*描画予定のアイテム */
 
 public class RenderItem {
@@ -16,23 +17,22 @@ public class RenderItem {
     // RECT/TEXT
     private final Color color;
 
+    // TEXT
     private final String text;
-    private final String fontName;
-    private final String fontStyle;
-    private final int fontSize;
+    private final Font font;
 
     // SPRITE
-    private final String sheetPath;
+    private final SheetId sheetId;
     private final int srcX;
     private final int srcY;
     private final int srcW;
     private final int srcH;
-
+// ColorとFontって初期値どうする？
     
 
     private RenderItem(int layer, RenderKind kind, int x, int y, int width, int height,
-                        Color color, String text, String fontName, String fontStyle, int fontSize,
-                        String sheetPath, int srcX, int srcY, int srcW, int srcH) {
+                        Color color, String text, Font font,
+                        SheetId sheetId, int srcX, int srcY, int srcW, int srcH) {
         this.layer = layer;
         this.kind = kind;
         this.x = x;
@@ -41,26 +41,24 @@ public class RenderItem {
         this.height = height;
         this.color = color;
         this.text = text;
-        this.fontName = fontName;
-        this.fontStyle = fontStyle;
-        this.fontSize = fontSize;
-        this.sheetPath = sheetPath;
+        this.font = font;
+        this.sheetId = sheetId;
         this.srcX = srcX;
         this.srcY = srcY;
         this.srcW = srcW;
         this.srcH = srcH;
     }
 
-    public static RenderItem rect(int layer, int x, int y, int width, int height, Color color){
-        return new RenderItem(layer, RenderKind.RECTANGLE, x, y, width, height, color, "", "", "", 0, "", 0, 0, 0, 0);
+    public static RenderItem rect(int layer, int x, int y, int width, int height, Color color) {
+        return new RenderItem(layer, RenderKind.RECTANGLE, x, y, width, height, color, "", null, SheetId.NONE, 0, 0, 0, 0);
     }
 
-    public static RenderItem text(int layer, int x, int y, Color color, String text, String fontName, String fontStyle, int fontSize){
-        return new RenderItem(layer, RenderKind.TEXT, x, y, 0, 0, color, text, fontName, fontStyle, fontSize, "", 0, 0, 0, 0);
+    public static RenderItem text(int layer, int x, int y, Color color, String text, Font font) {
+        return new RenderItem(layer, RenderKind.TEXT, x, y, 0, 0, color, text, font, SheetId.NONE, 0, 0, 0, 0);
     }
 
-    public static RenderItem sprite(int layer, int x, int y, int width, int height, String sheetPath, int srcX, int srcY, int srcW, int srcH){
-        return new RenderItem(layer, RenderKind.SPRITE, x, y, width, height, null, "", "", "", 0, sheetPath, srcX, srcY, srcW, srcH);
+    public static RenderItem sprite(int layer, int x, int y, int width, int height, SheetId sheetId, int srcX, int srcY, int srcW, int srcH) {
+        return new RenderItem(layer, RenderKind.SPRITE, x, y, width, height, null, "", null, sheetId, srcX, srcY, srcW, srcH);
     }
 
 
@@ -96,20 +94,12 @@ public class RenderItem {
         return text;
     }
     
-    public String getFontName() {
-        return fontName;
+    public Font getFont() {
+        return font;
     }
 
-    public String getFontStyle() {
-        return fontStyle;
-    }
-
-    public int getFontSize() {
-        return fontSize;
-    }
-
-    public String getSheetPath() {
-        return sheetPath;
+    public SheetId getSheetId() {
+        return sheetId;
     }
 
     public int getSrcX() {
