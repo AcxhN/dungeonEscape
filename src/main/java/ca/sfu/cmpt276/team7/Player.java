@@ -14,6 +14,10 @@ public class Player extends Character  {
    public int getTotalScore(){
       return totalScore;
    }
+   @override 
+   public void move(Direction direction){
+      
+   }
    
 
 
