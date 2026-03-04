@@ -1,13 +1,8 @@
 package ca.sfu.cmpt276.team7.ui;
 
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import java.awt.Color;
-import java.awt.Font;
 import java.awt.Graphics;
-import java.awt.Image;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 import java.util.ArrayList;
@@ -83,7 +78,6 @@ public class DrawQueue {
 
                 case SPRITE:
                     // 画像描画
-                    //Image sheet = new ImageIcon(item.getSheetPath()).getImage();
                     BufferedImage sheet = selectSheet(item.getSheetId());
 
                     int x1 = item.getX();
