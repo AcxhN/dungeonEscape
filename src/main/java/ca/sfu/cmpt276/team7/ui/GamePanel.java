@@ -15,7 +15,7 @@ import javax.swing.JPanel;
 /**
  * Swing panel responsible for rendering the game.
  * <p>
- * This panel bultds a {@link DrawQueue} each frame based on the current {@link Screenstate},
+ * This panel bultds a {@link DrawQueue} each frame based on the current {@link ScreenState},
  * then renders all {@link RenderItem} in layer order.
  * 
  * @author Yui Matsumo
@@ -44,10 +44,10 @@ public class GamePanel extends JPanel {
     /** Layer indices (lower values are drawn first / behind). */
     private int cellLayer = 0;
     private int rewardLayer = 1;
-    private int characterLayer = 1;
-    private int popupRectLayer = 2;
-    private int hudLayer = 3;
-    private int popupContentsLayer = 4;
+    private int characterLayer = 2;
+    private int popupRectLayer = 3;
+    private int hudLayer = 4;
+    private int popupContentsLayer = 5;
 
     /** On-screen cell size in pixels. */
     private int cellWidth = 50;
@@ -331,13 +331,14 @@ public class GamePanel extends JPanel {
     }
 
     /**
-     * Enqueues the end screen UI (image, result text, comment, score, and replay prompt).
-     * 
+     * Enqueues the end screen UI (image, result text, comment, final score/time, and replay prompt).
+     *
      * @param score final score
      * @param endReason reason the game ended
+     * @param sec elapsed seconds (final time)
      */
-    private void enqueueEndScreen(int score, EndReason endReason) {
-        int srcSize = srcSize(1, screenSrcSize); // Temporary: we should probably prepare an error placeholder image, just in case.
+    private void enqueueEndScreen(int score, EndReason endReason, int sec) {
+        int srcSize = srcSize(2, screenSrcSize);
         int w = cellWidth * 4;
         int h = cellHeight * 4;
         int[] imageXY = getCenteredRectXY(w, h);
@@ -389,19 +390,19 @@ public class GamePanel extends JPanel {
         RenderItem comment = RenderItem.text(0, commentX, commentY, Color.WHITE, commentText, commentFont);
         drawQueue.enqueue(comment);
 
-        //finalScore
-        String finalScoreText = "Final Score: " + score;
-        int finalScoreX = getCenteredTextX(finalScoreText, commentFont);
-        int finalScoreY = commentY  + getTextHeight(commentFont);
+        //finalScore/Time
+        String scoreTimeText = "Final Score: " + score + "     Final Time: " + String.format("%d:%02d", sec / 60, sec % 60);
+        int scoreTimeX = getCenteredTextX(scoreTimeText, commentFont);
+        int scoreTimeY = commentY + getTextHeight(commentFont);
         
-        RenderItem finalScore = RenderItem.text(0, finalScoreX, finalScoreY, Color.WHITE, finalScoreText, commentFont);
-        drawQueue.enqueue(finalScore);
+        RenderItem scoreTime = RenderItem.text(0, scoreTimeX, scoreTimeY+2, Color.WHITE, scoreTimeText, commentFont);
+        drawQueue.enqueue(scoreTime);
 
         //playAgain
         String playAgainText = "Play Again?";
         Font playAgainFont = new Font("SansSerif", Font.BOLD, 15);
         int playAgainX = getCenteredTextX(playAgainText, playAgainFont);
-        int playAgainY = finalScoreY + textPadding + getTextHeight(playAgainFont);
+        int playAgainY = scoreTimeY + textPadding + getTextHeight(playAgainFont);
         
         RenderItem playAgain = RenderItem.text(0, playAgainX, playAgainY, Color.WHITE, playAgainText, playAgainFont);
         drawQueue.enqueue(playAgain);
@@ -508,7 +509,7 @@ public class GamePanel extends JPanel {
         int textXPadding = 8;
 
         String commentText = "";
-        int srcSize = srcSize(0, screenSrcSize); // Temporary: we should probably prepare an error placeholder image, just in case.
+        int srcSize = srcSize(1, screenSrcSize);
 
         RenderItem imageRect = RenderItem.rect(popupRectLayer, imageX - imagePadding, imageY - imagePadding, imageW + imagePadding*2, imageH + imagePadding*2, Color.BLACK);
         drawQueue.enqueue(imageRect);
@@ -522,6 +523,8 @@ public class GamePanel extends JPanel {
                 break;
         
             case BONUS_COLLECTED:
+                srcSize = srcSize(1, screenSrcSize);
+                commentText = "* You found a treasure chest!";
                 break;
         }
         
@@ -554,6 +557,11 @@ public class GamePanel extends JPanel {
         drawQueue.clear();
 
         ScreenState screenState = game.getScreenState();
+        int sec = game.getSeconds();
+        int score = game.getTotalScore();
+        int totalKey = game.getTotalRegularRewards();
+        int collectedKey = game.getCollectedRegularRewards();
+
         switch (screenState) {
             case START:
                 enqueueStartScreen();
@@ -562,18 +570,18 @@ public class GamePanel extends JPanel {
             case PLAYING:
                 enqueueCells(board.getGrid());
                 enqueueCharacters(board.getCharacters());
-                enqueueHud(game.getTotalScore(), game.getTotalRegularRewards(), game.getCollectedRegularRewards(), game.getElapsedSeconds());
+                enqueueHud(score, totalKey, collectedKey, sec);
                 break;
             
             case PAUSE:
                 enqueueCells(board.getGrid());
                 enqueueCharacters(board.getCharacters());
+                enqueueHud(score, totalKey, collectedKey, sec);
                 enqueuePopups(game.getPopupReason());
-                enqueueHud(game.getTotalScore(), game.getTotalRegularRewards(), game.getCollectedRegularRewards(), game.getElapsedSeconds());
                 break;
                 
             case END:
-                enqueueEndScreen(game.getTotalScore(), game.getEndReason());
+                enqueueEndScreen(score, game.getEndReason(), sec);
                 break;
         }
     }
