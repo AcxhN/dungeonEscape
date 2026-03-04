@@ -4,11 +4,6 @@ import ca.sfu.cmpt276.team7.*;
 import ca.sfu.cmpt276.team7.cell.*;
 import ca.sfu.cmpt276.team7.core.*;
 
-import ca.sfu.cmpt276.team7.temps.Board;
-import ca.sfu.cmpt276.team7.temps.Cell;
-import ca.sfu.cmpt276.team7.temps.FloorCell;
-import ca.sfu.cmpt276.team7.temps.Player;
-
 import java.awt.Dimension;
 import java.awt.Color;
 import java.awt.Font;
@@ -17,49 +12,93 @@ import java.awt.Graphics;
 import java.util.List;
 import javax.swing.JPanel;
 
-/*実際の描画
-* gameの方で、JFrame（ウィンドウ）作って(もしかしたらここでwidthとheighが参照されるのかも)、repaint()呼び出してもらう*/
-
-// 描画位置の修正をまとめてできるように出しておく　基準点どこなん？
-
+/**
+ * Swing panel responsible for rendering the game.
+ * <p>
+ * This panel bultds a {@link DrawQueue} each frame based on the current {@link Screenstate},
+ * then renders all {@link RenderItem} in layer order.
+ * 
+ * @author Yui Matsumo
+ * @version 1.0
+ */
 public class GamePanel extends JPanel {
 
     private DrawQueue drawQueue = new DrawQueue();
     private Game game;
     private Board board;
 
+    /**
+     *  Creates a panel that renders the given game and board.
+     * 
+     * @param game  the game model (screen state, score, timers, etc.)
+     * @param board the board model (grid, characters, etc.)
+     */
     public GamePanel(Game game, Board board) {
         this.game = game;
         this.board = board;
+
+        setBackground(Color.BLACK);
+        setOpaque(true);
     }
 
+    /** Layer indices (lower values are drawn first / behind). */
     private int cellLayer = 0;
     private int rewardLayer = 1;
     private int characterLayer = 1;
     private int popupRectLayer = 2;
-    private int popupContentsLayer = 3;
-    private int hudLayer = 4;
+    private int hudLayer = 3;
+    private int popupContentsLayer = 4;
 
+    /** On-screen cell size in pixels. */
     private int cellWidth = 50;
     private int cellHeight = 50;
 
+    /** Sprite-sheet tile sizes and padding (source coordinates). */
     private int gameSrcSize = 64;
     private int screenSrcSize = 200;
     private int srcPadding = 5;
 
+    /**
+     * Computes the X/Y offset in a sprite sheet for a given tile "order".
+     * 
+     * @param order tile index (0-based) along the sheet
+     * @param srcSize tile size (without padding) in the source sheet
+     * @return the source coordinate (x or y) including padding
+     */
     private int srcSize(int order, int srcSize) {
         return ((srcSize + (srcPadding * 2)) * order) + srcPadding;
     }
 
+    /**
+     * Measures the width of a string in pixels for a given font.
+     * 
+     * @param text the text to measure
+     * @param font the font used for measurement
+     * @return width in pixels
+     */
     private int getTextWidth(String text, Font font) {
         FontMetrics fm = getFontMetrics(font);
         return fm.stringWidth(text);
     }
+
+    /**
+     * Measures the height of a font in pixels (ascent + descent).
+     * 
+     * @param font the font used for measurement
+     * @return height in pixels
+     */
     private int getTextHeight(Font font) {
         FontMetrics fm = getFontMetrics(font);
         return fm.getAscent() + fm.getDescent();
     }
 
+    /**
+     * Computes the top-left pixel position to center text in the panel.
+     * 
+     * @param text the text to center
+     * @param font the font to use
+     * @return {x, y} where y is the text baseline position
+     */
     private int[] getCenteredTextXY(String text, Font font) {
         FontMetrics fm = getFontMetrics(font);
         int textW = fm.stringWidth(text);
@@ -73,74 +112,133 @@ public class GamePanel extends JPanel {
 
         return new int[]{x, y};
     }
+
+    /**
+     * Computes the x position to center text horizontally in the panel.
+     * 
+     * @param text the text to center
+     * @param font the font to use
+     * @return x coordinate for the text origin
+     */
     private int getCenteredTextX(String text, Font font) {
         int x = getWidth()/2 - getTextWidth(text, font)/2;
         return x;
     }
 
+    /**
+     * Computes the top-left pixel position to center a rectangle in the panel.
+     * 
+     * @param width rectangle width
+     * @param height rectangle height
+     * @return {x, y} top-left corner
+     */
     private int[] getCenteredRectXY(int width, int height) {
         int x = getWidth()/2 - width/2;
         int y = getHeight()/2 - height/2;
         return new int[]{x, y};
     }
 
+    /**
+     * Preferred size is derived from the board dimensions and cell size.
+     * 
+     * @return preferred panel size
+     */
     @Override
     public Dimension getPreferredSize() {
         return new Dimension(board.getWidth() * cellWidth, board.getHeight() * cellHeight);
     }
 
 
+    /**
+     * Enqueues a floor tile at the given pixel position.
+     * 
+     * @param x pixel x
+     * @param y pixel y
+     */
     private void enqueueFloor(int x, int y) {
-        // 床セルを描画するためのRenderItemを作成してdrawQueueに追加する
         int srcSize = srcSize(0, gameSrcSize);
         RenderItem floor = RenderItem.sprite(cellLayer, x, y, cellWidth, cellHeight, SheetId.GAME_ATLAS, srcSize, srcPadding, gameSrcSize, gameSrcSize);
         drawQueue.enqueue(floor);
     }
+
+    /**
+     * Enqueues a wall tile at the given pixel position.
+     * 
+     * @param x pixel x
+     * @param y pixel y
+     */
     private void enqueueWall(int x, int y) {
-        // 壁セルを描画するためのRenderItemを作成してdrawQueueに追加する
         int srcSize = srcSize(1, gameSrcSize);
         RenderItem wall = RenderItem.sprite(cellLayer, x, y, cellWidth, cellHeight, SheetId.GAME_ATLAS, srcSize, srcPadding, gameSrcSize, gameSrcSize);
         drawQueue.enqueue(wall);
     } 
+
+    /**
+     * Enqueues a barrier tile at the given pixel position.
+     * 
+     * @param x pixel x
+     * @param y pixel y
+     */
     private void enqueueBarrier(int x, int y) {
-        // バリアセルを描画するためのRenderItemを作成してdrawQueueに追加する
         int srcSize = srcSize(1, gameSrcSize);
         RenderItem barrier = RenderItem.sprite(cellLayer, x, y, cellWidth, cellHeight, SheetId.GAME_ATLAS, srcSize, srcPadding, gameSrcSize, gameSrcSize);
         drawQueue.enqueue(barrier);
     }
+
+    /**
+     * Enqueues a bonus reward sprite at the given pixel position.
+     * 
+     * @param x pixel x
+     * @param y pixel y
+     */
     private void enqueueBonusReward(int x, int y) {
-        // ボーナス報酬を描画するためのRenderItemを作成してdrawQueueに追加する
         int srcSize = srcSize(4, gameSrcSize);
         RenderItem bonusReward = RenderItem.sprite(rewardLayer, x, y, cellWidth, cellHeight, SheetId.GAME_ATLAS, srcSize, srcPadding, gameSrcSize, gameSrcSize);
         drawQueue.enqueue(bonusReward);
     }
+
+    /**
+     * Enqueues a regular reward sprite at the given pixel position.
+     * 
+     * @param x pixel x
+     * @param y pixel y
+     */
     private void enqueueRegularReward(int x, int y) {
-        // レギュラー報酬を描画するためのRenderItemを作成してdrawQueueに追加する
         int srcSize = srcSize(3, gameSrcSize);
         RenderItem regularReward = RenderItem.sprite(rewardLayer, x, y, cellWidth, cellHeight, SheetId.GAME_ATLAS, srcSize, srcPadding, gameSrcSize, gameSrcSize);
         drawQueue.enqueue(regularReward);
     }
+
+    /**
+     * Enqueues a trap/punishment tile at the given pixel position.
+     * 
+     * @param x pixel x
+     * @param y pixel y
+     */
     private void enqueuePunishment(int x, int y) {
-        // トラップを描画するためのRenderItemを作成してdrawQueueに追加する
         int srcSize = srcSize(2, gameSrcSize);
         RenderItem punishment = RenderItem.sprite(cellLayer, x, y, cellWidth, cellHeight, SheetId.GAME_ATLAS, srcSize, srcPadding, gameSrcSize, gameSrcSize);
         drawQueue.enqueue(punishment);
     }
 
-    private void enqueueCells(Cell[][] grid) { //壁床バリアセル参照cell[][]参照
-        // ゲーム画面をdrawQueueに追加する.セルの種類を判別して描く
+    /**
+     * Enqueues all board cells by inspecting each {@link Cell} type.
+     * 
+     * @param grid the board grid of cells
+     */
+    private void enqueueCells(Cell[][] grid) {
         for (int i = 0; i < grid.length; i++) {
             for (int j = 0; j < grid[i].length; j++) {
                 Cell cell = grid[i][j];
-                int x = j * cellWidth; //例: セルの幅が50ピクセルの場合
-                int y = i * cellHeight; //例: セルの高さが50ピクセルの場合
+                int x = j * cellWidth;
+                int y = i * cellHeight;
                 if (cell instanceof WallCell) {
                     enqueueWall(x, y);
                 } else if (cell instanceof FloorCell) {
                     enqueueFloor(x, y);
                 } else if (cell instanceof BarrierCell) {
                     enqueueBarrier(x, y);
-                } else if (cell instanceof BonusReward) { // ここから下は二重にしてもいいかも
+                } else if (cell instanceof BonusReward) {
                     enqueueFloor(x, y);
                     enqueueBonusReward(x, y);
                 } else if (cell instanceof RegularReward) {
@@ -154,28 +252,48 @@ public class GamePanel extends JPanel {
     }
 
 
+    /**
+     * Enqueues the player sprite at the given pixel position.
+     * 
+     * @param x pixel x
+     * @param y pixel y
+     */
     private void enqueuePlayer(int x, int y) {
-        // プレイヤーを描画するためのRenderItemを作成してdrawQueueに追加する
         int srcSize = srcSize(7, gameSrcSize);
         RenderItem player = RenderItem.sprite(characterLayer, x, y, cellWidth, cellHeight, SheetId.GAME_ATLAS, srcSize, srcPadding, gameSrcSize, gameSrcSize);
         drawQueue.enqueue(player);
     }
+
+    /**
+     * Enqueues the goblin sprite at the given pixel position.
+     * 
+     * @param x pixel x
+     * @param y pixel y
+     */
     private void enqueueGoblin(int x, int y) {
-        // ゴブリンを描画するためのRenderItemを作成してdrawQueueに追加する
         int srcSize = srcSize(6, gameSrcSize);
         RenderItem goblin = RenderItem.sprite(characterLayer, x, y, cellWidth, cellHeight, SheetId.GAME_ATLAS, srcSize, srcPadding, gameSrcSize, gameSrcSize);
         drawQueue.enqueue(goblin);
     }
+
+    /**
+     * Enqueues the ogre sprite at the given pixel position.
+     * 
+     * @param x pixel x
+     * @param y pixel y
+     */
     private void enqueueOgre(int x, int y) {
-        // オーグを描画するためのRenderItemを作成してdrawQueueに追加する
         int srcSize = srcSize(5, gameSrcSize);
         RenderItem ogre = RenderItem.sprite(characterLayer, x, y, cellWidth, cellHeight, SheetId.GAME_ATLAS, srcSize, srcPadding, gameSrcSize, gameSrcSize);
         drawQueue.enqueue(ogre);
     }
 
-    private void enqueueCharacters(List<Character> characters) { //ボードのキャラリスト、それに付随する位置情報、ボードにある初期座標を参照
-        // キャラクターをdrawQueueに追加する
-        // positionのxとyをpixelに変換する必要があるか確認
+    /**
+     * Enqueues all characters on the board, converting grid coordinates to pixels.
+     * 
+     * @param characters list of active characters
+     */
+    private void enqueueCharacters(List<Character> characters) {
         for (Character character : characters) {
             int x = character.getPosition().getX() * cellWidth;
             int y = character.getPosition().getY() * cellHeight;
@@ -191,10 +309,10 @@ public class GamePanel extends JPanel {
     }
 
 
+    /**
+     * Enqueues the start screen UI (title and prompt).
+     */
     private void enqueueStartScreen() {
-        // スタート画面をdrawQueueに追加する
-        // スタート画面の描画に必要な情報を保持する 画像（未定）、タイトル、メッセージ、スペースで開始
-        //TEXT, TEXT
         String titleText = "TEAM 7 GAME";
         Font titleFont = new Font("SansSerif", Font.BOLD, 50);
         int[] titleXY = getCenteredTextXY(titleText, titleFont);
@@ -212,11 +330,14 @@ public class GamePanel extends JPanel {
         drawQueue.enqueue(start);
     }
 
+    /**
+     * Enqueues the end screen UI (image, result text, comment, score, and replay prompt).
+     * 
+     * @param score final score
+     * @param endReason reason the game ended
+     */
     private void enqueueEndScreen(int score, EndReason endReason) {
-        // エンド画面をdrawQueueに追加する
-        // レイヤー０
-        // [IMAGE, TEXT(big), TEXT], TEXT
-        int srcSize = srcSize(1, screenSrcSize); //仮　エラー用の画像用意しといたほうがいいかも
+        int srcSize = srcSize(1, screenSrcSize); // Temporary: we should probably prepare an error placeholder image, just in case.
         int w = cellWidth * 4;
         int h = cellHeight * 4;
         int[] imageXY = getCenteredRectXY(w, h);
@@ -261,7 +382,6 @@ public class GamePanel extends JPanel {
         drawQueue.enqueue(result);
 
         //comment
-
         Font commentFont = new Font("SansSerif", Font.PLAIN, 17);
         int commentX = getCenteredTextX(commentText, commentFont);
         int commentY = resultY + textPadding-5 + getTextHeight(commentFont);
@@ -288,6 +408,18 @@ public class GamePanel extends JPanel {
     }
 
 
+    /**
+     * Computes aligned positions for HUD text and images.
+     * 
+     * @param font font used for the text measurements
+     * @param keyText key counter text
+     * @param coinText score text
+     * @param imageH icon height
+     * @param textX base x for text
+     * @param centerY vertical center line for the HUD row
+     * @param padding padding between text and icon
+     * @return {imageX, textY, imageY}
+     */
     private int[] hudGetXY(Font font, String keyText, String coinText, int imageH, int textX, int centerY, int padding) {
         //imageX
         int keyW = getTextWidth(keyText, font);
@@ -304,11 +436,16 @@ public class GamePanel extends JPanel {
 
         return new int[]{imageX, textY, imageY};
     }
-    private void enqueueHud(int score, int totalKey, int collectedKey) { //ゲームの鍵、ポイント情報参照
-        // UIをdrawQueueに追加する
-        // レイヤー2
-        // TEXT, TEXT, IMAGE, IMAGE
 
+    /**
+     * Enqueues the HUD elements: timer, keys collected, and score.
+     * 
+     * @param score current score
+     * @param totalKey total keys available
+     * @param collectedKey keys collected so far
+     * @param sec elapsed seconds
+     */
+    private void enqueueHud(int score, int totalKey, int collectedKey, int sec) {
         //Key/score
         Font font = new Font("SansSerif", Font.BOLD, 15);
         String keyText = collectedKey + " / " + totalKey;
@@ -317,7 +454,6 @@ public class GamePanel extends JPanel {
         int w = 20;
         int h = 20;
         int textX = 15;
-        //int imageX = textX + 35;
         int centerY = 30;
         int padding = 5;
 
@@ -328,7 +464,7 @@ public class GamePanel extends JPanel {
 
 
         //key text      
-        RenderItem keyItem = RenderItem.text(hudLayer, textX, textY, Color.WHITE, keyText, font);
+        RenderItem keyItem = RenderItem.text(hudLayer, textX, textY + h, Color.WHITE, keyText, font);
         drawQueue.enqueue(keyItem);
         //image
         int srcSizeKey = srcSize(8, gameSrcSize);
@@ -336,19 +472,26 @@ public class GamePanel extends JPanel {
         drawQueue.enqueue(keyImage);
 
         //score text        
-        RenderItem coinItem = RenderItem.text(hudLayer, textX, textY + h, Color.WHITE, coinText, font);
+        RenderItem coinItem = RenderItem.text(hudLayer, textX, textY + h*2, Color.WHITE, coinText, font);
         drawQueue.enqueue(coinItem);
         //image
         int srcSizeCoin = srcSize(9, gameSrcSize);
-        RenderItem coinImage = RenderItem.sprite(characterLayer, imageX, imageY + h, w, h, SheetId.GAME_ATLAS, srcSizeCoin, srcPadding, gameSrcSize, gameSrcSize);
+        RenderItem coinImage = RenderItem.sprite(characterLayer, imageX, imageY + h*2, w, h, SheetId.GAME_ATLAS, srcSizeCoin, srcPadding, gameSrcSize, gameSrcSize);
         drawQueue.enqueue(coinImage);
+
+        //timer
+        Font timerFont = new Font("SansSerif", Font.BOLD, 20);
+        String timeText = String.format("%d:%02d", sec / 60, sec % 60);
+        RenderItem timer = RenderItem.text(hudLayer, textX, textY - 3, Color.WHITE, timeText, timerFont);
+        drawQueue.enqueue(timer);
     }
 
-    private void enqueuePopups(PopupReason popupReason) { //ポップアップの理由を参照
-        // ポップアップをdrawQueueに追加する
-        //レイヤー2か3
-        // RECT, RECT -> [IMAGE, TEXT], TEXT []内入れ替え
-
+    /**
+     * Enqueues the popup overlay for the given reason (image, text box, and prompt).
+     * 
+     * @param popupReason popupReason the reason the popup is being shown
+     */
+    private void enqueuePopups(PopupReason popupReason) {
         int imageW = cellWidth * 4;
         int imageH = cellHeight * 4;
 
@@ -365,7 +508,7 @@ public class GamePanel extends JPanel {
         int textXPadding = 8;
 
         String commentText = "";
-        int srcSize = srcSize(0, screenSrcSize); //仮　何かエラー用の画像用意しといた方がいいかも
+        int srcSize = srcSize(0, screenSrcSize); // Temporary: we should probably prepare an error placeholder image, just in case.
 
         RenderItem imageRect = RenderItem.rect(popupRectLayer, imageX - imagePadding, imageY - imagePadding, imageW + imagePadding*2, imageH + imagePadding*2, Color.BLACK);
         drawQueue.enqueue(imageRect);
@@ -401,10 +544,15 @@ public class GamePanel extends JPanel {
     }
 
 
-    private void buildDrawQueue(Graphics g, Game game, Board board) {
+    /**
+     * Rebuilds the draw queue for the current frame based on {@link ScreenState}.
+     * 
+     * @param game the game model
+     * @param board the board model
+     */
+    private void buildDrawQueue(Game game, Board board) {
         drawQueue.clear();
-        // 描画予定のアイテムをdrawQueueに追加する
-        // switch文でゲームのスクリーンステートを確認して、enqueueするアイテムを変える
+
         ScreenState screenState = game.getScreenState();
         switch (screenState) {
             case START:
@@ -414,14 +562,14 @@ public class GamePanel extends JPanel {
             case PLAYING:
                 enqueueCells(board.getGrid());
                 enqueueCharacters(board.getCharacters());
-                enqueueHud(game.getTotalScore(), game.getTotalRegularRewards(), game.getCollectedRegularRewards());
+                enqueueHud(game.getTotalScore(), game.getTotalRegularRewards(), game.getCollectedRegularRewards(), game.getElapsedSeconds());
                 break;
             
             case PAUSE:
                 enqueueCells(board.getGrid());
                 enqueueCharacters(board.getCharacters());
                 enqueuePopups(game.getPopupReason());
-                enqueueHud(game.getTotalScore(), game.getTotalRegularRewards(), game.getCollectedRegularRewards());
+                enqueueHud(game.getTotalScore(), game.getTotalRegularRewards(), game.getCollectedRegularRewards(), game.getElapsedSeconds());
                 break;
                 
             case END:
@@ -431,35 +579,15 @@ public class GamePanel extends JPanel {
     }
     
 
+    /**
+     * Paints the panel by rebuilding the draw queue and rendering all items.
+     * 
+     * @param g the graphics context
+     */
     @Override
     protected void paintComponent(Graphics g) {
-        //ウィンドウ作って最初に背景を黒く塗る
         super.paintComponent(g);
-        buildDrawQueue(g, game, board);
-        // drawQueueからアイテムを取り出して描画する
+        buildDrawQueue(game, board);
         drawQueue.renderAll(g);
     }
 }
-
-// mainとかGame側でJFrame作る <- ここでwidthとheight参照
-/*
-import javax.swing.*;
-SwingUtilities.invokeLater(() -> {
-    Game game = new Game(); //仮
-    Board board = new Board(); //仮
-    GamePanel gamePanel = new GamePanel(game, board);  // 引数は仮
-
-    JFrame frame = new JFrame("Team 7 Game");
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-    frame.add(gamePanel);
-    frame.pack();　// panel.getPreferredSize()が使われる
-
-    frame.setLocationRelativeTo(null);
-    frame.setResizable(false);
-    frame.setVisible(true);
-});
-
-//tickの駆動　最後にgamePanel.repaint()呼び出す
-//参考https://tastasichi.com/swing-jframe/
-*/

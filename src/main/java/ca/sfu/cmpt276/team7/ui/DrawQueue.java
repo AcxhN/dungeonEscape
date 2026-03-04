@@ -9,21 +9,45 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 
-// 描画予定のアイテムを管理するクラス
-
+/**
+ * Manages a queue of {@link RenderItem}s to be drawn in layer order.
+ * <p>
+ * The typical flow per frame is:
+ * <ol>
+ *  <li>Enqueue render items (sprites, text, rectangles).</li>
+ *  <li>Sort by {@link RenderItem#getLayer()}.</li>
+ *  <li>Render everything onto the provided {@link Graphics} context.</li>
+ * </ol>
+ * This class also owns and provides access to the sprite sheets (atlases).
+ * 
+ * @author Yui Matsumoto
+ * @version 1.0
+ */
 public class DrawQueue {
 
+    /** FIFO queue storing render commands for the current frame. */
     private Queue<RenderItem> queue;
 
+    /** Sprite atlases used by SPRITE render items. */
     private final BufferedImage gameAtlas;
     private final BufferedImage screensAtlas;
 
+    /**
+     * Creates an empty draw queue and loads required sprite atlases from resources.
+     */
     public DrawQueue() {
         this.queue = new LinkedList<>();
         this.gameAtlas = loadImage("/sprites/atlas_screens.png");
         this.screensAtlas = loadImage("/sprites/atlas_game.png");
     }
 
+    /**
+     * Loads an image resource from the classpath.
+     *
+     * @param resourcePath absolute resource path (starting with '/')
+     * @return loaded {@link BufferedImage}
+     * @throws RuntimeException if the resource cannot be loaded
+     */
     private static BufferedImage loadImage(String resourcePath) {
         try (InputStream is = DrawQueue.class.getResourceAsStream(resourcePath)) {
             return ImageIO.read(is);
@@ -32,6 +56,13 @@ public class DrawQueue {
         }
     }
 
+    /**
+     * Selects the correct sprite sheet image for the given {@link SheetId}.
+     *
+     * @param id which atlas to use
+     * @return the corresponding {@link BufferedImage}
+     * @throws IllegalArgumentException if {@code id} is NONE or invalid
+     */
     private BufferedImage selectSheet(SheetId id) {
         switch (id) {
             case GAME_ATLAS:
@@ -47,37 +78,48 @@ public class DrawQueue {
     }
 
 
+    /**
+     * Adds a render item to the queue.
+     *
+     * @param item render item to enqueue
+     */
     public void enqueue(RenderItem item) {
         this.queue.offer(item);
     }
 
+    /**
+     * Removes all queued render items (typically called at the start of each frame).
+     */
     public void clear() {
         this.queue.clear();
     }
 
 
+    /**
+     * Renders all queued items to the given graphics context.
+     * <p>
+     * Items are sorted by layer before drawing (lower layer first).
+     *
+     * @param g graphics context to draw onto
+     */
     public void renderAll(Graphics g) {
         List<RenderItem> items = new ArrayList<>(queue);
         items.sort((a, b) -> Integer.compare(a.getLayer(), b.getLayer()));
 
         for (RenderItem item : queue) {
-            // RenderItemの種類に応じて描画する
             switch (item.getKind()) {
                 case RECTANGLE:
-                    // 四角形描画
                     g.setColor(item.getColor());
                     g.fillRect(item.getX(), item.getY(), item.getWidth(), item.getHeight());
                     break;
                     
                 case TEXT:
-                    // テキスト描画
                     g.setColor(item.getColor());
                     g.setFont(item.getFont());
                     g.drawString(item.getText(), item.getX(), item.getY());
                     break;
 
                 case SPRITE:
-                    // 画像描画
                     BufferedImage sheet = selectSheet(item.getSheetId());
 
                     int x1 = item.getX();
