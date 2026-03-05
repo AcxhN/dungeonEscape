@@ -4,6 +4,9 @@ import ca.sfu.cmpt276.team7.*;
 import ca.sfu.cmpt276.team7.board.*;
 import ca.sfu.cmpt276.team7.cells.*;
 import ca.sfu.cmpt276.team7.core.*;
+import ca.sfu.cmpt276.team7.enemies.Goblin;
+import ca.sfu.cmpt276.team7.enemies.Ogre;
+import ca.sfu.cmpt276.team7.reward.*;
 
 import java.awt.Dimension;
 import java.awt.Color;
@@ -246,7 +249,7 @@ public class GamePanel extends JPanel {
                 } else if (cell instanceof RegularReward) {
                     enqueueFloor(x, y);
                     enqueueRegularReward(x, y);
-                } else if (cell instanceof Punishment) {
+                } else if (cell instanceof PunishmentCell) {
                     enqueuePunishment(x, y);
                 }
             }

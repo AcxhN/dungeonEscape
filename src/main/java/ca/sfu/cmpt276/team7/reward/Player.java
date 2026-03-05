@@ -2,6 +2,7 @@ package ca.sfu.cmpt276.team7.reward;
 
 import ca.sfu.cmpt276.team7.board.Board; 
 import ca.sfu.cmpt276.team7.core.GameCharacter; 
+import ca.sfu.cmpt276.team7.core.Direction;
 import ca.sfu.cmpt276.team7.cells.Cell;
 
 import ca.sfu.cmpt276.team7.core.Position; 
@@ -29,21 +30,20 @@ public class Player extends GameCharacter {
         return totalScore;
     }
 
-    @Override
     public void move(Direction direction) {
         Position newPos = null;
 
         switch (direction) {
-            case UP:
+            case NORTH:
                 newPos = new Position(position.getX(), position.getY() - 1);
                 break;
-            case DOWN:
+            case SOUTH:
                 newPos = new Position(position.getX(), position.getY() + 1);
                 break;
-            case LEFT:
+            case WEST:
                 newPos = new Position(position.getX() - 1, position.getY());
                 break;
-            case RIGHT:
+            case EAST:
                 newPos = new Position(position.getX() + 1, position.getY());
                 break;
         }
