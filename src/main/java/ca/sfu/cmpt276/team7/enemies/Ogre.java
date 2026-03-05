@@ -1,4 +1,8 @@
-package main.java.ca.sfu.cmpt276.team7;
+package ca.sfu.cmpt276.team7.enemies;
+
+import ca.sfu.cmpt276.team7.core.Position; 
+import ca.sfu.cmpt276.team7.cells.*;
+import ca.sfu.cmpt276.team7.board.Board;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +28,7 @@ public class Ogre extends Enemy {
      * sets the ogre to move forward up the list from the first position on the list
      */
     public Ogre(Board board, Position... route) {
-	this.board = board;
+	super(board);
 	this.patrolRoute = new ArrayList<>(List.of(route));
 	forward_p = true;
 	position = patrolRoute.get(0);
@@ -35,9 +39,10 @@ public class Ogre extends Enemy {
      * Helper constructor, that sets the ogre to move back and forth, rather than a patrol route
      */
     public Ogre(Board board, Position first_position, Direction direction) {
+	super(board);
 	this.board = board;
 	this.position = first_position;
-	this.patrolRoute = new ArrayList<position>();
+	this.patrolRoute = new ArrayList<Position>();
 
 	Position potential_position = position;
 	Cell next_cell = board.getCell(potential_position.getX(), potential_position.getY());
@@ -55,7 +60,7 @@ public class Ogre extends Enemy {
 
 	// Go in the other direction, adding to the other side of the list
 
-	potential_position = position;
+	potential_position = this.position;
 	next_cell = board.getCell(potential_position.getX(), potential_position.getY());
 	int num_added = 0;
 	add_x *= -1;

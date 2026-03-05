@@ -9,8 +9,8 @@ import ca.sfu.cmpt276.team7.core.Position;
  */
 
 abstract public class GameCharacter {
-    private Position position;
-    private Board board;
+    protected Position position;
+    protected Board board;
 
     public GameCharacter(Board board){
 	this.board = board;
