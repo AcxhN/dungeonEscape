@@ -9,6 +9,7 @@ import ca.sfu.cmpt276.team7.EndReason;
 import ca.sfu.cmpt276.team7.ScreenState;
 import ca.sfu.cmpt276.team7.PopupReason;
 import ca.sfu.cmpt276.team7.enemies.Goblin;
+import ca.sfu.cmpt276.team7.core.GameCharacter;
 
 /**
  * Cor controller for the game
