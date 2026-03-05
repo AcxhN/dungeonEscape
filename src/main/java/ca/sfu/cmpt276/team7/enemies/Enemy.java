@@ -1,3 +1,4 @@
+package main.java.ca.sfu.cmpt276.team7;
 
 /**
  * The enemy abstract class is the base of both goblin and ogre.
