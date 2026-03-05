@@ -2,10 +2,6 @@ package main.java.ca.sfu.cmpt276.team7;
 
 import java.util.List;
 
-import main.java.ca.sfu.cmpt276.team7.temps.Board;
-import main.java.ca.sfu.cmpt276.team7.temps.Enemy;
-import main.java.ca.sfu.cmpt276.team7.temps.Player;
-
 /**
  * Cor controller for the game
  * 
@@ -55,8 +51,10 @@ public class Game
     /**All enemy instances present on board */
     private List<Enemy> enemies;
 
+    /**Elasped time from start */
     private long startTime;
 
+    /**Total time elsaped */
     private long totalTime;
 
     /**
