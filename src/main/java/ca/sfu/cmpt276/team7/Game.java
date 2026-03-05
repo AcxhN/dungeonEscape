@@ -232,6 +232,10 @@ public class Game
         return false;
     }
 
+
+    /**
+     * Manages time depending if game is pouse or currently in playing state
+     */
     public void togglePause()
     {
         if(screenState == screenState.PLAYING)
@@ -246,6 +250,11 @@ public class Game
         }
     }
 
+    /**
+     * Returns number of seconds game has been running, excludes
+     * time when paused
+     * @return seconds game has been running
+     */
     public int getSeconds()
     {
         if(screenState == screenState.PLAYING)
