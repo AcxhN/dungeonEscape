@@ -216,7 +216,7 @@ public class Game
         if(totalScore <= 0)
         {
             screenState = ScreenState.END;
-            endReason = EndReason.LOSE_BY_TRAP;
+            endReason = EndReason.LOSS_BY_TRAP;
             return true;
         }
 
@@ -226,7 +226,7 @@ public class Game
             {
                 screenState = ScreenState.END;
                 endReason = enemy.isGoblin()
-                    ? EndReason.LOSE_BY_GOBLIN: EndReason.LOSE_BY_OGRE;
+                    ? EndReason.LOSS_BY_GOBLIN: EndReason.LOSS_BY_OGRE;
                 return true;
             }
         }
@@ -312,7 +312,7 @@ public class Game
     *
     * @return popupReason, or {@code null} if no popup is active
     */
-    public popupReason getPopupReason()
+    public PopupReason getPopupReason()
     {
         return popupReason;
     }
