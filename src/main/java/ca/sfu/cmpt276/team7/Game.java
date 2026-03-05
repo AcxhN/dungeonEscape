@@ -146,7 +146,7 @@ public class Game
      * Getter for the list of enemies
      * @return A list of enemies
      */
-    public List<Enemy> getCharacters() {
+    public List<GameCharacter> getCharacters() {
 	return enemies;
     }
 
