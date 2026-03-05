@@ -1,5 +1,8 @@
 package ca.sfu.cmpt276.team7.reward;
 
+import ca.sfu.cmpt276.team7.board.Board; 
+import ca.sfu.cmpt276.team7.core.GameCharacter; 
+
 import javax.swing.text.Position;
 
 /**

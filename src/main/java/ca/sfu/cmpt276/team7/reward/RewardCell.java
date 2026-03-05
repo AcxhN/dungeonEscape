@@ -1,4 +1,8 @@
 package ca.sfu.cmpt276.team7.reward;
+
+import ca.sfu.cmpt276.team7.cells.Cell; 
+import ca.sfu.cmpt276.team7.core.Position; 
+
 /**
  * A cell that contains a reward. When the player steps on this cell,
  * the reward is collected and applied to the player's score.
