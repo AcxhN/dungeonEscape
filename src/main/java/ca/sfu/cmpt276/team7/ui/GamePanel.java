@@ -243,12 +243,15 @@ public class GamePanel extends JPanel {
                     enqueueFloor(x, y);
                 } else if (cell instanceof BarrierCell) {
                     enqueueBarrier(x, y);
-                } else if (cell instanceof BonusReward) {
+                } else if (cell instanceof RewardCell) {
                     enqueueFloor(x, y);
-                    enqueueBonusReward(x, y);
-                } else if (cell instanceof RegularReward) {
-                    enqueueFloor(x, y);
-                    enqueueRegularReward(x, y);
+                    Reward r = ((RewardCell) cell).getReward();
+                    if (r instanceof BonusReward) {
+                        enqueueBonusReward(x, y);
+                    }
+                    else if (r instanceof RegularReward) {
+                        enqueueRegularReward(x, y);
+                    }
                 } else if (cell instanceof PunishmentCell) {
                     enqueuePunishment(x, y);
                 }
