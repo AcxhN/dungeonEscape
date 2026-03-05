@@ -2,8 +2,9 @@ package ca.sfu.cmpt276.team7.reward;
 
 import ca.sfu.cmpt276.team7.board.Board; 
 import ca.sfu.cmpt276.team7.core.GameCharacter; 
+import ca.sfu.cmpt276.team7.cells.Cell;
 
-import ca.sfu.cmpt276.team7.Position;
+import ca.sfu.cmpt276.team7.core.Position; 
 
 /**
  * Represents the player character in the game.
@@ -65,7 +66,7 @@ public class Player extends GameCharacter {
     }
 
     @Override
-    public boolean canMoveTo(Cell cell) {
+    public boolean canMoveto(Cell cell) {
         return cell.isWalkable();
     }
 /**
