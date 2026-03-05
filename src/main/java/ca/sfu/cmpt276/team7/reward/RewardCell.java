@@ -25,4 +25,8 @@ public class RewardCell extends Cell {
    public boolean isWalkable(){
       return true;
    }
+   public void clearReward() {
+    this.reward = null;
+}
+
 }
