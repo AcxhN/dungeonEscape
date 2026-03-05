@@ -1,4 +1,4 @@
-package ca.sfu.cmpt276.team7;
+package main.java.ca.sfu.cmpt276.team7;
 
 /**
  * Repersents the current screen state of game
