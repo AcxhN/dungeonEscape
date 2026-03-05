@@ -356,17 +356,17 @@ public class GamePanel extends JPanel {
                 commentText = "You braved the terrors of the dungeon and emerged a rich man"; 
                 break;
             
-            case LOSE_BY_TRAP:
+            case LOSS_BY_TRAP:
                 srcSize = srcSize(2, screenSrcSize);
                 commentText = "Lost your footing near a pit of spikes!";
                 break;
 
-            case LOSE_BY_OGRE:
+            case LOSS_BY_OGRE:
                 srcSize = srcSize(2, screenSrcSize);
                 commentText = "Bumped into an ogre!";
                 break;
             
-            case LOSE_BY_GOBLIN:
+            case LOSS_BY_GOBLIN:
                 srcSize = srcSize(2, screenSrcSize);
                 commentText = "Caught by a goblin!";
                 break;
