@@ -30,7 +30,6 @@ public class Player extends GameCharacter {
         return totalScore;
     }
 
-    @Override
     public void move(Direction direction) {
         Position newPos = null;
 
