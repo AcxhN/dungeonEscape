@@ -1,6 +1,7 @@
 package ca.sfu.cmpt276.team7.enemies;
 
 import ca.sfu.cmpt276.team7.core.Position; 
+import ca.sfu.cmpt276.team7.core.Direction; 
 import ca.sfu.cmpt276.team7.cells.*;
 import ca.sfu.cmpt276.team7.board.Board;
 import java.util.ArrayList;
@@ -13,12 +14,6 @@ public class Ogre extends Enemy {
     /**
      * Small helper enum for directions in constructor
      */
-    public enum Direction {
-	NORTH,
-	EAST,
-	SOUTH,
-	WEST
-    }
 
     private ArrayList<Position> patrolRoute;
     private boolean forward_p;
