@@ -55,6 +55,10 @@ public class Game
     /**All enemy instances present on board */
     private List<Enemy> enemies;
 
+    private long startTime;
+
+    private long totalTime;
+
     /**
      * Contructs new game with given board, player and enemies
      * 
@@ -83,6 +87,9 @@ public class Game
      */
     public void startGame()
     {
+        startTime = System.currentTimeMillis();
+        totalTime = 0;
+
         timeElapsed = 0;
         screenState = ScreenState.PLAYING;
         endReason = null;
@@ -227,6 +234,29 @@ public class Game
         return false;
     }
 
+    public void togglePause()
+    {
+        if(screenState == screenState.PLAYING)
+        {
+            totalTime += System.currentTimeMillis() - startTime();
+            screenState = screenState.PAUSE;
+        }
+        else if(screenState == screenState.PAUSE)
+        {
+            startTime = System.currentTimeMillis();
+            screenState = screenState.PLAYING;
+        }
+    }
+
+    public int getSeconds()
+    {
+        if(screenState == screenState.PLAYING)
+        {
+            return (int) ((totalTime + System.currentTimeMillis() - startTime) / 1000);
+        }
+        return totalTime / 1000;
+    }
+
     /**
     * Returns the player's total score
     *
@@ -248,7 +278,7 @@ public class Game
     }
 
     /**
-    * Returns the number of regular rewards the player has collected.
+    * Returns the number of regular rewards the player has collected
     *
     * @return collectedRegularRewards
     */
@@ -258,7 +288,7 @@ public class Game
     }
 
     /**
-    * Returns the current screen state of the game.
+    * Returns the current screen state of the game
     *
     * @return screenState
     */
@@ -268,7 +298,7 @@ public class Game
     }
 
     /**
-    * Returns the reason the game ended.
+    * Returns the reason the game ended
     *
     * @return endReason, or {@code null} if the game has not ended
     */
@@ -278,7 +308,7 @@ public class Game
     }
 
     /**
-    * Returns the reason a popup is currently being shown.
+    * Returns the reason a popup is currently being shown
     *
     * @return popupReason, or {@code null} if no popup is active
     */
