@@ -11,7 +11,7 @@ public class Goblin extends Enemy {
     
     public Goblin(Board board, Position pos) {
 	super(board);
-	
+	this.position = pos;
     }
 
     public void updateMovement(Position player_position) {
