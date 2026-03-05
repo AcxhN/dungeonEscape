@@ -51,7 +51,7 @@ public class Player extends GameCharacter {
         if (!board.isInside(newPos)) return;
 
         Cell target = board.getCell(newPos);
-        if (!canMoveTo(target)) return;
+        if (!canMoveto(target)) return;
 
         this.position = newPos;
 
