@@ -72,6 +72,13 @@ public class Board {
 	}
     }
 
+    /**
+     *@return returns the grid
+     */
+    public Cell[][] getGrid() {
+	return grid;
+    }
+
     /**@return start position defined by the map */
     public Position getStartPosition() {
         return startPosition; 

@@ -580,13 +580,13 @@ public class GamePanel extends JPanel {
 
             case PLAYING:
                 enqueueCells(board.getGrid());
-                enqueueCharacters(board.getCharacters());
+                enqueueCharacters(game.getCharacters());
                 enqueueHud(score, totalKey, collectedKey, sec);
                 break;
             
             case PAUSE:
                 enqueueCells(board.getGrid());
-                enqueueCharacters(board.getCharacters());
+                enqueueCharacters(game.getCharacters());
                 enqueueHud(score, totalKey, collectedKey, sec);
                 enqueuePopups(game.getPopupReason());
                 break;

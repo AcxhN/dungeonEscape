@@ -143,6 +143,14 @@ public class Game
     }
 
     /**
+     * Getter for the list of enemies
+     * @return A list of enemies
+     */
+    public List<Enemy> getCharacters() {
+	return enemies;
+    }
+
+    /**
      * Translates keyboard keycode into a direction and attempts to move
      * player. If move is successful, {@link #updateTick()} is called
      * 
