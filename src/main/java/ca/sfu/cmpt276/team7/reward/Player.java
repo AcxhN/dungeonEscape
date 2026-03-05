@@ -7,7 +7,7 @@ import javax.swing.text.Position;
  * Handles movement, score updates, and interactions with rewards and punishments.
  */
 
-public class Player extends Character {
+public class Player extends GameCharacter {
 
     private int totalScore;
     private BonusReward activeBonus;
