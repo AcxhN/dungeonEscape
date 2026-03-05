@@ -2,7 +2,7 @@ package ca.sfu.cmpt276.team7.core;
 
 import ca.sfu.cmpt276.team7.cells.Cell;
 import ca.sfu.cmpt276.team7.board.Board;
-import ca.sfu.cmpt276.team7.core.Postion;
+import ca.sfu.cmpt276.team7.core.Position;
 
 /**
  * Base GameCharacter class
