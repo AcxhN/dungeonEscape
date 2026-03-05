@@ -9,6 +9,8 @@ import ca.sfu.cmpt276.team7.EndReason;
 import ca.sfu.cmpt276.team7.ScreenState;
 import ca.sfu.cmpt276.team7.PopupReason;
 import ca.sfu.cmpt276.team7.enemies.Goblin;
+import ca.sfu.cmpt276.team7.core.GameCharacter;
+import ca.sfu.cmpt276.team7.core.Direction; 
 
 /**
  * Cor controller for the game
@@ -176,16 +178,16 @@ public class Game
         switch(keyCode)
         {
             case 87: case 38: 
-                player.move("UP");
+                player.move(Direction.NORTH);
                 break;
             case 83: case 40: 
-                player.move("DOWN");
+                player.move(Direction.SOUTH);
                 break;
             case 65: case 37:
-                player.move("LEFT");
+                player.move(Direction.WEST);
                 break;
             case 68: case 39:
-                player.move("RIGHT");
+                player.move(Direction.EAST);
                 break;
             default:
                 return;
