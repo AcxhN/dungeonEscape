@@ -1,3 +1,4 @@
+package main.java.ca.sfu.cmpt276.team7;
 
 /**
  * The goblin pathfinds towards the player
