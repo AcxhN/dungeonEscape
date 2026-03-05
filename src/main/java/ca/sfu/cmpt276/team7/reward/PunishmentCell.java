@@ -1,4 +1,4 @@
-package ca.sfu.cmpt276.team7;
+package ca.sfu.cmpt276.team7.reward;
 
 /**
  * A cell that contains a punishment. When the player steps on this cell,

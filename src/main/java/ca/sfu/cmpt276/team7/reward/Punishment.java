@@ -1,4 +1,4 @@
-package ca.sfu.cmpt276.team7;
+package ca.sfu.cmpt276.team7.reward;
 /**
  * Base class for all punishment types in the game.
  * Each punishment has a penalty value and defines behavior when triggered.

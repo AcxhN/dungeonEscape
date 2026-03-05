@@ -1,4 +1,4 @@
-package ca.sfu.cmpt276.team7;
+package ca.sfu.cmpt276.team7.reward;
 /**
  * Base class for all reward types in the game.
  * Each reward has a point value and defines behavior when collected by the player.
