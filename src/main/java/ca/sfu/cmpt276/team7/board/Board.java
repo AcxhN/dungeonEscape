@@ -60,6 +60,18 @@ public class Board {
         return height;
     }
 
+    /**@return returns if a given position is inside the board*/
+    public boolean isInside(Position position) {
+	if (position.getX() < 0 ||
+	    position.getY() < 0 ||
+	    position.getX() > width ||
+	    position.getY() > height) {
+	    return false;
+	} else {
+	    return true;
+	}
+    }
+
     /**@return start position defined by the map */
     public Position getStartPosition() {
         return startPosition; 
