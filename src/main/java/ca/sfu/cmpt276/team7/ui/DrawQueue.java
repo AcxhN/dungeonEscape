@@ -37,8 +37,8 @@ public class DrawQueue {
      */
     public DrawQueue() {
         this.queue = new LinkedList<>();
-        this.gameAtlas = loadImage("/sprites/atlas_screens.png");
-        this.screensAtlas = loadImage("/sprites/atlas_game.png");
+        this.gameAtlas = loadImage("/sprites/atlas_game.png");
+        this.screensAtlas = loadImage("/sprites/atlas_screens.png");
     }
 
     /**
@@ -106,7 +106,7 @@ public class DrawQueue {
         List<RenderItem> items = new ArrayList<>(queue);
         items.sort((a, b) -> Integer.compare(a.getLayer(), b.getLayer()));
 
-        for (RenderItem item : queue) {
+        for (RenderItem item : items) {
             switch (item.getKind()) {
                 case RECTANGLE:
                     g.setColor(item.getColor());

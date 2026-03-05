@@ -1,7 +1,8 @@
 package ca.sfu.cmpt276.team7.ui;
 
 import ca.sfu.cmpt276.team7.*;
-import ca.sfu.cmpt276.team7.cell.*;
+import ca.sfu.cmpt276.team7.board.*;
+import ca.sfu.cmpt276.team7.cells.*;
 import ca.sfu.cmpt276.team7.core.*;
 
 import java.awt.Dimension;
@@ -45,9 +46,10 @@ public class GamePanel extends JPanel {
     private int cellLayer = 0;
     private int rewardLayer = 1;
     private int characterLayer = 2;
-    private int popupRectLayer = 3;
+    private int playerLayer = 3;
     private int hudLayer = 4;
-    private int popupContentsLayer = 5;
+    private int popupRectLayer = 5;
+    private int popupContentsLayer = 6;
 
     /** On-screen cell size in pixels. */
     private int cellWidth = 50;
@@ -260,7 +262,7 @@ public class GamePanel extends JPanel {
      */
     private void enqueuePlayer(int x, int y) {
         int srcSize = srcSize(7, gameSrcSize);
-        RenderItem player = RenderItem.sprite(characterLayer, x, y, cellWidth, cellHeight, SheetId.GAME_ATLAS, srcSize, srcPadding, gameSrcSize, gameSrcSize);
+        RenderItem player = RenderItem.sprite(playerLayer, x, y, cellWidth, cellHeight, SheetId.GAME_ATLAS, srcSize, srcPadding, gameSrcSize, gameSrcSize);
         drawQueue.enqueue(player);
     }
 
@@ -293,8 +295,9 @@ public class GamePanel extends JPanel {
      * 
      * @param characters list of active characters
      */
-    private void enqueueCharacters(List<Character> characters) {
-        for (Character character : characters) {
+    // Note: Renamed Character -> GameCharacter to avoid conflicts with java.lang.Character.
+    private void enqueueCharacters(List<GameCharacter> characters) {
+        for (GameCharacter character : characters) {
             int x = character.getPosition().getX() * cellWidth;
             int y = character.getPosition().getY() * cellHeight;
             
@@ -320,7 +323,7 @@ public class GamePanel extends JPanel {
         RenderItem title = RenderItem.text(0, titleXY[0], titleXY[1], Color.WHITE, titleText, titleFont);
         drawQueue.enqueue(title);
 
-        String startText = "START";
+        String startText = "Press Space to Start";
         Font startFont = new Font("SansSerif", Font.BOLD, 24);
         int textPadding = 20;
         int startX = getCenteredTextX(startText, startFont);
@@ -377,7 +380,7 @@ public class GamePanel extends JPanel {
         int textPadding = 10;
         Font resultFont = new Font("SansSerif", Font.BOLD, 40);
         int resultX = getCenteredTextX(resultText, resultFont);
-        int resultY = imageY + h + textPadding + getTextHeight(resultFont)/2;
+        int resultY = imageY + h + textPadding + getTextHeight(resultFont)/2 +5;
         
         RenderItem result = RenderItem.text(0, resultX, resultY, Color.WHITE, resultText, resultFont);
         drawQueue.enqueue(result);
@@ -399,7 +402,7 @@ public class GamePanel extends JPanel {
         drawQueue.enqueue(scoreTime);
 
         //playAgain
-        String playAgainText = "Play Again?";
+        String playAgainText = "Press Space to Play Again";
         Font playAgainFont = new Font("SansSerif", Font.BOLD, 15);
         int playAgainX = getCenteredTextX(playAgainText, playAgainFont);
         int playAgainY = scoreTimeY + textPadding + getTextHeight(playAgainFont);
@@ -458,6 +461,11 @@ public class GamePanel extends JPanel {
         int centerY = 30;
         int padding = 5;
 
+        // Note: Alternative positions to swap the image and text (left/right):
+        // int imageX = 10;
+        // int textX = imageX + w;
+        // Note: In that case, change the timer's x position from textX to imageX. 
+
         int[] imageXTextYImageY = hudGetXY(font, keyText, coinText, h, textX, centerY, padding);
         int imageX = imageXTextYImageY[0];
         int textY = imageXTextYImageY[1];
@@ -469,7 +477,7 @@ public class GamePanel extends JPanel {
         drawQueue.enqueue(keyItem);
         //image
         int srcSizeKey = srcSize(8, gameSrcSize);
-        RenderItem keyImage = RenderItem.sprite(characterLayer, imageX, imageY, w, h, SheetId.GAME_ATLAS, srcSizeKey, srcPadding, gameSrcSize, gameSrcSize);
+        RenderItem keyImage = RenderItem.sprite(hudLayer, imageX, imageY + h, w, h, SheetId.GAME_ATLAS, srcSizeKey, srcPadding, gameSrcSize, gameSrcSize);
         drawQueue.enqueue(keyImage);
 
         //score text        
@@ -477,7 +485,7 @@ public class GamePanel extends JPanel {
         drawQueue.enqueue(coinItem);
         //image
         int srcSizeCoin = srcSize(9, gameSrcSize);
-        RenderItem coinImage = RenderItem.sprite(characterLayer, imageX, imageY + h*2, w, h, SheetId.GAME_ATLAS, srcSizeCoin, srcPadding, gameSrcSize, gameSrcSize);
+        RenderItem coinImage = RenderItem.sprite(hudLayer, imageX, imageY + h*2, w, h, SheetId.GAME_ATLAS, srcSizeCoin, srcPadding, gameSrcSize, gameSrcSize);
         drawQueue.enqueue(coinImage);
 
         //timer
