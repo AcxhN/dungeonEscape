@@ -96,7 +96,7 @@ public class Player extends GameCharacter {
     public void tickBonus() {
         if (activeBonus != null) {
             activeBonus.tick();
-            if (activeBonus.getRemainingDuration() <= 0) {
+            if (activeBonus.getDuration() <= 0) {
                 activeBonus = null;
             }
         }
