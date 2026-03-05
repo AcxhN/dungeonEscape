@@ -1,6 +1,7 @@
 package ca.sfu.cmpt276.team7;
 
 import java.util.List;
+import java.util.ArrayList;
 
 import ca.sfu.cmpt276.team7.board.Board;
 import ca.sfu.cmpt276.team7.enemies.Enemy;
@@ -145,11 +146,13 @@ public class Game
     }
 
     /**
-     * Getter for the list of enemies
-     * @return A list of enemies
+     * Getter for the list of characters
+     * @return A list of characters
      */
     public List<GameCharacter> getCharacters() {
-	return enemies;
+	List<GameCharacter> char_list = new ArrayList<>(enemies);
+	char_list.add(player);
+	return char_list;
     }
 
     /**
