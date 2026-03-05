@@ -84,7 +84,7 @@ public class Player extends GameCharacter {
  * Applies the effects of a punishment by reducing the player's score. 
  */
     public void applyPunishment(Punishment punishment) {
-        totalScore -= punishment.getValue();
+        totalScore -= punishment.getPenaltyValue();
         if (totalScore < 0) {
             totalScore = 0;
         }
