@@ -32,9 +32,6 @@ public class Game
      */
     private int timeElapsed;
 
-      /** The player's current total score. */
-    private int totalScore;
-
     /** Total number of regular rewards on the board. */
     private int totalRegularRewards;
 
@@ -79,7 +76,6 @@ public class Game
         this.player = player;
         this.enemies = enemies;
         this.timeElapsed = 0;
-        this.totalScore = 0;
         this.totalRegularRewards = totalRegularRewards;
         this.collectedRegularRewards = 0;
         this.screenState = ScreenState.START;
@@ -225,7 +221,7 @@ public class Game
      */
     public boolean checkLoss()
     {
-        if(totalScore <= 0)
+        if(player.getTotalScore() <= 0)
         {
             screenState = ScreenState.END;
             endReason = EndReason.LOSE_BY_TRAP;
@@ -278,13 +274,13 @@ public class Game
     }
 
     /**
-    * Returns the player's total score
-    *
-    * @return totalScore
-    */
+     * Returns the player's current total score.
+     *
+     * @return the player's total score
+     */
     public int getTotalScore()
     {
-        return totalScore;
+        return player.getTotalScore();
     }
 
     /**
