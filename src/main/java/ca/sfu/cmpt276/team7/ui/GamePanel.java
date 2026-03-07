@@ -585,7 +585,7 @@ public class GamePanel extends JPanel {
         int textPadding = 10;
         Font resultFont = new Font("SansSerif", Font.BOLD, 40);
         int resultX = getCenteredTextX(resultText, resultFont);
-        int resultY = imageY + h + textPadding + getTextHeight(resultFont)/2 +5;
+        int resultY = imageY + h + textPadding + getTextHeight(resultFont)/2 + 10;
         
         RenderItem result = RenderItem.text(0, resultX, resultY, Color.WHITE, resultText, resultFont);
         drawQueue.enqueue(result);
@@ -610,7 +610,7 @@ public class GamePanel extends JPanel {
         String playAgainText = "Press Space to Play Again";
         Font playAgainFont = new Font("SansSerif", Font.BOLD, 15);
         int playAgainX = getCenteredTextX(playAgainText, playAgainFont);
-        int playAgainY = scoreTimeY + textPadding + getTextHeight(playAgainFont);
+        int playAgainY = scoreTimeY + textPadding + getTextHeight(playAgainFont) + 10;
         
         RenderItem playAgain = RenderItem.text(0, playAgainX, playAgainY, Color.WHITE, playAgainText, playAgainFont);
         drawQueue.enqueue(playAgain);
