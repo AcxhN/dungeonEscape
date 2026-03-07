@@ -8,7 +8,9 @@ import ca.sfu.cmpt276.team7.core.Direction;
 import ca.sfu.cmpt276.team7.core.GameCharacter;
 import ca.sfu.cmpt276.team7.enemies.Enemy;
 import ca.sfu.cmpt276.team7.enemies.Goblin;
-import ca.sfu.cmpt276.team7.reward.Player; 
+import ca.sfu.cmpt276.team7.reward.Player;
+import ca.sfu.cmpt276.team7.reward.RegularReward;
+import ca.sfu.cmpt276.team7.reward.Reward; 
 
 /**
  * Cor controller for the game
@@ -149,8 +151,8 @@ public class Game
     }
 
     /**
-     * Translates keyboard keycode into a direction and attempts to move
-     * player. If move is successful, {@link #updateTick()} is called
+     * Translates keyboard keycode into a direction, attempts to move the player,
+     * updates reward collection state, and then advances the game by one tick.
      * 
      * <p>Supported key codes:
      * <ul>
@@ -171,24 +173,30 @@ public class Game
             return;
         }
 
+        Reward collectedReward = null;
+
         switch(keyCode)
         {
             case 87: case 38: 
-                player.move(Direction.NORTH);
+                collectedReward = player.move(Direction.NORTH);
                 break;
             case 83: case 40: 
-                player.move(Direction.SOUTH);
+                collectedReward = player.move(Direction.SOUTH);
                 break;
             case 65: case 37:
-                player.move(Direction.WEST);
+                collectedReward = player.move(Direction.WEST);
                 break;
             case 68: case 39:
-                player.move(Direction.EAST);
+                collectedReward = player.move(Direction.EAST);
                 break;
             default:
                 return;
         }
-            updateTick();
+
+        if (collectedReward instanceof RegularReward) {
+            collectedRegularRewards++;
+        }
+        updateTick();
         
     }
 
