@@ -1,13 +1,14 @@
 package ca.sfu.cmpt276.team7.ui;
 
-import javax.imageio.ImageIO;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
+
+import javax.imageio.ImageIO;
 
 /**
  * Manages a queue of {@link RenderItem}s to be drawn in layer order.
@@ -26,7 +27,7 @@ import java.util.Queue;
 public class DrawQueue {
 
     /** FIFO queue storing render commands for the current frame. */
-    private Queue<RenderItem> queue;
+    private final Queue<RenderItem> queue;
 
     /** Sprite atlases used by SPRITE render items. */
     private final BufferedImage gameAtlas;

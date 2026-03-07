@@ -1,17 +1,16 @@
 package ca.sfu.cmpt276.team7;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 import ca.sfu.cmpt276.team7.board.Board;
-import ca.sfu.cmpt276.team7.enemies.Enemy;
-import ca.sfu.cmpt276.team7.reward.Player;
-import ca.sfu.cmpt276.team7.EndReason;
-import ca.sfu.cmpt276.team7.ScreenState;
-import ca.sfu.cmpt276.team7.PopupReason;
-import ca.sfu.cmpt276.team7.enemies.Goblin;
+import ca.sfu.cmpt276.team7.core.Direction;
 import ca.sfu.cmpt276.team7.core.GameCharacter;
-import ca.sfu.cmpt276.team7.core.Direction; 
+import ca.sfu.cmpt276.team7.enemies.Enemy;
+import ca.sfu.cmpt276.team7.enemies.Goblin;
+import ca.sfu.cmpt276.team7.reward.Player;
+import ca.sfu.cmpt276.team7.reward.RegularReward;
+import ca.sfu.cmpt276.team7.reward.Reward; 
 
 /**
  * Cor controller for the game
@@ -34,9 +33,6 @@ public class Game
      * incremented once per call to {@link #updateTick()}
      */
     private int timeElapsed;
-
-      /** The player's current total score. */
-    private int totalScore;
 
     /** Total number of regular rewards on the board. */
     private int totalRegularRewards;
@@ -82,7 +78,6 @@ public class Game
         this.player = player;
         this.enemies = enemies;
         this.timeElapsed = 0;
-        this.totalScore = 0;
         this.totalRegularRewards = totalRegularRewards;
         this.collectedRegularRewards = 0;
         this.screenState = ScreenState.START;
@@ -156,8 +151,8 @@ public class Game
     }
 
     /**
-     * Translates keyboard keycode into a direction and attempts to move
-     * player. If move is successful, {@link #updateTick()} is called
+     * Translates keyboard keycode into a direction, attempts to move the player,
+     * updates reward collection state, and then advances the game by one tick.
      * 
      * <p>Supported key codes:
      * <ul>
@@ -178,24 +173,30 @@ public class Game
             return;
         }
 
+        Reward collectedReward = null;
+
         switch(keyCode)
         {
             case 87: case 38: 
-                player.move(Direction.NORTH);
+                collectedReward = player.move(Direction.NORTH);
                 break;
             case 83: case 40: 
-                player.move(Direction.SOUTH);
+                collectedReward = player.move(Direction.SOUTH);
                 break;
             case 65: case 37:
-                player.move(Direction.WEST);
+                collectedReward = player.move(Direction.WEST);
                 break;
             case 68: case 39:
-                player.move(Direction.EAST);
+                collectedReward = player.move(Direction.EAST);
                 break;
             default:
                 return;
         }
-            updateTick();
+
+        if (collectedReward instanceof RegularReward) {
+            collectedRegularRewards++;
+        }
+        updateTick();
         
     }
 
@@ -228,7 +229,7 @@ public class Game
      */
     public boolean checkLoss()
     {
-        if(totalScore <= 0)
+        if(player.getTotalScore() <= 0)
         {
             screenState = ScreenState.END;
             endReason = EndReason.LOSE_BY_TRAP;
@@ -281,13 +282,13 @@ public class Game
     }
 
     /**
-    * Returns the player's total score
-    *
-    * @return totalScore
-    */
+     * Returns the player's current total score.
+     *
+     * @return the player's total score
+     */
     public int getTotalScore()
     {
-        return totalScore;
+        return player.getTotalScore();
     }
 
     /**
@@ -348,6 +349,15 @@ public class Game
     public int getTimeElapsed()
     {
         return timeElapsed;
+    }
+
+    /**
+     * Returns the player instance for this game.
+     *
+     * @return the current player
+     */
+    public Player getPlayer() {
+        return player;
     }
 
 }

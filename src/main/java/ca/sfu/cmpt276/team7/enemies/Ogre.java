@@ -1,11 +1,13 @@
 package ca.sfu.cmpt276.team7.enemies;
 
-import ca.sfu.cmpt276.team7.core.Position; 
-import ca.sfu.cmpt276.team7.core.Direction; 
-import ca.sfu.cmpt276.team7.cells.*;
-import ca.sfu.cmpt276.team7.board.Board;
 import java.util.ArrayList;
 import java.util.List;
+
+import ca.sfu.cmpt276.team7.board.Board;
+import ca.sfu.cmpt276.team7.cells.Cell;
+import ca.sfu.cmpt276.team7.cells.WallCell;
+import ca.sfu.cmpt276.team7.core.Direction;
+import ca.sfu.cmpt276.team7.core.Position;
 
 /**
  * The Ogre class
@@ -35,22 +37,28 @@ public class Ogre extends Enemy {
      */
     public Ogre(Board board, Position first_position, Direction direction) {
 	super(board);
-	this.board = board;
 	this.position = first_position;
 	this.patrolRoute = new ArrayList<Position>();
 
 	Position potential_position = position;
 	Cell next_cell = board.getCell(potential_position.getX(), potential_position.getY());
 
-	int add_x = (direction == Direction.EAST || direction == Direction.WEST) ? 1 : 0;
-	int add_y = (direction == Direction.NORTH || direction == Direction.SOUTH) ? 1 : 0;
+	int add_x = (direction == Direction.EAST) ? 1 : (direction == Direction.WEST ? -1 : 0);
+	int add_y = (direction == Direction.SOUTH) ? 1 : (direction == Direction.NORTH ? -1 : 0);
 
 	// Go in one direction until a wall is hit
 	while (!(next_cell instanceof WallCell)) {
 	    patrolRoute.add(potential_position);
-	    potential_position = new Position(potential_position.getX() + add_x,
-					      potential_position.getY() + add_y); // this is innefficient, but I don't know of Position has a setter
-	    next_cell = board.getCell(potential_position.getX(), potential_position.getY());
+		
+		int nextX = potential_position.getX() + add_x;
+		int nextY = potential_position.getY() + add_y;
+
+		if (nextX < 0 || nextY < 0 || nextX >= board.getWidth() || nextY >= board.getHeight()) {
+			break;
+		}
+
+	    potential_position = new Position(nextX, nextY);
+	    next_cell = board.getCell(nextX, nextY);
 	}
 
 	// Go in the other direction, adding to the other side of the list
@@ -66,13 +74,20 @@ public class Ogre extends Enemy {
 		patrolRoute.add(0, potential_position);
 	    }
 	    num_added++;
-	    potential_position = new Position(potential_position.getX() + add_x,
-					      potential_position.getY() + add_y);
-	    next_cell = board.getCell(potential_position.getX(), potential_position.getY());
+
+		int nextX = potential_position.getX() + add_x;
+    	int nextY = potential_position.getY() + add_y;
+		
+		if (nextX < 0 || nextY < 0 || nextX >= board.getWidth() || nextY >= board.getHeight()) {
+			break;
+		}
+
+	    potential_position = new Position(nextX, nextY);
+	    next_cell = board.getCell(nextX, nextY);
 	}
 
 	// set route_index to the middle
-	route_index = num_added;
+	route_index = num_added - 1;
 
 	this.forward_p = (direction == Direction.SOUTH || direction == Direction.EAST) ? true : false;
 

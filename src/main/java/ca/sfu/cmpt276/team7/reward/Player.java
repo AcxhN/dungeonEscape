@@ -1,10 +1,9 @@
 package ca.sfu.cmpt276.team7.reward;
 
-import ca.sfu.cmpt276.team7.board.Board; 
-import ca.sfu.cmpt276.team7.core.GameCharacter; 
-import ca.sfu.cmpt276.team7.core.Direction;
+import ca.sfu.cmpt276.team7.board.Board;
 import ca.sfu.cmpt276.team7.cells.Cell;
-
+import ca.sfu.cmpt276.team7.core.Direction;
+import ca.sfu.cmpt276.team7.core.GameCharacter;
 import ca.sfu.cmpt276.team7.core.Position; 
 
 /**
@@ -14,7 +13,9 @@ import ca.sfu.cmpt276.team7.core.Position;
 
 public class Player extends GameCharacter {
 
+    /** Total score accumulated by the player across the game. */
     private int totalScore;
+    /** Currently active bonus reward (if any). */
     private BonusReward activeBonus;
     /**
      * Creates a player at the given starting position on the board.
@@ -26,46 +27,87 @@ public class Player extends GameCharacter {
         this.activeBonus = null;
     }
 
+    /**
+     * Returns the player's current total score.
+     *
+     * @return total score
+     */
     public int getTotalScore() {
         return totalScore;
     }
 
-    public void move(Direction direction) {
-        Position newPos = null;
+    /**
+     * Attempts to move the player one tile in the given direction.
+     * <p>
+     * If the destination is out of bounds or not walkable, the player does not move and this
+     * method returns {@code null}. If the destination contains a reward, the reward is collected
+     * and removed from the cell. If the destination contains a punishment, the punishment is applied.
+     *
+     * @param direction the direction to move
+     * @return the {@link Reward} collected on this move, or {@code null} if none was collected
+     */
+    public Reward move(Direction direction) {
+        int newX = position.getX();
+        int newY = position.getY();
 
+        // Compute the next tile coordinates based on movement direction.
         switch (direction) {
             case NORTH:
-                newPos = new Position(position.getX(), position.getY() - 1);
+                newY--;
                 break;
             case SOUTH:
-                newPos = new Position(position.getX(), position.getY() + 1);
+                newY++;
                 break;
             case WEST:
-                newPos = new Position(position.getX() - 1, position.getY());
+                newX--;
                 break;
             case EAST:
-                newPos = new Position(position.getX() + 1, position.getY());
+                newX++;
                 break;
         }
 
-        if (!board.isInside(newPos)) return;
-
-        Cell target = board.getCell(newPos.getX(),
-				    newPos.getY());
-        if (!canMoveto(target)) return;
-
-        this.position = newPos;
-
-        if (target instanceof RewardCell rewardCell) {
-            collectReward(rewardCell.getReward());
-            rewardCell.clearReward();
+        // Reject moves that would leave the board.
+        if (newX < 0 || newY < 0 || newX >= board.getWidth() || newY >= board.getHeight()) {
+            return null;
         }
 
+        Position newPos = new Position(newX, newY);
+        
+        // Check whether the destination cell is walkable for the player.
+        Cell target = board.getCell(newPos.getX(),
+				    newPos.getY());
+        if (!canMoveto(target)) return null;
+
+        // Commit the move.
+        this.position = newPos;
+
+        Reward collected = null;
+
+        // Collect reward if present.
+        if (target instanceof RewardCell rewardCell) {
+            collected = rewardCell.getReward();
+            if (collected != null) {
+                collectReward(collected);
+                rewardCell.clearReward();
+            }
+        }
+
+        // Apply punishment if present.
         if (target instanceof PunishmentCell punishmentCell) {
             applyPunishment(punishmentCell.getPunishment());
         }
+
+        return collected;
     }
 
+    /**
+     * Returns whether the player can move onto the given cell.
+     * <p>
+     * The player can move onto any cell marked as walkable.
+     *
+     * @param cell the target cell
+     * @return true if the player can move onto the cell, false otherwise
+     */
     @Override
     public boolean canMoveto(Cell cell) {
         return cell.isWalkable();

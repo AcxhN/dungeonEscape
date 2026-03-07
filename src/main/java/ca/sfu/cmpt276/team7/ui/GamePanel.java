@@ -1,35 +1,85 @@
 package ca.sfu.cmpt276.team7.ui;
 
-import ca.sfu.cmpt276.team7.*;
-import ca.sfu.cmpt276.team7.board.*;
-import ca.sfu.cmpt276.team7.cells.*;
-import ca.sfu.cmpt276.team7.core.*;
-import ca.sfu.cmpt276.team7.enemies.Goblin;
-import ca.sfu.cmpt276.team7.enemies.Ogre;
-import ca.sfu.cmpt276.team7.reward.*;
-
-import java.awt.Dimension;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.util.List;
+
 import javax.swing.JPanel;
+
+import ca.sfu.cmpt276.team7.EndReason;
+import ca.sfu.cmpt276.team7.Game;
+import ca.sfu.cmpt276.team7.PopupReason;
+import ca.sfu.cmpt276.team7.ScreenState;
+import ca.sfu.cmpt276.team7.board.Board;
+import ca.sfu.cmpt276.team7.cells.BarrierCell;
+import ca.sfu.cmpt276.team7.cells.Cell;
+import ca.sfu.cmpt276.team7.cells.FloorCell;
+import ca.sfu.cmpt276.team7.cells.WallCell;
+import ca.sfu.cmpt276.team7.core.GameCharacter;
+import ca.sfu.cmpt276.team7.enemies.Goblin;
+import ca.sfu.cmpt276.team7.enemies.Ogre;
+import ca.sfu.cmpt276.team7.reward.BonusReward;
+import ca.sfu.cmpt276.team7.reward.Player;
+import ca.sfu.cmpt276.team7.reward.PunishmentCell;
+import ca.sfu.cmpt276.team7.reward.RegularReward;
+import ca.sfu.cmpt276.team7.reward.Reward;
+import ca.sfu.cmpt276.team7.reward.RewardCell;
 
 /**
  * Swing panel responsible for rendering the game.
  * <p>
- * This panel bultds a {@link DrawQueue} each frame based on the current {@link ScreenState},
- * then renders all {@link RenderItem} in layer order.
+ * This panel builds a {@link DrawQueue} each frame based on the current {@link ScreenState},
+ * then renders all {@link RenderItem}s in layer order.
+ * <p>
+ * This renderer supports:
+ *  <ul>
+ *   <li>Padding walls when the board is smaller than a minimum viewport size</li>
+ *   <li>A player-centered viewport when the board is larger than a maximum viewport size</li>
+ * </ul>
  * 
  * @author Yui Matsumo
  * @version 1.0
  */
 public class GamePanel extends JPanel {
 
-    private DrawQueue drawQueue = new DrawQueue();
-    private Game game;
-    private Board board;
+    private final DrawQueue drawQueue = new DrawQueue();
+    private final Game game;
+    private final Board board;
+    
+    /** Board width (in cells). */
+    private final int gameX;
+    /** Board height (in cells). */
+    private final int gameY;
+    /** Viewport/render width (in cells), after applying padding and max clamp. */
+    private final int renderX;
+    /** Viewport/render height (in cells), after applying padding and max clamp. */
+    private final int renderY;
+    /** Horizontal padding (in cells) added on each side when board is smaller than minX. */
+    private final int xOffset;
+    /** Vertical padding (in cells) added on each side when board is smaller than minY. */
+    private final int yOffset;
+
+    /** Current viewport left bound in board coordinates (inclusive). */
+    private int viewStartX = 0;
+    /** Current viewport top bound in board coordinates (inclusive). */
+    private int viewStartY = 0;
+    /** Current viewport right bound in board coordinates (exclusive). */
+    private int viewEndX;
+    /** Current viewport bottom bound in board coordinates (exclusive). */
+    private int viewEndY;
+
+    /** Minimum viewport width (in cells). If board is smaller, padding walls are drawn. */
+    private final int minX = 10;
+    /** Minimum viewport height (in cells). If board is smaller, padding walls are drawn. */
+    private final int minY = 8;
+
+    /** Must be odd (keeps a centered, symmetric player-centered viewport). */
+    private final int maxX = 21;
+    /** Must be odd (keeps a centered, symmetric player-centered viewport). */
+    private final int maxY = 11;
 
     /**
      *  Creates a panel that renders the given game and board.
@@ -41,27 +91,75 @@ public class GamePanel extends JPanel {
         this.game = game;
         this.board = board;
 
+        this.gameX = board.getWidth();
+        this.gameY = board.getHeight();
+        this.viewEndX = gameX;
+        this.viewEndY = gameY;
+
+        this.xOffset = calculateOffset(gameX, minX);
+        this.yOffset = calculateOffset(gameY, minY);
+        this.renderX = calculateRenderSize(gameX, xOffset, maxX);
+        this.renderY = calculateRenderSize(gameY, yOffset, maxY);
+
         setBackground(Color.BLACK);
         setOpaque(true);
     }
+    
+    /**
+     * Computes padding (per side) when the board is smaller than the minimum viewport.
+     * <p>
+     * If {@code gameSize >= min}, returns 0.
+     * Otherwise, returns how many cells of padding should be added to each side
+     * so the content can be centered.
+     *
+     * @param gameSize board dimension (in cells)
+     * @param min      minimum viewport dimension (in cells)
+     * @return padding cells per side
+     */
+    private int calculateOffset(int gameSize, int min) {
+        if (gameSize >= min) {
+            return 0;
+        }
+        int shortage = min - gameSize;
+        return (shortage + 1) / 2;
+    }
+    /**
+     * Computes final viewport size (in cells), clamped by {@code max}.
+     * <p>
+     * If the board is larger than {@code max}, the viewport is fixed to {@code max}.
+     * Otherwise, it is the board size plus both-side padding.
+     *
+     * @param gameSize board dimension (in cells)
+     * @param offset   padding per side (in cells)
+     * @param max      maximum viewport dimension (in cells)
+     * @return final render dimension (in cells)
+     */
+    private int calculateRenderSize(int gameSize, int offset, int max) {
+        if (gameSize > max) {
+            return max;
+        } else {
+            return gameSize + offset * 2;
+        }
+    }
 
     /** Layer indices (lower values are drawn first / behind). */
-    private int cellLayer = 0;
-    private int rewardLayer = 1;
-    private int characterLayer = 2;
-    private int playerLayer = 3;
-    private int hudLayer = 4;
-    private int popupRectLayer = 5;
-    private int popupContentsLayer = 6;
+    private final int offsetLayer = 0;
+    private final int cellLayer = 1;
+    private final int rewardLayer = 2;
+    private final int characterLayer = 3;
+    private final int playerLayer = 4;
+    private final int hudLayer = 5;
+    private final int popupRectLayer = 6;
+    private final int popupContentsLayer = 7;
 
     /** On-screen cell size in pixels. */
-    private int cellWidth = 50;
-    private int cellHeight = 50;
+    private final int cellWidth = 50;
+    private final int cellHeight = 50;
 
     /** Sprite-sheet tile sizes and padding (source coordinates). */
-    private int gameSrcSize = 64;
-    private int screenSrcSize = 200;
-    private int srcPadding = 5;
+    private final int gameSrcSize = 64;
+    private final int screenSrcSize = 200;
+    private final int srcPadding = 5;
 
     /**
      * Computes the X/Y offset in a sprite sheet for a given tile "order".
@@ -144,13 +242,13 @@ public class GamePanel extends JPanel {
     }
 
     /**
-     * Preferred size is derived from the board dimensions and cell size.
+     * Preferred size is derived from the render dimensions and cell size.
      * 
      * @return preferred panel size
      */
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(board.getWidth() * cellWidth, board.getHeight() * cellHeight);
+        return new Dimension(renderX * cellWidth, renderY * cellHeight);
     }
 
 
@@ -168,13 +266,16 @@ public class GamePanel extends JPanel {
 
     /**
      * Enqueues a wall tile at the given pixel position.
-     * 
+     * <p>
+     * Used for both board walls and padding walls (offset regions).
+     *
      * @param x pixel x
      * @param y pixel y
+     * @param layer the layer index to render this wall tile on
      */
-    private void enqueueWall(int x, int y) {
+    private void enqueueWall(int x, int y, int layer) {
         int srcSize = srcSize(1, gameSrcSize);
-        RenderItem wall = RenderItem.sprite(cellLayer, x, y, cellWidth, cellHeight, SheetId.GAME_ATLAS, srcSize, srcPadding, gameSrcSize, gameSrcSize);
+        RenderItem wall = RenderItem.sprite(layer, x, y, cellWidth, cellHeight, SheetId.GAME_ATLAS, srcSize, srcPadding, gameSrcSize, gameSrcSize);
         drawQueue.enqueue(wall);
     } 
 
@@ -227,18 +328,31 @@ public class GamePanel extends JPanel {
     }
 
     /**
-     * Enqueues all board cells by inspecting each {@link Cell} type.
-     * 
-     * @param grid the board grid of cells
+     * Enqueues the visible portion of the board grid (a viewport region).
+     * <p>
+     * The region is defined by [startX, endX) and [startY, endY) in board coordinates.
+     * Pixel coordinates are converted to viewport-relative positions and also include
+     * padding offsets when the board is smaller than the minimum viewport.
+     *
+     * @param grid   the board grid of cells
+     * @param startX left edge of visible region (inclusive), in cells
+     * @param startY top edge of visible region (inclusive), in cells
+     * @param endX   right edge of visible region (exclusive), in cells
+     * @param endY   bottom edge of visible region (exclusive), in cells
      */
-    private void enqueueCells(Cell[][] grid) {
-        for (int i = 0; i < grid.length; i++) {
-            for (int j = 0; j < grid[i].length; j++) {
-                Cell cell = grid[i][j];
-                int x = j * cellWidth;
-                int y = i * cellHeight;
+    private void enqueueGameCells(Cell[][] grid, int startX, int startY, int endX, int endY) {
+        for (int row = startY; row < endY; row++) {
+            for (int col = startX; col < endX; col++) {
+                Cell cell = grid[row][col];
+
+                // World-to-viewport conversion:
+                // - subtract startX/startY so the viewport's top-left becomes (0,0)
+                // - add xOffset/yOffset so small boards are centered with padding walls
+                int x = (col - startX + xOffset) * cellWidth;
+                int y = (row - startY + yOffset) * cellHeight;
+
                 if (cell instanceof WallCell) {
-                    enqueueWall(x, y);
+                    enqueueWall(x, y, cellLayer);
                 } else if (cell instanceof FloorCell) {
                     enqueueFloor(x, y);
                 } else if (cell instanceof BarrierCell) {
@@ -248,8 +362,7 @@ public class GamePanel extends JPanel {
                     Reward r = ((RewardCell) cell).getReward();
                     if (r instanceof BonusReward) {
                         enqueueBonusReward(x, y);
-                    }
-                    else if (r instanceof RegularReward) {
+                    } else if (r instanceof RegularReward) {
                         enqueueRegularReward(x, y);
                     }
                 } else if (cell instanceof PunishmentCell) {
@@ -257,6 +370,81 @@ public class GamePanel extends JPanel {
                 }
             }
         }
+    }
+
+    /**
+     * Fills a horizontal padding band (top or bottom) with wall tiles.
+     *
+     * @param startRow the starting row (in render coordinates) to begin filling
+     */
+    private void fillHorizontalOffset(int startRow) {
+        for (int row = 0; row < yOffset; row++) {
+            for (int col = 0; col < renderX; col++) {
+                int x = col * cellWidth;
+                int y = (startRow + row) * cellHeight;
+                enqueueWall(x, y, offsetLayer);
+            }
+        }
+    }
+    /**
+     * Fills a vertical padding band (left or right) with wall tiles.
+     *
+     * @param startCol the starting column (in render coordinates) to begin filling
+     */
+    private void fillVerticalOffset(int startCol) {
+        for (int col = 0; col < xOffset; col++) {
+            for (int row = 0; row < gameY; row++) {
+                int x = (startCol + col) * cellWidth;
+                int y = (yOffset + row) * cellHeight;
+                enqueueWall(x, y, offsetLayer);
+            }
+        }
+    }
+
+    /**
+     * Enqueues cells for the current frame, including:
+     * <ul>
+     *   <li>Padding walls when the board is smaller than {@code minX/minY}</li>
+     *   <li>A player-centered viewport when the board is larger than {@code maxX/maxY}</li>
+     * </ul>
+     * Also updates the current viewport bounds used for character rendering.
+     *
+     * @param grid the board grid of cells
+     */
+    private void enqueueCells(Cell[][] grid) {
+        int startX = 0;
+        int startY = 0;
+        int endX = gameX;
+        int endY = gameY;
+
+        // Draw padding walls if the board is smaller than the minimum viewport.
+        if (yOffset > 0) {
+            fillHorizontalOffset(0);
+            fillHorizontalOffset(gameY + yOffset);
+        }
+        if (xOffset > 0) {
+            fillVerticalOffset(0);
+            fillVerticalOffset(gameX + xOffset);
+        }
+
+        // If the board is wider than maxX, compute a horizontal viewport centered on the player.
+        if (maxX < gameX) {
+            startX = game.getPlayer().getPosition().getX() - maxX / 2;
+            startX = Math.max(0, Math.min(startX, gameX - maxX));
+            endX = startX + maxX;
+        }
+        // If the board is taller than maxY, compute a vertical viewport centered on the player.
+        if (maxY < gameY) {
+            startY = game.getPlayer().getPosition().getY() - maxY / 2;
+            startY = Math.max(0, Math.min(startY, gameY - maxY));
+            endY = startY + maxY;
+        }
+        // Save viewport bounds so character rendering uses the same world-to-viewport transform.
+        viewStartX = startX;
+        viewStartY = startY;
+        viewEndX = endX;
+        viewEndY = endY;
+        enqueueGameCells(grid, startX, startY, endX, endY);
     }
 
 
@@ -297,15 +485,26 @@ public class GamePanel extends JPanel {
     }
 
     /**
-     * Enqueues all characters on the board, converting grid coordinates to pixels.
-     * 
+     * Enqueues all characters visible in the current viewport.
+     * <p>
+     * Converts world (board) coordinates into viewport-relative pixel coordinates,
+     * and skips characters outside the visible region.
+     *
      * @param characters list of active characters
      */
-    // Note: Renamed Character -> GameCharacter to avoid conflicts with java.lang.Character.
     private void enqueueCharacters(List<GameCharacter> characters) {
         for (GameCharacter character : characters) {
-            int x = character.getPosition().getX() * cellWidth;
-            int y = character.getPosition().getY() * cellHeight;
+            int cx = character.getPosition().getX();
+            int cy = character.getPosition().getY();
+
+            // Skip characters outside the visible viewport
+            if (cx < viewStartX || cx >= viewEndX || cy < viewStartY || cy >= viewEndY) {
+                continue;
+            }
+
+            // World-to-viewport conversion (same idea as enqueueGameCells)
+            int x = (cx - viewStartX + xOffset) * cellWidth;
+            int y = (cy - viewStartY + yOffset) * cellHeight;
             
             if (character instanceof Player) {
                 enqueuePlayer(x, y);
@@ -386,7 +585,7 @@ public class GamePanel extends JPanel {
         int textPadding = 10;
         Font resultFont = new Font("SansSerif", Font.BOLD, 40);
         int resultX = getCenteredTextX(resultText, resultFont);
-        int resultY = imageY + h + textPadding + getTextHeight(resultFont)/2 +5;
+        int resultY = imageY + h + textPadding + getTextHeight(resultFont)/2 + 10;
         
         RenderItem result = RenderItem.text(0, resultX, resultY, Color.WHITE, resultText, resultFont);
         drawQueue.enqueue(result);
@@ -411,7 +610,7 @@ public class GamePanel extends JPanel {
         String playAgainText = "Press Space to Play Again";
         Font playAgainFont = new Font("SansSerif", Font.BOLD, 15);
         int playAgainX = getCenteredTextX(playAgainText, playAgainFont);
-        int playAgainY = scoreTimeY + textPadding + getTextHeight(playAgainFont);
+        int playAgainY = scoreTimeY + textPadding + getTextHeight(playAgainFont) + 10;
         
         RenderItem playAgain = RenderItem.text(0, playAgainX, playAgainY, Color.WHITE, playAgainText, playAgainFont);
         drawQueue.enqueue(playAgain);
@@ -503,8 +702,8 @@ public class GamePanel extends JPanel {
 
     /**
      * Enqueues the popup overlay for the given reason (image, text box, and prompt).
-     * 
-     * @param popupReason popupReason the reason the popup is being shown
+     *
+     * @param popupReason the reason the popup is being shown
      */
     private void enqueuePopups(PopupReason popupReason) {
         int imageW = cellWidth * 4;
