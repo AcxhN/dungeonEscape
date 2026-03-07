@@ -62,14 +62,14 @@ public class Board {
 
     /**@return returns if a given position is inside the board*/
     public boolean isInside(Position position) {
-	if (position.getX() < 0 ||
-	    position.getY() < 0 ||
-	    position.getX() > width ||
-	    position.getY() > height) {
-	    return false;
-	} else {
-	    return true;
-	}
+        if (position.getX() < 0 ||
+            position.getY() < 0 ||
+            position.getX() >= width ||
+            position.getY() >= height) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     /**
@@ -123,7 +123,7 @@ public class Board {
      */
     public Cell getCell(int x, int y) {
         ensureInBounds(x, y);
-        return grid[x][y]; 
+        return grid[y][x]; 
     }
 
     /**
