@@ -1,17 +1,14 @@
 package ca.sfu.cmpt276.team7;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 import ca.sfu.cmpt276.team7.board.Board;
-import ca.sfu.cmpt276.team7.enemies.Enemy;
-import ca.sfu.cmpt276.team7.reward.Player;
-import ca.sfu.cmpt276.team7.EndReason;
-import ca.sfu.cmpt276.team7.ScreenState;
-import ca.sfu.cmpt276.team7.PopupReason;
-import ca.sfu.cmpt276.team7.enemies.Goblin;
+import ca.sfu.cmpt276.team7.core.Direction;
 import ca.sfu.cmpt276.team7.core.GameCharacter;
-import ca.sfu.cmpt276.team7.core.Direction; 
+import ca.sfu.cmpt276.team7.enemies.Enemy;
+import ca.sfu.cmpt276.team7.enemies.Goblin;
+import ca.sfu.cmpt276.team7.reward.Player; 
 
 /**
  * Cor controller for the game
@@ -348,6 +345,15 @@ public class Game
     public int getTimeElapsed()
     {
         return timeElapsed;
+    }
+
+    /**
+     * Returns the player instance for this game.
+     *
+     * @return the current player
+     */
+    public Player getPlayer() {
+        return player;
     }
 
 }
