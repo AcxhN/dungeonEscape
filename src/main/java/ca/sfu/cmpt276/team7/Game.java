@@ -10,7 +10,10 @@ import ca.sfu.cmpt276.team7.enemies.Enemy;
 import ca.sfu.cmpt276.team7.enemies.Goblin;
 import ca.sfu.cmpt276.team7.reward.Player;
 import ca.sfu.cmpt276.team7.reward.RegularReward;
-import ca.sfu.cmpt276.team7.reward.Reward; 
+import ca.sfu.cmpt276.team7.reward.Reward;
+import main.java.ca.sfu.cmpt276.team7.EndReason;
+import main.java.ca.sfu.cmpt276.team7.PopupReason;
+import main.java.ca.sfu.cmpt276.team7.ScreenState; 
 
 /**
  * Cor controller for the game
@@ -136,7 +139,8 @@ public class Game
 
         if(checkLoss())
         {
-            
+            screenState = ScreenState.END;
+            return;
         }
     }
 
@@ -156,10 +160,10 @@ public class Game
      * 
      * <p>Supported key codes:
      * <ul>
-     *  <li>87(W) / 38 (↑) - move UP</li>
-     *  <li>83(S) / 40 (↓) - move DOWN</li>
-     *  <li>65(A) / 37 (←) - move LEFT</li>
-     *  <li>68(D) / 39 (→) -  move RIGHT</li>
+     *  <li>87(W) / 38 (↑) - move NORTH</li>
+     *  <li>83(S) / 40 (↓) - move SOUTH</li>
+     *  <li>65(A) / 37 (←) - move WEST</li>
+     *  <li>68(D) / 39 (→) -  move EAST</li>
      * </ul>
      * 
      * <p>This method is a no-op when {@code screenState} is not {@link ScreenState#PLAYING}.
