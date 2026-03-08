@@ -229,7 +229,7 @@ public class Game
      */
     public boolean checkLoss()
     {
-        if(player.getTotalScore() <= 0)
+        if(player.getTotalScore() < 0)
         {
             screenState = ScreenState.END;
             endReason = EndReason.LOSE_BY_TRAP;
