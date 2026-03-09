@@ -59,9 +59,10 @@ public class Main {
                 board.setCell(pos.getX(), pos.getY(), new PunishmentCell(pos, trap));
             }
 
-            Game game = new Game(board, player, enemies, key_spawns.size(), trap_spawns.size(), key_spawns, trap_spawns); // no need to hardcode 10 
+            // Bonus rewards are runtime-spawned, so initial total is 0.
+            Game game = new Game(board, player, enemies, key_spawns.size(), 0, key_spawns, trap_spawns);
 
-            GameWindow.start(game, board); // this already creates a panel, so no need for GamePanel gamepanel = new GamePnale(game, board); 
+            GameWindow.start(game, board);
 
         } catch (IOException e) {
             e.printStackTrace();
