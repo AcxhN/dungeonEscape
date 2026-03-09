@@ -78,8 +78,10 @@ public class Game
     /**Total time elsaped */
     private long totalTime;
 
+    /**Active bonus rewards currently on board */
     private List <BonusRewardSpawn> bonusRewards;
 
+    /**Initial positions of enemies, keys and traps, used for reset */ 
     private final List<Position> initialEnemyPos;
     private final List<Position> initialKeyPos;
     private final List<Position> initialTrapPos;
@@ -91,6 +93,9 @@ public class Game
      * @param player
      * @param enemies
      * @param totalRegularRewards
+     * @param totalBonusRewards
+     * @param keyPositions
+     * @param trapPositions
      */
     public Game(Board board, Player player, List<Enemy> enemies, int totalRegularRewards, int totalBonusRewards,
                 List<Position> keyPositions, List<Position> trapPositions)
@@ -112,7 +117,8 @@ public class Game
         this.initialTrapPos = new ArrayList<>(trapPositions);
 
         this.initialEnemyPos = new ArrayList<>();
-        for (Enemy enemy : enemies) {
+        for (Enemy enemy : enemies) 
+        {
             this.initialEnemyPos.add(enemy.getPosition());
         }
     }
@@ -137,7 +143,12 @@ public class Game
         bonusRewards.clear();
     }
 
-    public void resetGameState() {
+    /**
+     * Resets game to initial state, restoring all rewards, traps and 
+     * enemies to their starting values
+     */
+    public void resetGameState() 
+    {
         startTime = 0;
         timeElapsed = 0;
         totalTime = 0;
@@ -150,12 +161,15 @@ public class Game
 
         player.resetState(board.getStartPosition());
 
-        for (int y = 0; y < board.getHeight(); y++) {
-            for (int x = 0; x < board.getWidth(); x++) {
+        for (int y = 0; y < board.getHeight(); y++) 
+        {
+            for (int x = 0; x < board.getWidth(); x++) 
+            {
                 Position pos = new Position(x, y);
                 Cell cell = board.getCell(x, y);
 
-                if (cell instanceof RewardCell || cell instanceof PunishmentCell) {
+                if (cell instanceof RewardCell || cell instanceof PunishmentCell) 
+                {
                     board.setCell(x, y, new FloorCell(pos));
                 }
             }
@@ -253,22 +267,28 @@ public class Game
      */
     public void handleInput(int keyCode)
     {
-        if (screenState == ScreenState.START) {
-            if (keyCode == 32) { // Space
+        if (screenState == ScreenState.START) 
+        {
+            if (keyCode == 32) 
+            { // Space
                 startGame();
             }
             return;
         }
 
-        if (screenState == ScreenState.PAUSE) {
-            if (keyCode == 32) { // Space
+        if (screenState == ScreenState.PAUSE) 
+        {
+            if (keyCode == 32 || keyCode == 80) 
+            { // Space or P
                 resumeFromPopup();
             }
             return;
         }
 
-        if (screenState == ScreenState.END) {
-            if (keyCode == 32) { // Space
+        if (screenState == ScreenState.END) 
+        {
+            if (keyCode == 32) 
+            { // Space
                 resetGameState();
                 startGame();
             }
@@ -277,6 +297,12 @@ public class Game
 
         if(screenState != ScreenState.PLAYING)
         {
+            return;
+        }
+
+        if(keyCode == 80)//P
+        {
+            togglePause();
             return;
         }
 
@@ -312,25 +338,36 @@ public class Game
             return;
         }
 
-        if (checkWin()) {
+        if (checkWin()) 
+        {
             screenState = ScreenState.END;
             endReason = EndReason.WIN;
             return;
         }
 
-        if (checkLoss()) {
+        if (checkLoss()) 
+        {
             screenState = ScreenState.END;
             return;
         }
     }
 
-    private void pauseForPopup(PopupReason reason) {
+    /**
+     * Pauses game and displays popup reason to player
+     * @param reason reaason why popup is being shown
+     */
+    private void pauseForPopup(PopupReason reason) 
+    {
         popupReason = reason;
         totalTime += System.currentTimeMillis() - startTime;
         screenState = ScreenState.PAUSE;
     }
 
-    private void resumeFromPopup() {
+    /**
+     * resumes game for popup/pause and resets timer
+     */
+    private void resumeFromPopup() 
+    {
         popupReason = null;
         startTime = System.currentTimeMillis();
         screenState = ScreenState.PLAYING;
@@ -475,6 +512,10 @@ public class Game
         return collectedBonusRewards;
     }
 
+    /**
+     * returns list of all bonus rewards currently on board
+     * @return bonusRewards
+     */
     public List<BonusRewardSpawn> getBonusRewards()
     {
         return bonusRewards;
@@ -525,7 +566,8 @@ public class Game
      *
      * @return the current player
      */
-    public Player getPlayer() {
+    public Player getPlayer() 
+    {
         return player;
     }
 
