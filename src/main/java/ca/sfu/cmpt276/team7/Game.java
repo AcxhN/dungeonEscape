@@ -12,9 +12,9 @@ import ca.sfu.cmpt276.team7.reward.Player;
 import ca.sfu.cmpt276.team7.reward.RegularReward;
 import ca.sfu.cmpt276.team7.reward.Reward;
 import ca.sfu.cmpt276.team7.reward.BonusReward;
-import main.java.ca.sfu.cmpt276.team7.EndReason;
-import main.java.ca.sfu.cmpt276.team7.PopupReason;
-import main.java.ca.sfu.cmpt276.team7.ScreenState; 
+import ca.sfu.cmpt276.team7.EndReason;
+import ca.sfu.cmpt276.team7.PopupReason;
+import ca.sfu.cmpt276.team7.ScreenState; 
 
 /**
  * Core controller for the game
