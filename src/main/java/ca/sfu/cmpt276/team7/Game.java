@@ -11,12 +11,13 @@ import ca.sfu.cmpt276.team7.enemies.Goblin;
 import ca.sfu.cmpt276.team7.reward.Player;
 import ca.sfu.cmpt276.team7.reward.RegularReward;
 import ca.sfu.cmpt276.team7.reward.Reward;
+import ca.sfu.cmpt276.team7.reward.BonusReward;
 import main.java.ca.sfu.cmpt276.team7.EndReason;
 import main.java.ca.sfu.cmpt276.team7.PopupReason;
 import main.java.ca.sfu.cmpt276.team7.ScreenState; 
 
 /**
- * Cor controller for the game
+ * Core controller for the game
  * 
  * <p>Manages the tick game loop, translates player keyboard input
  * into movement commands, check for win and loss conditions every tick,
@@ -42,6 +43,12 @@ public class Game
 
     /** Number of regular rewards the player has collected so far. */
     private int collectedRegularRewards;
+
+    /** Total number of bonus rewards on board*/
+    private int totalBonusRewards;
+
+    /** Number of bonus rewards the player has collected so far */
+    private int collectedBonusRewards;
 
     /** The current screen state of the game. */
     private ScreenState screenState;
@@ -75,7 +82,7 @@ public class Game
      * @param enemies
      * @param totalRegularRewards
      */
-    public Game(Board board, Player player, List<Enemy> enemies, int totalRegularRewards)
+    public Game(Board board, Player player, List<Enemy> enemies, int totalRegularRewards, int totalBonusRewards)
     {
         this.board = board;
         this.player = player;
@@ -83,6 +90,8 @@ public class Game
         this.timeElapsed = 0;
         this.totalRegularRewards = totalRegularRewards;
         this.collectedRegularRewards = 0;
+        this.totalBonusRewards = totalBonusRewards;
+        this.collectedBonusRewards = 0;
         this.screenState = ScreenState.START;
         this.endReason = null;
         this.popupReason = null;
@@ -197,10 +206,16 @@ public class Game
                 return;
         }
 
-        if (collectedReward instanceof RegularReward) {
+        if (collectedReward instanceof RegularReward) 
+        {
             collectedRegularRewards++;
+            popupReason = null;
         }
-        updateTick();
+        else if(collectedReward instanceof BonusReward)
+        {
+            collectedBonusRewards++;
+            popupReason = PopupReason.BONUS_COLLECTED;
+        }
         
     }
 
@@ -313,6 +328,26 @@ public class Game
     public int getCollectedRegularRewards()
     {
         return collectedRegularRewards;
+    }
+
+    /**
+     * returns the total number of bonus rewards on the board
+     * 
+     * @return totalBonusRewards
+     */
+    public int getTotalBonusRewards()
+    {
+        return totalBonusRewards;
+    }
+
+    /**
+     * returns the number of bonus rewards that player has colllected
+     * 
+     * @return collectedBonusRewards
+     */
+    public int getCollectedBonusRewards()
+    {
+        return collectedBonusRewards;
     }
 
     /**
