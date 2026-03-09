@@ -50,7 +50,7 @@ public class Main {
                 board.setCell(pos.getX(), pos.getY(), new PunishmentCell(pos, trap));
             }
 
-            Game game = new Game(board, player, enemies, key_spawns.size()); // no need to hardcode 10 
+            Game game = new Game(board, player, enemies, key_spawns.size(), trap_spawns.size()); // no need to hardcode 10 
 
             game.startGame(); 
 
