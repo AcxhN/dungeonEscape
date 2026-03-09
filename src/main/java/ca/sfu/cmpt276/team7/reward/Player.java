@@ -2,6 +2,7 @@ package ca.sfu.cmpt276.team7.reward;
 
 import ca.sfu.cmpt276.team7.board.Board;
 import ca.sfu.cmpt276.team7.cells.Cell;
+import ca.sfu.cmpt276.team7.cells.FloorCell;
 import ca.sfu.cmpt276.team7.core.Direction;
 import ca.sfu.cmpt276.team7.core.GameCharacter;
 import ca.sfu.cmpt276.team7.core.Position; 
@@ -94,7 +95,7 @@ public class Player extends GameCharacter {
             collected = rewardCell.getReward();
             if (collected != null) {
                 collectReward(collected);
-                rewardCell.clearReward();
+                board.setCell(newPos.getX(), newPos.getY(), new FloorCell(newPos));
             }
         }
 
@@ -126,6 +127,7 @@ public class Player extends GameCharacter {
         if (reward instanceof RegularReward reg) {
             totalScore += reg.getValue();
         } else if (reward instanceof BonusReward bonus) {
+            totalScore += bonus.getValue();
             this.activeBonus = bonus;
         }
     }
