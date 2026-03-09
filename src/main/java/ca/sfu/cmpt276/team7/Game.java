@@ -23,7 +23,7 @@ import main.java.ca.sfu.cmpt276.team7.ScreenState;
  * into movement commands, check for win and loss conditions every tick,
  * and handles player respawn after death.
  * 
- * <p>Collaborates withgit 
+ * <p>Collaborates with
  * <ul>
  *  <li>{@link Board} - supplies start/end positions</li>
  *  <li>{@link Player} - moves and tracks player state</li>
@@ -105,6 +105,9 @@ public class Game
     {
         startTime = System.currentTimeMillis();
         totalTime = 0;
+
+        collectedRegularRewards = 0;
+        collectedBonusRewards = 0;
 
         timeElapsed = 0;
         screenState = ScreenState.PLAYING;
@@ -260,7 +263,15 @@ public class Game
             if(enemy.getPosition().equals(player.getPosition()))
             {
                 screenState = ScreenState.END;
-                endReason = (enemy instanceof Goblin) ? EndReason.LOSE_BY_GOBLIN : EndReason.LOSE_BY_OGRE;
+                if(enemy instanceof Goblin)
+                {
+                    endReason = EndReason.LOSE_BY_GOBLIN;  
+                }
+                else
+                {
+                    endReason = endReason.LOSE_BY_OGRE;
+                    popupReason = PopupReason.OGRE_HIT;
+                }
                 return true;
             }
         }
