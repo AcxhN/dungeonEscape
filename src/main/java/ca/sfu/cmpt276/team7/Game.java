@@ -48,7 +48,7 @@ public class Game
     /** Number of regular rewards the player has collected so far. */
     private int collectedRegularRewards;
 
-    /** Total number of bonus rewards on board*/
+    /** Total number of bonus rewards spawned during the run. */
     private int totalBonusRewards;
 
     /** Number of bonus rewards the player has collected so far */
@@ -72,14 +72,17 @@ public class Game
     /**All enemy instances present on board */
     private List<Enemy> enemies;
 
-    /**Elasped time from start */
+    /**Elapsed time from start */
     private long startTime;
 
-    /**Total time elsaped */
+    /**Total time elapsed */
     private long totalTime;
 
     /**Active bonus rewards currently on board */
-    private List <BonusRewardSpawn> bonusRewards;
+    private List<BonusRewardSpawn> bonusRewards;
+
+    /** Cached legal positions where a bonus reward may spawn. */
+    private final List<Position> bonusSpawnPositions;
 
     /**Initial positions of enemies, keys and traps, used for reset */ 
     private final List<Position> initialEnemyPos;
@@ -121,6 +124,8 @@ public class Game
         {
             this.initialEnemyPos.add(enemy.getPosition());
         }
+
+        this.bonusSpawnPositions = buildBonusSpawnPositions();
     }
 
     /**
@@ -134,6 +139,7 @@ public class Game
 
         collectedRegularRewards = 0;
         collectedBonusRewards = 0;
+        totalBonusRewards = 0;
 
         timeElapsed = 0;
         screenState = ScreenState.PLAYING;
@@ -154,6 +160,7 @@ public class Game
         totalTime = 0;
         collectedRegularRewards = 0;
         collectedBonusRewards = 0;
+        totalBonusRewards = 0;
         bonusRewards.clear();
         screenState = ScreenState.START;
         endReason = null;
@@ -239,6 +246,86 @@ public class Game
     }
 
     /**
+     * Builds the list of board positions that are valid for temporary bonus reward spawning.
+     *
+     * <p>Valid spawn positions must:
+     * <ul>
+     *   <li>currently be a {@link FloorCell}</li>
+     *   <li>not be the start tile</li>
+     *   <li>not be the exit tile</li>
+     *   <li>not overlap an initial key position</li>
+     *   <li>not overlap an initial trap position</li>
+     *   <li>not overlap an initial enemy spawn position</li>
+     * </ul>
+     *
+     * @return list of legal bonus spawn positions
+     */
+    private List<Position> buildBonusSpawnPositions()
+    {
+        List<Position> positions = new ArrayList<>();
+
+        for (int y = 0; y < board.getHeight(); y++)
+        {
+            for (int x = 0; x < board.getWidth(); x++)
+            {
+                Position pos = new Position(x, y);
+                Cell cell = board.getCell(x, y);
+
+                if (!(cell instanceof FloorCell))
+                {
+                    continue;
+                }
+
+                if (isReservedBonusSpawnPosition(pos))
+                {
+                    continue;
+                }
+
+                positions.add(pos);
+            }
+        }
+
+        return positions;
+    }
+
+    /**
+     * Checks whether a position is reserved for another gameplay purpose and
+     * therefore should not be used for random bonus reward spawning.
+     *
+     * @param pos position to check
+     * @return true if reserved, false otherwise
+     */
+    private boolean isReservedBonusSpawnPosition(Position pos)
+    {
+        if (pos.equals(board.getStartPosition()))
+        {
+            return true;
+        }
+
+        if (pos.equals(board.getEndPosition()))
+        {
+            return true;
+        }
+
+        if (initialKeyPos.contains(pos))
+        {
+            return true;
+        }
+
+        if (initialTrapPos.contains(pos))
+        {
+            return true;
+        }
+
+        if (initialEnemyPos.contains(pos))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Getter for the list of characters
      * @return A list of characters
      */
@@ -300,7 +387,7 @@ public class Game
             return;
         }
 
-        if(keyCode == 80)//P
+        if(keyCode == 80) // P
         {
             togglePause();
             return;
@@ -430,7 +517,6 @@ public class Game
         return false;
     }
 
-
     /**
      * Manages time depending if game is pouse or currently in playing state
      */
@@ -522,6 +608,16 @@ public class Game
     }
 
     /**
+     * Returns all legal positions where a bonus reward may spawn.
+     *
+     * @return bonus spawn positions
+     */
+    public List<Position> getBonusSpawnPositions()
+    {
+        return new ArrayList<>(bonusSpawnPositions);
+    }
+
+    /**
     * Returns the current screen state of the game
     *
     * @return screenState
@@ -570,5 +666,4 @@ public class Game
     {
         return player;
     }
-
 }
