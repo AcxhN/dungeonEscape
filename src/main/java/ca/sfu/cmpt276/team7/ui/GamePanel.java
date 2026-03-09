@@ -73,7 +73,7 @@ public class GamePanel extends JPanel {
     private int viewEndY;
 
     /** Minimum viewport width (in cells). If board is smaller, padding walls are drawn. */
-    private final int minX = 10;
+    private final int minX = 11;
     /** Minimum viewport height (in cells). If board is smaller, padding walls are drawn. */
     private final int minY = 8;
 
@@ -540,7 +540,7 @@ public class GamePanel extends JPanel {
      * Enqueues the start screen UI (title and prompt).
      */
     private void enqueueStartScreen() {
-        String titleText = "TEAM 7 GAME";
+        String titleText = "Dungeon Crawl";
         Font titleFont = new Font("SansSerif", Font.BOLD, 50);
         int[] titleXY = getCenteredTextXY(titleText, titleFont);
         
@@ -629,7 +629,7 @@ public class GamePanel extends JPanel {
         String playAgainText = "Press Space to Play Again";
         Font playAgainFont = new Font("SansSerif", Font.BOLD, 15);
         int playAgainX = getCenteredTextX(playAgainText, playAgainFont);
-        int playAgainY = scoreTimeY + textPadding + getTextHeight(playAgainFont) + 7;
+        int playAgainY = scoreTimeY + textPadding + getTextHeight(playAgainFont) + 5;
         
         RenderItem playAgain = RenderItem.text(0, playAgainX, playAgainY, Color.WHITE, playAgainText, playAgainFont);
         drawQueue.enqueue(playAgain);
