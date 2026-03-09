@@ -4,18 +4,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ca.sfu.cmpt276.team7.board.Board;
+import ca.sfu.cmpt276.team7.cells.Cell;
+import ca.sfu.cmpt276.team7.cells.FloorCell;
 import ca.sfu.cmpt276.team7.core.Direction;
 import ca.sfu.cmpt276.team7.core.GameCharacter;
+import ca.sfu.cmpt276.team7.core.Position;
 import ca.sfu.cmpt276.team7.enemies.Enemy;
 import ca.sfu.cmpt276.team7.enemies.Goblin;
-import ca.sfu.cmpt276.team7.reward.Player;
-import ca.sfu.cmpt276.team7.reward.RegularReward;
-import ca.sfu.cmpt276.team7.reward.Reward;
 import ca.sfu.cmpt276.team7.reward.BonusReward;
 import ca.sfu.cmpt276.team7.reward.BonusRewardSpawn;
-import ca.sfu.cmpt276.team7.EndReason;
-import ca.sfu.cmpt276.team7.PopupReason;
-import ca.sfu.cmpt276.team7.ScreenState; 
+import ca.sfu.cmpt276.team7.reward.Player;
+import ca.sfu.cmpt276.team7.reward.PunishmentCell;
+import ca.sfu.cmpt276.team7.reward.RegularReward;
+import ca.sfu.cmpt276.team7.reward.Reward;
+import ca.sfu.cmpt276.team7.reward.RewardCell;
+import ca.sfu.cmpt276.team7.reward.TrapPunishment;
 
 /**
  * Core controller for the game
@@ -77,6 +80,10 @@ public class Game
 
     private List <BonusRewardSpawn> bonusRewards;
 
+    private final List<Position> initialEnemyPos;
+    private final List<Position> initialKeyPos;
+    private final List<Position> initialTrapPos;
+
     /**
      * Contructs new game with given board, player and enemies
      * 
@@ -85,7 +92,8 @@ public class Game
      * @param enemies
      * @param totalRegularRewards
      */
-    public Game(Board board, Player player, List<Enemy> enemies, int totalRegularRewards, int totalBonusRewards)
+    public Game(Board board, Player player, List<Enemy> enemies, int totalRegularRewards, int totalBonusRewards,
+                List<Position> keyPositions, List<Position> trapPositions)
     {
         this.board = board;
         this.player = player;
@@ -99,6 +107,14 @@ public class Game
         this.endReason = null;
         this.popupReason = null;
         this.bonusRewards = new ArrayList<>();
+
+        this.initialKeyPos = new ArrayList<>(keyPositions);
+        this.initialTrapPos = new ArrayList<>(trapPositions);
+
+        this.initialEnemyPos = new ArrayList<>();
+        for (Enemy enemy : enemies) {
+            this.initialEnemyPos.add(enemy.getPosition());
+        }
     }
 
     /**
@@ -119,6 +135,45 @@ public class Game
         popupReason = null;
         player.setPosition(board.getStartPosition());
         bonusRewards.clear();
+    }
+
+    public void resetGameState() {
+        timeElapsed = 0;
+        totalTime = 0;
+        collectedRegularRewards = 0;
+        collectedBonusRewards = 0;
+        bonusRewards.clear();
+        screenState = ScreenState.START;
+        endReason = null;
+        popupReason = null;
+
+        player.resetState(board.getStartPosition());
+
+        for (int y = 0; y < board.getHeight(); y++) {
+            for (int x = 0; x < board.getWidth(); x++) {
+                Position pos = new Position(x, y);
+                Cell cell = board.getCell(x, y);
+
+                if (cell instanceof RewardCell || cell instanceof PunishmentCell) {
+                    board.setCell(x, y, new FloorCell(pos));
+                }
+            }
+        }
+        
+        for (Position pos : initialKeyPos) {
+            board.setCell(pos.getX(), pos.getY(),
+                new RewardCell(pos, new RegularReward(10)));
+        }
+
+        for (Position pos : initialTrapPos) {
+            board.setCell(pos.getX(), pos.getY(),
+                new PunishmentCell(pos, new TrapPunishment(5)));
+        }
+
+        for (int i = 0; i < enemies.size(); i++) {
+            Enemy enemy = enemies.get(i);
+            enemy.setPosition(initialEnemyPos.get(i));
+        }
     }
 
     /**
@@ -196,6 +251,28 @@ public class Game
      */
     public void handleInput(int keyCode)
     {
+        if (screenState == ScreenState.START) {
+            if (keyCode == 32) { // Space
+                startGame();
+            }
+            return;
+        }
+
+        if (screenState == ScreenState.PAUSE) {
+            if (keyCode == 32) { // Space
+                resumeFromPopup();
+            }
+            return;
+        }
+
+        if (screenState == ScreenState.END) {
+            if (keyCode == 32) { // Space
+                resetGameState();
+                startGame();
+            }
+            return;
+        }
+
         if(screenState != ScreenState.PLAYING)
         {
             return;
@@ -229,9 +306,31 @@ public class Game
         else if(collectedReward instanceof BonusReward)
         {
             collectedBonusRewards++;
-            popupReason = PopupReason.BONUS_COLLECTED;
+            pauseForPopup(PopupReason.BONUS_COLLECTED);
+            return;
         }
         
+        if (checkLoss()) {
+            screenState = ScreenState.END;
+            return;
+        }
+
+        if (checkWin()) {
+            screenState = ScreenState.END;
+            endReason = EndReason.WIN;
+        }
+    }
+
+    private void pauseForPopup(PopupReason reason) {
+        popupReason = reason;
+        totalTime += System.currentTimeMillis() - startTime;
+        screenState = ScreenState.PAUSE;
+    }
+
+    private void resumeFromPopup() {
+        popupReason = null;
+        startTime = System.currentTimeMillis();
+        screenState = ScreenState.PLAYING;
     }
 
     /**

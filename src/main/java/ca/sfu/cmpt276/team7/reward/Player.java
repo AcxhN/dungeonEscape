@@ -27,6 +27,12 @@ public class Player extends GameCharacter {
         this.activeBonus = null;
     }
 
+    public void resetState(Position start) {
+        this.position = start;
+        this.totalScore = 0;
+        this.activeBonus = null;
+    }
+
     /**
      * Returns the player's current total score.
      *

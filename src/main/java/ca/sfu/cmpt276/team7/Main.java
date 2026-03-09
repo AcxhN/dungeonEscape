@@ -1,16 +1,25 @@
 package ca.sfu.cmpt276.team7;
 
-import ca.sfu.cmpt276.team7.board.*;
-import ca.sfu.cmpt276.team7.core.*;
-import ca.sfu.cmpt276.team7.enemies.*;
-import ca.sfu.cmpt276.team7.reward.*;
-import ca.sfu.cmpt276.team7.cells.*;
-import ca.sfu.cmpt276.team7.ui.*;
-
+import java.io.IOException;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.ArrayList;
-import java.io.IOException; 
+import java.util.List; 
+
+import ca.sfu.cmpt276.team7.board.Board;
+import ca.sfu.cmpt276.team7.board.BoardLoader;
+import ca.sfu.cmpt276.team7.core.Direction;
+import ca.sfu.cmpt276.team7.core.Position;
+import ca.sfu.cmpt276.team7.enemies.Enemy;
+import ca.sfu.cmpt276.team7.enemies.Goblin;
+import ca.sfu.cmpt276.team7.enemies.Ogre;
+import ca.sfu.cmpt276.team7.reward.Player;
+import ca.sfu.cmpt276.team7.reward.Punishment;
+import ca.sfu.cmpt276.team7.reward.PunishmentCell;
+import ca.sfu.cmpt276.team7.reward.RegularReward;
+import ca.sfu.cmpt276.team7.reward.Reward;
+import ca.sfu.cmpt276.team7.reward.RewardCell;
+import ca.sfu.cmpt276.team7.reward.TrapPunishment;
+import ca.sfu.cmpt276.team7.ui.GameWindow;
 
 public class Main {
     public static void main(String[] args) {
@@ -50,7 +59,7 @@ public class Main {
                 board.setCell(pos.getX(), pos.getY(), new PunishmentCell(pos, trap));
             }
 
-            Game game = new Game(board, player, enemies, key_spawns.size(), trap_spawns.size()); // no need to hardcode 10 
+            Game game = new Game(board, player, enemies, key_spawns.size(), trap_spawns.size(), key_spawns, trap_spawns); // no need to hardcode 10 
 
             game.startGame(); 
 
