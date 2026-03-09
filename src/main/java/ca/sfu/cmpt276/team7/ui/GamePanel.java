@@ -759,6 +759,30 @@ public class GamePanel extends JPanel {
         drawQueue.enqueue(operation);
     }
 
+    private void enqueuePause() {
+        int pauseRectW = cellWidth * 6;
+        int pauseRextH = cellHeight * 3;
+        int[] pauseRectXY = getCenteredRectXY(pauseRectW, pauseRextH);
+        int pauseRectX = pauseRectXY[0];
+        int pauseRectY = pauseRectXY[1];
+
+        RenderItem pauseRect = RenderItem.rect(popupRectLayer, pauseRectX, pauseRectY, pauseRectW, pauseRextH, Color.BLACK);
+        drawQueue.enqueue(pauseRect);
+
+
+        String pauseText = "Game Paused";
+        Font pauseFont = new Font("SansSerif", Font.BOLD, 30);
+        int[] pauseXY = getCenteredTextXY(pauseText, pauseFont);
+        RenderItem pause = RenderItem.text(popupContentsLayer, pauseXY[0], pauseXY[1] + 10 , Color.WHITE, pauseText, pauseFont);
+        drawQueue.enqueue(pause);
+
+        String operationText = "Press space to continue...";
+        Font operationFont = new Font("SansSerif", Font.PLAIN, 17);
+        int operationX = getCenteredTextX(operationText, operationFont);
+        RenderItem operation = RenderItem.text(popupContentsLayer, operationX, pauseRectY + pauseRextH - 15, Color.WHITE, operationText, operationFont);
+        drawQueue.enqueue(operation);
+    }
+
 
     /**
      * Rebuilds the draw queue for the current frame based on {@link ScreenState}.
@@ -774,6 +798,7 @@ public class GamePanel extends JPanel {
         int score = game.getTotalScore();
         int totalKey = game.getTotalRegularRewards();
         int collectedKey = game.getCollectedRegularRewards();
+        PopupReason popupReason = game.getPopupReason();
 
         switch (screenState) {
             case START:
@@ -790,7 +815,11 @@ public class GamePanel extends JPanel {
                 enqueueCells(board.getGrid());
                 enqueueCharacters(game.getCharacters());
                 enqueueHud(score, totalKey, collectedKey, sec);
-                enqueuePopups(game.getPopupReason());
+                if (popupReason != null) {
+                    enqueuePopups(popupReason);
+                } else {
+                    enqueuePause();
+                }
                 break;
                 
             case END:
