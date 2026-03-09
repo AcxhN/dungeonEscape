@@ -260,7 +260,7 @@ public class GamePanel extends JPanel {
      */
     private void enqueueFloor(int x, int y) {
         int srcSize = srcSize(0, gameSrcSize);
-        RenderItem floor = RenderItem.sprite(cellLayer, x, y, cellWidth, cellHeight, SheetId.GAME_ATLAS, srcSize, srcPadding, gameSrcSize, gameSrcSize);
+        RenderItem floor = RenderItem.sprite(cellLayer, x, y, cellWidth + 1, cellHeight + 1, SheetId.GAME_ATLAS, srcSize, srcPadding, gameSrcSize, gameSrcSize);
         drawQueue.enqueue(floor);
     }
 
@@ -275,7 +275,7 @@ public class GamePanel extends JPanel {
      */
     private void enqueueWall(int x, int y, int layer) {
         int srcSize = srcSize(1, gameSrcSize);
-        RenderItem wall = RenderItem.sprite(layer, x, y, cellWidth, cellHeight, SheetId.GAME_ATLAS, srcSize, srcPadding, gameSrcSize, gameSrcSize);
+        RenderItem wall = RenderItem.sprite(layer, x, y, cellWidth + 1, cellHeight + 1, SheetId.GAME_ATLAS, srcSize, srcPadding, gameSrcSize, gameSrcSize);
         drawQueue.enqueue(wall);
     } 
 
@@ -287,7 +287,7 @@ public class GamePanel extends JPanel {
      */
     private void enqueueBarrier(int x, int y) {
         int srcSize = srcSize(1, gameSrcSize);
-        RenderItem barrier = RenderItem.sprite(cellLayer, x, y, cellWidth, cellHeight, SheetId.GAME_ATLAS, srcSize, srcPadding, gameSrcSize, gameSrcSize);
+        RenderItem barrier = RenderItem.sprite(cellLayer, x, y, cellWidth + 1, cellHeight + 1, SheetId.GAME_ATLAS, srcSize, srcPadding, gameSrcSize, gameSrcSize);
         drawQueue.enqueue(barrier);
     }
 
@@ -323,7 +323,7 @@ public class GamePanel extends JPanel {
      */
     private void enqueuePunishment(int x, int y) {
         int srcSize = srcSize(2, gameSrcSize);
-        RenderItem punishment = RenderItem.sprite(cellLayer, x, y, cellWidth, cellHeight, SheetId.GAME_ATLAS, srcSize, srcPadding, gameSrcSize, gameSrcSize);
+        RenderItem punishment = RenderItem.sprite(cellLayer, x, y, cellWidth + 1, cellHeight + 1, SheetId.GAME_ATLAS, srcSize, srcPadding, gameSrcSize, gameSrcSize);
         drawQueue.enqueue(punishment);
     }
 
@@ -610,7 +610,7 @@ public class GamePanel extends JPanel {
         String playAgainText = "Press Space to Play Again";
         Font playAgainFont = new Font("SansSerif", Font.BOLD, 15);
         int playAgainX = getCenteredTextX(playAgainText, playAgainFont);
-        int playAgainY = scoreTimeY + textPadding + getTextHeight(playAgainFont) + 10;
+        int playAgainY = scoreTimeY + textPadding + getTextHeight(playAgainFont) + 7;
         
         RenderItem playAgain = RenderItem.text(0, playAgainX, playAgainY, Color.WHITE, playAgainText, playAgainFont);
         drawQueue.enqueue(playAgain);
