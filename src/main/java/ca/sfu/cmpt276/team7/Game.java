@@ -2,6 +2,7 @@ package ca.sfu.cmpt276.team7;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import ca.sfu.cmpt276.team7.board.Board;
 import ca.sfu.cmpt276.team7.cells.Cell;
@@ -39,6 +40,18 @@ import ca.sfu.cmpt276.team7.ScreenState;
  */
 public class Game 
 {
+    /** How often the game tries to spawn a bonus reward. */
+    private static final int BONUS_SPAWN_INTERVAL_TICKS = 50;
+
+    /** How long a spawned bonus reward stays on the board. */
+    private static final int BONUS_SPAWN_LIFETIME_TICKS = 30;
+
+    /** Score value of a spawned bonus reward. */
+    private static final int BONUS_REWARD_VALUE = 25;
+
+    /** Duration field stored inside BonusReward when collected. */
+    private static final int BONUS_EFFECT_DURATION_TICKS = 20;
+
     /**
      * number of ticks since game start
      * incremented once per call to {@link #updateTick()}
@@ -87,6 +100,9 @@ public class Game
     /** Cached legal positions where a bonus reward may spawn. */
     private final List<Position> bonusSpawnPositions;
 
+    /** Random generator for choosing spawn tiles. */
+    private final Random random;
+
     /**Initial positions of enemies, keys and traps, used for reset */ 
     private final List<Position> initialEnemyPos;
     private final List<Position> initialKeyPos;
@@ -118,6 +134,7 @@ public class Game
         this.endReason = null;
         this.popupReason = null;
         this.bonusRewards = new ArrayList<>();
+        this.random = new Random();
 
         this.initialKeyPos = new ArrayList<>(keyPositions);
         this.initialTrapPos = new ArrayList<>(trapPositions);
@@ -220,6 +237,7 @@ public class Game
         {
             return;
         }
+
         timeElapsed++;
         player.tickBonus();
 
@@ -240,11 +258,12 @@ public class Game
             return;
         }
 
-        for(BonusRewardSpawn bonus : bonusRewards)
+        updateActiveBonusRewards();
+
+        if (shouldTrySpawnBonusReward())
         {
-            bonus.tick();
+            trySpawnBonusReward();
         }
-        bonusRewards.removeIf(BonusRewardSpawn::isExpired);
     }
 
     /**
@@ -325,6 +344,125 @@ public class Game
         }
 
         return false;
+    }
+
+    /**
+     * Ticks all active bonus reward spawns, removes expired ones from the board,
+     * and then removes them from the tracking list.
+     */
+    private void updateActiveBonusRewards()
+    {
+        List<BonusRewardSpawn> expiredRewards = new ArrayList<>();
+
+        for (BonusRewardSpawn bonus : bonusRewards)
+        {
+            bonus.tick();
+
+            if (bonus.isExpired())
+            {
+                expiredRewards.add(bonus);
+            }
+        }
+
+        for (BonusRewardSpawn expiredBonus : expiredRewards)
+        {
+            clearBonusRewardFromBoard(expiredBonus.getPosition());
+        }
+
+        bonusRewards.removeAll(expiredRewards);
+    }
+
+    /**
+     * Returns true when the game should attempt a new bonus reward spawn.
+     *
+     * @return true if a spawn attempt should happen this tick
+     */
+    private boolean shouldTrySpawnBonusReward()
+    {
+        if (!bonusRewards.isEmpty())
+        {
+            return false;
+        }
+
+        return timeElapsed > 0 && timeElapsed % BONUS_SPAWN_INTERVAL_TICKS == 0;
+    }
+
+    /**
+     * Attempts to spawn a single temporary bonus reward on a random legal tile.
+     *
+     * <p>The chosen tile must still currently be a plain {@link FloorCell},
+     * and cannot be occupied by the player or an enemy.</p>
+     */
+    private void trySpawnBonusReward()
+    {
+        List<Position> availablePositions = new ArrayList<>();
+
+        for (Position pos : bonusSpawnPositions)
+        {
+            if (!isCurrentlyAvailableBonusSpawnPosition(pos))
+            {
+                continue;
+            }
+
+            availablePositions.add(pos);
+        }
+
+        if (availablePositions.isEmpty())
+        {
+            return;
+        }
+
+        Position spawnPos = availablePositions.get(random.nextInt(availablePositions.size()));
+
+        BonusReward reward = new BonusReward(BONUS_REWARD_VALUE, BONUS_EFFECT_DURATION_TICKS);
+        board.setCell(spawnPos.getX(), spawnPos.getY(), new RewardCell(spawnPos, reward));
+        bonusRewards.add(new BonusRewardSpawn(spawnPos, BONUS_SPAWN_LIFETIME_TICKS));
+        totalBonusRewards++;
+    }
+
+    /**
+     * Returns whether a bonus reward may spawn on this tile right now.
+     *
+     * @param pos position to check
+     * @return true if the tile is currently usable for spawning
+     */
+    private boolean isCurrentlyAvailableBonusSpawnPosition(Position pos)
+    {
+        if (!(board.getCell(pos.getX(), pos.getY()) instanceof FloorCell))
+        {
+            return false;
+        }
+
+        if (player.getPosition().equals(pos))
+        {
+            return false;
+        }
+
+        for (Enemy enemy : enemies)
+        {
+            if (enemy.getPosition().equals(pos))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Removes a bonus reward from the board by restoring its tile to floor,
+     * but only if the tile still contains a reward cell.
+     *
+     * @param pos board position to clear
+     */
+    private void clearBonusRewardFromBoard(Position pos)
+    {
+        Cell cell = board.getCell(pos.getX(), pos.getY());
+
+        if (cell instanceof RewardCell)
+        {
+            board.setCell(pos.getX(), pos.getY(), new FloorCell(pos));
+        }
     }
 
     /**
