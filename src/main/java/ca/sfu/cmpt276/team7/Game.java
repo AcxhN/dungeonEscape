@@ -12,6 +12,7 @@ import ca.sfu.cmpt276.team7.reward.Player;
 import ca.sfu.cmpt276.team7.reward.RegularReward;
 import ca.sfu.cmpt276.team7.reward.Reward;
 import ca.sfu.cmpt276.team7.reward.BonusReward;
+import ca.sfu.cmpt276.team7.reward.BonusRewardSpawn;
 import ca.sfu.cmpt276.team7.EndReason;
 import ca.sfu.cmpt276.team7.PopupReason;
 import ca.sfu.cmpt276.team7.ScreenState; 
@@ -74,6 +75,8 @@ public class Game
     /**Total time elsaped */
     private long totalTime;
 
+    private List <BonusRewardSpawn> bonusRewards;
+
     /**
      * Contructs new game with given board, player and enemies
      * 
@@ -95,6 +98,7 @@ public class Game
         this.screenState = ScreenState.START;
         this.endReason = null;
         this.popupReason = null;
+        this.bonusRewards = new ArrayList<>();
     }
 
     /**
@@ -114,6 +118,7 @@ public class Game
         endReason = null;
         popupReason = null;
         player.setPosition(board.getStartPosition());
+        bonusRewards.clear();
     }
 
     /**
@@ -154,16 +159,23 @@ public class Game
             screenState = ScreenState.END;
             return;
         }
+
+        bonusRewards.removeIf(BonusRewardSpawn::isExpired);
+        for(BonusRewardSpawn bonus : bonusRewards)
+        {
+            bonus.tick();
+        }
     }
 
     /**
      * Getter for the list of characters
      * @return A list of characters
      */
-    public List<GameCharacter> getCharacters() {
-	List<GameCharacter> char_list = new ArrayList<>(enemies);
-	char_list.add(player);
-	return char_list;
+    public List<GameCharacter> getCharacters() 
+    {
+	    List<GameCharacter> char_list = new ArrayList<>(enemies);
+	    char_list.add(player);
+	    return char_list;
     }
 
     /**
@@ -269,7 +281,7 @@ public class Game
                 }
                 else
                 {
-                    endReason = endReason.LOSE_BY_OGRE;
+                    endReason = EndReason.LOSE_BY_OGRE;
                     popupReason = PopupReason.OGRE_HIT;
                 }
                 return true;
@@ -359,6 +371,11 @@ public class Game
     public int getCollectedBonusRewards()
     {
         return collectedBonusRewards;
+    }
+
+    public List<BonusRewardSpawn> getBonusRewards()
+    {
+        return bonusRewards;
     }
 
     /**
