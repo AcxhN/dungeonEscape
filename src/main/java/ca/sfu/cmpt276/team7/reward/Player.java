@@ -134,9 +134,6 @@ public class Player extends GameCharacter {
  */
     public void applyPunishment(Punishment punishment) {
         totalScore -= punishment.getPenaltyValue();
-        if (totalScore < 0) {
-            totalScore = 0;
-        }
     }
     /**
      * Updates the active bonus effect each game tick.
