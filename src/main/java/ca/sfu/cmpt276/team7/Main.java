@@ -61,8 +61,6 @@ public class Main {
 
             Game game = new Game(board, player, enemies, key_spawns.size(), trap_spawns.size(), key_spawns, trap_spawns); // no need to hardcode 10 
 
-            game.startGame(); 
-
             GameWindow.start(game, board); // this already creates a panel, so no need for GamePanel gamepanel = new GamePnale(game, board); 
 
         } catch (IOException e) {
