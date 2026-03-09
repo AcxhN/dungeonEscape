@@ -773,13 +773,15 @@ public class GamePanel extends JPanel {
         String pauseText = "Game Paused";
         Font pauseFont = new Font("SansSerif", Font.BOLD, 30);
         int[] pauseXY = getCenteredTextXY(pauseText, pauseFont);
-        RenderItem pause = RenderItem.text(popupContentsLayer, pauseXY[0], pauseXY[1] + 10 , Color.WHITE, pauseText, pauseFont);
+        int pauseY = pauseXY[1] - 15;
+        RenderItem pause = RenderItem.text(popupContentsLayer, pauseXY[0], pauseY, Color.WHITE, pauseText, pauseFont);
         drawQueue.enqueue(pause);
 
-        String operationText = "Press space to continue...";
+        String operationText = "Press space to continue";
         Font operationFont = new Font("SansSerif", Font.PLAIN, 17);
         int operationX = getCenteredTextX(operationText, operationFont);
-        RenderItem operation = RenderItem.text(popupContentsLayer, operationX, pauseRectY + pauseRextH - 15, Color.WHITE, operationText, operationFont);
+        int operationY = pauseY + getTextHeight(operationFont) + 10;
+        RenderItem operation = RenderItem.text(popupContentsLayer, operationX, operationY, Color.WHITE, operationText, operationFont);
         drawQueue.enqueue(operation);
     }
 
