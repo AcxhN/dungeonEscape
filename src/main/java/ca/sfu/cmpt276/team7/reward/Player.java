@@ -149,4 +149,12 @@ public class Player extends GameCharacter {
             }
         }
     }
+
+    /**
+     * Sets the player's score
+     */
+
+    public void setScore(int score) {
+	this.totalScore = score;
+    }
 }
