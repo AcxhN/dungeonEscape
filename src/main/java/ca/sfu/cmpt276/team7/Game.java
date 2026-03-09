@@ -138,6 +138,7 @@ public class Game
     }
 
     public void resetGameState() {
+        startTime = 0;
         timeElapsed = 0;
         totalTime = 0;
         collectedRegularRewards = 0;
@@ -196,6 +197,7 @@ public class Game
             return;
         }
         timeElapsed++;
+        player.tickBonus();
 
         for(Enemy enemy : enemies)
         {
@@ -215,11 +217,11 @@ public class Game
             return;
         }
 
-        bonusRewards.removeIf(BonusRewardSpawn::isExpired);
         for(BonusRewardSpawn bonus : bonusRewards)
         {
             bonus.tick();
         }
+        bonusRewards.removeIf(BonusRewardSpawn::isExpired);
     }
 
     /**
@@ -309,15 +311,16 @@ public class Game
             pauseForPopup(PopupReason.BONUS_COLLECTED);
             return;
         }
-        
-        if (checkLoss()) {
-            screenState = ScreenState.END;
-            return;
-        }
 
         if (checkWin()) {
             screenState = ScreenState.END;
             endReason = EndReason.WIN;
+            return;
+        }
+
+        if (checkLoss()) {
+            screenState = ScreenState.END;
+            return;
         }
     }
 
