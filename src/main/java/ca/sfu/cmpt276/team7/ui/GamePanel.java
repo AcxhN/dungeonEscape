@@ -19,6 +19,7 @@ import ca.sfu.cmpt276.team7.cells.Cell;
 import ca.sfu.cmpt276.team7.cells.FloorCell;
 import ca.sfu.cmpt276.team7.cells.WallCell;
 import ca.sfu.cmpt276.team7.core.GameCharacter;
+import ca.sfu.cmpt276.team7.core.Position;
 import ca.sfu.cmpt276.team7.enemies.Goblin;
 import ca.sfu.cmpt276.team7.enemies.Ogre;
 import ca.sfu.cmpt276.team7.reward.BonusReward;
@@ -401,6 +402,23 @@ public class GamePanel extends JPanel {
         }
     }
 
+    private void enqueueExit(int startX, int startY, int endX, int endY) {
+        Position pos = board.getEndPosition();
+        int ex = pos.getX();
+        int ey = pos.getY();
+
+        if (ex < startX || ex >= endX || ey < startX || ey >= endY) {
+            return;
+        }
+
+        int x = (ex - startX + xOffset) * cellWidth;
+        int y = (ey - startY + yOffset) * cellHeight;
+
+        int srcSize = srcSize(10, gameSrcSize);
+        RenderItem exit = RenderItem.sprite(rewardLayer, x, y, cellWidth, cellHeight, SheetId.GAME_ATLAS, srcSize, srcPadding, gameSrcSize, gameSrcSize);
+        drawQueue.enqueue(exit);
+    }
+
     /**
      * Enqueues cells for the current frame, including:
      * <ul>
@@ -445,6 +463,7 @@ public class GamePanel extends JPanel {
         viewEndX = endX;
         viewEndY = endY;
         enqueueGameCells(grid, startX, startY, endX, endY);
+        enqueueExit(startX, startY, endX, endY);
     }
 
 
@@ -567,12 +586,12 @@ public class GamePanel extends JPanel {
                 break;
 
             case LOSE_BY_OGRE:
-                srcSize = srcSize(2, screenSrcSize);
+                srcSize = srcSize(0, screenSrcSize);
                 commentText = "Bumped into an ogre!";
                 break;
             
             case LOSE_BY_GOBLIN:
-                srcSize = srcSize(2, screenSrcSize);
+                srcSize = srcSize(3, screenSrcSize);
                 commentText = "Caught by a goblin!";
                 break;
         }
