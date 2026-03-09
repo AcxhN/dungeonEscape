@@ -19,6 +19,9 @@ import ca.sfu.cmpt276.team7.reward.RegularReward;
 import ca.sfu.cmpt276.team7.reward.Reward;
 import ca.sfu.cmpt276.team7.reward.RewardCell;
 import ca.sfu.cmpt276.team7.reward.TrapPunishment;
+import ca.sfu.cmpt276.team7.EndReason;
+import ca.sfu.cmpt276.team7.PopupReason;
+import ca.sfu.cmpt276.team7.ScreenState;
 
 /**
  * Core controller for the game
@@ -227,14 +230,13 @@ public class Game
 
         if(checkWin())
         {
-            screenState = ScreenState.END;
             endReason = EndReason.WIN;
+            endGame();
             return;
         }
 
         if(checkLoss())
         {
-            screenState = ScreenState.END;
             return;
         }
 
@@ -427,14 +429,13 @@ public class Game
 
         if (checkWin()) 
         {
-            screenState = ScreenState.END;
             endReason = EndReason.WIN;
+            endGame();
             return;
         }
 
         if (checkLoss()) 
         {
-            screenState = ScreenState.END;
             return;
         }
     }
@@ -491,8 +492,9 @@ public class Game
     {
         if(player.getTotalScore() < 0)
         {
-            screenState = ScreenState.END;
+            
             endReason = EndReason.LOSE_BY_TRAP;
+            endGame();
             return true;
         }
 
@@ -500,15 +502,17 @@ public class Game
         {
             if(enemy.getPosition().equals(player.getPosition()))
             {
-                screenState = ScreenState.END;
+                
                 if(enemy instanceof Goblin)
                 {
                     endReason = EndReason.LOSE_BY_GOBLIN;  
+                    endGame();
                 }
                 else
                 {
                     endReason = EndReason.LOSE_BY_OGRE;
                     popupReason = PopupReason.OGRE_HIT;
+                    endGame();
                 }
                 return true;
             }
@@ -532,6 +536,16 @@ public class Game
             startTime = System.currentTimeMillis();
             screenState = ScreenState.PLAYING;
         }
+    }
+
+    /**
+    * Finalises the game by saving elapsed time and switching to END state
+    * Ensures {@link #getSeconds()} returns the correct frozen time on the end screen
+    */
+    private void endGame()
+    {
+        totalTime += System.currentTimeMillis() - startTime;
+        screenState = ScreenState.END;
     }
 
     /**
