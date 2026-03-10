@@ -2,10 +2,8 @@ package ca.sfu.cmpt276.team7.enemies;
 
 import ca.sfu.cmpt276.team7.core.Position;
 import ca.sfu.cmpt276.team7.board.Board;
-import ca.sfu.cmpt276.team7.cells.*;
 
 import java.util.PriorityQueue;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 
