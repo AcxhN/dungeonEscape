@@ -23,17 +23,21 @@ import ca.sfu.cmpt276.team7.reward.RewardCell;
 import ca.sfu.cmpt276.team7.reward.TrapPunishment;
 
 /**
- * Core controller for the game
- * 
- * <p>Manages the tick game loop, translates player keyboard input
- * into movement commands, check for win and loss conditions every tick,
- * and handles player respawn after death.
- * 
- * <p>Collaborates with
+ * Core controller for the game.
+ *
+ * <p>Coordinates the main gameplay loop, player input, enemy updates,
+ * reward and punishment interactions, timed bonus reward spawning,
+ * pause and popup transitions, and win/loss detection</p>
+ *
+ * <p>It also manages score-related counters, elapsed game time,
+ * reset/start behaviour, and end-of-game state transitions</p>
+ *
+ * <p>Collaborates with:
  * <ul>
- *  <li>{@link Board} - supplies start/end positions</li>
- *  <li>{@link Player} - moves and tracks player state</li>
- *  <li>{@link Enemy} - updated each tick for movement</li>
+ *  <li>{@link Board} - supplies the dungeon layout and important positions</li>
+ *  <li>{@link Player} - handles movement, score changes, and reward collection</li>
+ *  <li>{@link Enemy} - updates enemy movement each tick</li>
+ *  <li>{@link BonusRewardSpawn} - tracks temporary bonus reward lifetime on the board</li>
  * </ul>
  */
 public class Game 
@@ -110,17 +114,22 @@ public class Game
     private final List<Position> initialKeyPos;
     private final List<Position> initialTrapPos;
 
-    /**
-     * Contructs new game with given board, player and enemies
-     * 
-     * @param board
-     * @param player
-     * @param enemies
-     * @param totalRegularRewards
-     * @param totalBonusRewards
-     * @param keyPositions
-     * @param trapPositions
-     */
+/**
+ * Constructs a new game controller with the given board, player, enemies,
+ * and initial reward/trap metadata
+ *
+ * <p>This constructor initializes runtime counters, stores the original
+ * positions of enemies, keys, and traps for later reset, and precomputes
+ * the legal positions where temporary bonus rewards may spawn</p>
+ *
+ * @param board dungeon board used for gameplay
+ * @param player player controlled during the game
+ * @param enemies enemy instances active on the board
+ * @param totalRegularRewards total number of regular rewards placed initially
+ * @param totalBonusRewards total number of bonus rewards spawned so far at startup
+ * @param keyPositions initial regular reward positions used for reset
+ * @param trapPositions initial trap positions used for reset
+ */
     public Game(Board board, Player player, List<Enemy> enemies, int totalRegularRewards, int totalBonusRewards,
                 List<Position> keyPositions, List<Position> trapPositions)
     {
@@ -151,8 +160,11 @@ public class Game
     }
 
     /**
-     * Starts game by reseting tick counter and placing player at
-     * designated starting position
+     * Starts or restarts active gameplay from the current reset state
+     *
+     * <p>This resets elapsed time counters, clears popup/end information,
+     * resets collected reward counters, clears any tracked bonus reward spawns,
+     * and places the player at the board's start position</p>
      */
     public void startGame()
     {
@@ -173,8 +185,12 @@ public class Game
     }
 
     /**
-     * Resets game to initial state, restoring all rewards, traps and 
-     * enemies to their starting values
+     * Restores the game to its initial pre-play state
+     *
+     * <p>This clears runtime counters, removes any active reward or punishment
+     * cells currently on the board, restores the original regular rewards and traps,
+     * resets enemy positions, clears temporary bonus reward tracking, and resets
+     * the player state back to the start position.</p>
      */
     public void resetGameState() 
     {
@@ -228,17 +244,20 @@ public class Game
     }
 
     /**
-     * Advances game by one tick
-     * 
-     * <p>Each tick performs the following:
+     * Advances the game by one simulation tick.
+     *
+     * <p>When the game is in {@link ScreenState#PLAYING}, each tick:
      * <ol>
-     *  <li>Increments {@code timeElapsed}</li>
-     *  <li>Calls {@code updateMovement()}</li>
-     *  <li>Checks win condition using {@link #checkWin()}</li>
-     *  <li>Checks loss condition using {@link #checkLoss()}</li>
+     *  <li>increments {@link #timeElapsed}</li>
+     *  <li>updates any active player bonus effect</li>
+     *  <li>updates enemy movement</li>
+     *  <li>checks win and loss conditions</li>
+     *  <li>updates active temporary bonus reward lifetimes</li>
+     *  <li>attempts to spawn a new bonus reward when the spawn interval is reached</li>
      * </ol>
-     * 
-     * <p>This method is a no-op when {@code screenState} is not {@link ScreenState#PLAYING}
+     *
+     * <p>If the game is not currently in {@link ScreenState#PLAYING},
+     * this method does nothing.</p>
      */
     public void updateTick()
     {
@@ -491,20 +510,30 @@ public class Game
     }
 
     /**
-     * Translates keyboard keycode into a direction, attempts to move the player,
-     * updates reward collection state, and then advances the game by one tick.
-     * 
-     * <p>Supported key codes:
+     * Handles one keyboard input event for the current screen state
+     *
+     * <p>Depending on the current {@link ScreenState}, this method may:
      * <ul>
-     *  <li>87(W) / 38 (↑) - move NORTH</li>
-     *  <li>83(S) / 40 (↓) - move SOUTH</li>
-     *  <li>65(A) / 37 (←) - move WEST</li>
-     *  <li>68(D) / 39 (→) -  move EAST</li>
+     *  <li>start the game from the start screen</li>
+     *  <li>resume from a pause or popup state</li>
+     *  <li>restart after the game ends</li>
+     *  <li>toggle pause while playing</li>
+     *  <li>move the player and process collected rewards</li>
      * </ul>
-     * 
-     * <p>This method is a no-op when {@code screenState} is not {@link ScreenState#PLAYING}.
-     * 
-     * @param keyCode integer key code from a {@code KeyEvent}
+     *
+     * <p>Supported movement key codes:
+     * <ul>
+     *  <li>87 (W) or 38 (↑) - move NORTH</li>
+     *  <li>83 (S) or 40 (↓) - move SOUTH</li>
+     *  <li>65 (A) or 37 (←) - move WEST</li>
+     *  <li>68 (D) or 39 (→) - move EAST</li>
+     * </ul>
+     *
+     * <p>Key code 80 (P) toggles pause while playing, and can also resume
+     * from the pause screen. Space is used for start, resume, and restart
+     * depending on the current screen state</p>
+     *
+     * @param keyCode integer key code from a keyboard event
      */
     public void handleInput(int keyCode)
     {
@@ -629,8 +658,13 @@ public class Game
     }
 
     /**
-     * Pauses game and displays popup reason to player
-     * @param reason reaason why popup is being shown
+     * Pauses the game and records the popup reason currently being shown
+     *
+     * <p>This freezes elapsed gameplay time by saving the time accumulated
+     * since the last resume/start moment, then switches the game into
+     * {@link ScreenState#PAUSE}</p>
+     *
+     * @param reason reason the popup is being displayed
      */
     private void pauseForPopup(PopupReason reason) 
     {
@@ -640,7 +674,10 @@ public class Game
     }
 
     /**
-     * resumes game for popup/pause and resets timer
+     * Resumes gameplay from a paused or popup state
+     *
+     * <p>This clears the current popup reason, resets the running time anchor,
+     * and returns the game to {@link ScreenState#PLAYING}</p>
      */
     private void resumeFromPopup() 
     {
@@ -664,17 +701,18 @@ public class Game
     }
 
     /**
-     * Checks whether player has met loss condition
-     * <p>Player loses if:
+     * Checks whether the player has lost the game
+     *
+     * <p>The player loses if:
      * <ul>
-     *  <li>Total score has dropped to 0 or less, or</li>
-     *  <li>Enemy occupies same cell as player</li>
+     *  <li>their total score drops below 0, or</li>
+     *  <li>an enemy occupies the same position as the player</li>
      * </ul>
-     * 
-     * Sets {@code screenState} to {@link ScreenState#END} and assigns
-     * appropriate {@code endReason} if loss
-     * 
-     * @return {@code true} if conditions met
+     *
+     * <p>When a loss is detected, this method sets the appropriate
+     * {@link EndReason}, triggers {@link #endGame()}, and returns {@code true}</p>
+     *
+     * @return {@code true} if a loss condition was detected, otherwise {@code false}
      */
     public boolean checkLoss()
     {
@@ -704,7 +742,11 @@ public class Game
     }
 
     /**
-     * Manages time depending if game is pouse or currently in playing state
+     * Toggles between paused and playing states
+     *
+     * <p>If the game is currently playing, elapsed time is frozen and the
+     * screen state changes to {@link ScreenState#PAUSE}. If the game is
+     * currently paused, the running time anchor is reset and gameplay resumes</p>
      */
     public void togglePause()
     {
@@ -721,9 +763,11 @@ public class Game
     }
 
     /**
-    * Finalises the game by saving elapsed time and switching to END state
-    * Ensures {@link #getSeconds()} returns the correct frozen time on the end screen
-    */
+     * Finalizes the current run and switches the game to the end screen
+     *
+     * <p>This stores the final elapsed play time so that {@link #getSeconds()}
+     * returns a stable frozen result while the end screen is displayed</p>
+     */
     private void endGame()
     {
         totalTime += System.currentTimeMillis() - startTime;
@@ -789,8 +833,9 @@ public class Game
     }
 
     /**
-     * returns list of all bonus rewards currently on board
-     * @return bonusRewards
+     * Returns the currently tracked active temporary bonus reward spawns
+     *
+     * @return active bonus reward spawn trackers
      */
     public List<BonusRewardSpawn> getBonusRewards()
     {
