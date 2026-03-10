@@ -1,10 +1,11 @@
 package ca.sfu.cmpt276.team7.enemies;
 
-import ca.sfu.cmpt276.team7.core.Position; 
-import ca.sfu.cmpt276.team7.core.GameCharacter;
 import ca.sfu.cmpt276.team7.board.Board;
-import ca.sfu.cmpt276.team7.cells.*;
-import ca.sfu.cmpt276.team7.reward.PunishmentCell;
+import ca.sfu.cmpt276.team7.cells.BarrierCell;
+import ca.sfu.cmpt276.team7.cells.Cell;
+import ca.sfu.cmpt276.team7.cells.WallCell;
+import ca.sfu.cmpt276.team7.core.GameCharacter;
+import ca.sfu.cmpt276.team7.core.Position;
 
 /**
  * The enemy abstract class is the base of both goblin and ogre.
@@ -26,8 +27,7 @@ public abstract class Enemy extends GameCharacter {
      */
     public boolean canMoveto(Cell cell) {
 	if (!(cell instanceof BarrierCell ||
-	      cell instanceof WallCell ||
-	      cell instanceof PunishmentCell)) {
+	      cell instanceof WallCell)) {
 	    return true;
 	}
 	return false;
