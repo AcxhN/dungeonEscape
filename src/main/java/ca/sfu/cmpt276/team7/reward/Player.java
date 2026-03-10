@@ -102,6 +102,7 @@ public class Player extends GameCharacter {
         // Apply punishment if present.
         if (target instanceof PunishmentCell punishmentCell) {
             applyPunishment(punishmentCell.getPunishment());
+            board.setCell(newPos.getX(), newPos.getY(), new FloorCell(newPos));
         }
 
         return collected;
@@ -124,6 +125,8 @@ public class Player extends GameCharacter {
  * Regular rewards add points; bonus rewards activate a timed effect. 
 */
     public void collectReward(Reward reward) {
+        reward.onCollect();
+
         if (reward instanceof RegularReward reg) {
             totalScore += reg.getValue();
         } else if (reward instanceof BonusReward bonus) {
@@ -135,6 +138,7 @@ public class Player extends GameCharacter {
  * Applies the effects of a punishment by reducing the player's score. 
  */
     public void applyPunishment(Punishment punishment) {
+        punishment.onTrigger();
         totalScore -= punishment.getPenaltyValue();
     }
     /**
