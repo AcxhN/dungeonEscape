@@ -286,6 +286,11 @@ public class Game
             return;
         }
 
+        if (isTouchingOgre() && ogreHitCooldown == 0) {
+            handleOgreHit();
+            return;
+        }
+
         if(checkLoss())
         {
             return;
@@ -537,7 +542,6 @@ public class Game
      */
     public void handleInput(int keyCode)
     {
-        Position beforeMove = player.getPosition();
         if (screenState == ScreenState.START) 
         {
             if (keyCode == 32) 
@@ -617,8 +621,8 @@ public class Game
             return;
         }
         
-        if (isTouchingOgre()) {
-            handleOgreHit(beforeMove);
+        if (isTouchingOgre() && ogreHitCooldown == 0) {
+            handleOgreHit();
             return;
         }
 
@@ -628,14 +632,8 @@ public class Game
         }
     }
 
-    private void handleOgreHit(Position fallbackPosition) {
-        if (ogreHitCooldown > 0)
-        {
-            return;
-        }
-
+    private void handleOgreHit() {
         player.setScore(player.getTotalScore() - OGRE_HIT_PENALTY);
-        player.setPosition(fallbackPosition);
 
         if (player.getTotalScore() < 0)
         {
@@ -644,7 +642,7 @@ public class Game
             return;
         }
 
-        ogreHitCooldown = 1;
+        ogreHitCooldown = 2;
         pauseForPopup(PopupReason.OGRE_HIT);
     }
 
