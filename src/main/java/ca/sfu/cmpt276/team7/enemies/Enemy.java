@@ -8,22 +8,37 @@ import ca.sfu.cmpt276.team7.core.GameCharacter;
 import ca.sfu.cmpt276.team7.core.Position;
 
 /**
- * The enemy abstract class is the base of both goblin and ogre.
+ * Abstract base class for all enemy types in the game.
+ *
+ * <p>Enemy subclasses define their own movement behaviour through
+ * {@link #updateMovement(Position)}, while this class provides shared
+ * board access and default movement rules.</p>
  */
 public abstract class Enemy extends GameCharacter {
     /**
      * updateMovement() updates the position of the enemy by a single tick.
+     * @param player_position current player position, which may be used
+     *        by subclasses to decide movement
      */
     abstract public void updateMovement(Position player_position);
     /**
      * The Enemy constructor takes a pointer to the board.
+     * 
+     * @param board board the enemy moves on
      */
     public Enemy(Board board) {
 	super(board);
-    };
+    }
 
     /**
-     * Enemies cannot move to a cell with a punishment, or a wall
+     * Returns whether this enemy can move onto the given cell.
+     *
+     * <p>By default, enemies cannot move onto {@link BarrierCell} or
+     * {@link WallCell}, but may move onto other cell types.</p>
+     *
+     * @param cell target cell
+     * @return {@code true} if the cell is traversable for this enemy,
+     *         otherwise {@code false}
      */
     public boolean canMoveto(Cell cell) {
 	if (!(cell instanceof BarrierCell ||
