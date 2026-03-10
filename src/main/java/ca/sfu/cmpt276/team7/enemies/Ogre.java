@@ -19,16 +19,24 @@ public class Ogre extends Enemy {
     private ArrayList<Position> patrolRoute;
     private boolean forward_p;
     private int route_index;
+
+	private final Position initialPosition;
+	private final boolean initialForwardP;
+	private final int initialRouteIndex;
+
     /**
      * Makes the ogre class, takes a list of positions to follow.
      * sets the ogre to move forward up the list from the first position on the list
      */
     public Ogre(Board board, Position... route) {
-	super(board);
-	this.patrolRoute = new ArrayList<>(List.of(route));
-	forward_p = true;
-	position = patrolRoute.get(0);
+		super(board);
+		this.patrolRoute = new ArrayList<>(List.of(route));
+		forward_p = true;
+		position = patrolRoute.get(0);
 
+	    this.initialPosition = this.position;
+		this.initialForwardP = this.forward_p;
+		this.initialRouteIndex = this.route_index;
     }
 
     /**
@@ -90,8 +98,17 @@ public class Ogre extends Enemy {
 
 	this.forward_p = (direction == Direction.SOUTH || direction == Direction.EAST) ? true : false;
 
+	this.initialPosition = this.position;
+	this.initialForwardP = this.forward_p;
+	this.initialRouteIndex = this.route_index;
 	
     }
+
+	public void resetState() {
+		this.position = initialPosition;
+		this.forward_p = initialForwardP;
+		this.route_index = initialRouteIndex;
+	}
 
     /**
      * Moves the ogre to the next postion of the patrol route, changing directions if it reaches the end, or hits a wall
