@@ -31,23 +31,26 @@ import ca.sfu.cmpt276.team7.reward.RewardCell;
 
 /**
  * Swing panel responsible for rendering the game.
- * <p>
- * This panel builds a {@link DrawQueue} each frame based on the current {@link ScreenState},
- * then renders all {@link RenderItem}s in layer order.
- * <p>
- * This renderer supports:
- *  <ul>
+ *
+ * <p>This panel builds a {@link DrawQueue} each frame based on the current
+ * {@link ScreenState}, then renders all {@link RenderItem}s in layer order.</p>
+ *
+ * <p>This renderer supports:</p>
+ * <ul>
  *   <li>Padding walls when the board is smaller than a minimum viewport size</li>
  *   <li>A player-centered viewport when the board is larger than a maximum viewport size</li>
  * </ul>
- * 
+ *
  * @author Yui Matsumo
  * @version 1.0
  */
 public class GamePanel extends JPanel {
 
+    /** Queue of render commands for the current frame. */
     private final DrawQueue drawQueue = new DrawQueue();
+    /** Game model used to query state, score, timers, and characters. */
     private final Game game;
+    /** Board model used to query cells and special positions. */
     private final Board board;
     
     /** Board width (in cells). */
@@ -403,6 +406,16 @@ public class GamePanel extends JPanel {
         }
     }
 
+    /**
+     * Enqueues a marker sprite at the given board position if it is inside the current viewport.
+     *
+     * <p>The position is converted from board coordinates to viewport-relative
+     * pixel coordinates before the marker is added to the draw queue.</p>
+     *
+     * @param pos board position where the marker should be drawn
+     * @param srcOrder sprite index in the game atlas
+     * @return nothing
+     */
     private void enqueueMarker(Position pos, int srcOrder) {
         int px = pos.getX();
         int py = pos.getY();
@@ -559,11 +572,12 @@ public class GamePanel extends JPanel {
     }
 
     /**
-     * Enqueues the end screen UI (image, result text, comment, final score/time, and replay prompt).
+     * Enqueues the end screen UI, including the image, result text, comment,
+     * final score/time, and replay prompt.
      *
      * @param score final score
      * @param endReason reason the game ended
-     * @param sec elapsed seconds (final time)
+     * @param sec elapsed seconds for the completed run
      */
     private void enqueueEndScreen(int score, EndReason endReason, int sec) {
         int srcSize = srcSize(2, screenSrcSize);
@@ -779,6 +793,12 @@ public class GamePanel extends JPanel {
         drawQueue.enqueue(operation);
     }
 
+    /**
+     * Enqueues the pause overlay shown when the game is paused without an active popup.
+     *
+     * <p>This includes a centered background rectangle, a pause title,
+     * and a prompt explaining how to resume play.</p>
+     */
     private void enqueuePause() {
         int pauseRectW = cellWidth * 6;
         int pauseRextH = cellHeight * 3;
@@ -807,8 +827,8 @@ public class GamePanel extends JPanel {
 
 
     /**
-     * Rebuilds the draw queue for the current frame based on {@link ScreenState}.
-     * 
+     * Rebuilds the draw queue for the current frame based on the current {@link ScreenState}.
+     *
      * @param game the game model
      * @param board the board model
      */
