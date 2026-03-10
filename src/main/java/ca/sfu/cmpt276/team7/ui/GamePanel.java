@@ -146,12 +146,13 @@ public class GamePanel extends JPanel {
     /** Layer indices (lower values are drawn first / behind). */
     private final int offsetLayer = 0;
     private final int cellLayer = 1;
-    private final int rewardLayer = 2;
-    private final int characterLayer = 3;
-    private final int playerLayer = 4;
-    private final int hudLayer = 5;
-    private final int popupRectLayer = 6;
-    private final int popupContentsLayer = 7;
+    private final int markerLayer = 2;
+    private final int rewardLayer = 3;
+    private final int characterLayer = 4;
+    private final int playerLayer = 5;
+    private final int hudLayer = 6;
+    private final int popupRectLayer = 7;
+    private final int popupContentsLayer = 8;
 
     /** On-screen cell size in pixels. */
     private final int cellWidth = 50;
@@ -402,21 +403,20 @@ public class GamePanel extends JPanel {
         }
     }
 
-    private void enqueueExit(int startX, int startY, int endX, int endY) {
-        Position pos = board.getEndPosition();
-        int ex = pos.getX();
-        int ey = pos.getY();
+    private void enqueueMarker(Position pos, int srcOrder) {
+        int px = pos.getX();
+        int py = pos.getY();
 
-        if (ex < startX || ex >= endX || ey < startX || ey >= endY) {
+        if (px < viewStartX || px >= viewEndX || py < viewStartY || py >= viewEndY) {
             return;
         }
 
-        int x = (ex - startX + xOffset) * cellWidth;
-        int y = (ey - startY + yOffset) * cellHeight;
+        int x = (px - viewStartX + xOffset) * cellWidth;
+        int y = (py - viewStartY + yOffset) * cellHeight;
 
-        int srcSize = srcSize(10, gameSrcSize);
-        RenderItem exit = RenderItem.sprite(rewardLayer, x, y, cellWidth, cellHeight, SheetId.GAME_ATLAS, srcSize, srcPadding, gameSrcSize, gameSrcSize);
-        drawQueue.enqueue(exit);
+        int srcSize = srcSize(srcOrder, gameSrcSize);
+        RenderItem marker = RenderItem.sprite(markerLayer, x, y, cellWidth, cellHeight, SheetId.GAME_ATLAS, srcSize, srcPadding, gameSrcSize, gameSrcSize);
+        drawQueue.enqueue(marker);
     }
 
     /**
@@ -463,7 +463,8 @@ public class GamePanel extends JPanel {
         viewEndX = endX;
         viewEndY = endY;
         enqueueGameCells(grid, startX, startY, endX, endY);
-        enqueueExit(startX, startY, endX, endY);
+        enqueueMarker(board.getStartPosition(), 11);
+        enqueueMarker(board.getEndPosition(), 11);
     }
 
 
