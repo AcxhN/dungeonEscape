@@ -54,8 +54,10 @@ public class Game
     /** Duration field stored inside BonusReward when collected. */
     private static final int BONUS_EFFECT_DURATION_TICKS = 20;
 
+    /** Score penalty applied when the player is hit by an ogre. */
     private static final int OGRE_HIT_PENALTY = 25;
 
+    /** Remaining ticks before another ogre collision can apply damage. */
     private int ogreHitCooldown = 0;
 
     /**
@@ -632,6 +634,13 @@ public class Game
         }
     }
 
+    /**
+     * Applies the ogre collision penalty to the player.
+     *
+     * <p>If the player's score becomes negative after the penalty,
+     * the game ends with {@link EndReason#LOSE_BY_OGRE}. Otherwise,
+     * an ogre hit cooldown is started and an ogre-hit popup is shown.</p>
+     */
     private void handleOgreHit() {
         player.setScore(player.getTotalScore() - OGRE_HIT_PENALTY);
 
@@ -646,6 +655,11 @@ public class Game
         pauseForPopup(PopupReason.OGRE_HIT);
     }
 
+    /**
+     * Checks whether the player is currently on the same tile as an ogre.
+     *
+     * @return {@code true} if the player is touching an ogre, otherwise {@code false}
+     */
     private boolean isTouchingOgre() {
         for (Enemy enemy : enemies) {
             if (enemy instanceof  Ogre && enemy.getPosition().equals(player.getPosition())) {
@@ -699,16 +713,18 @@ public class Game
     }
 
     /**
-     * Checks whether the player has lost the game
+     * Checks whether the player has lost the game.
      *
-     * <p>The player loses if:
+     * <p>The player loses if:</p>
      * <ul>
      *  <li>their total score drops below 0, or</li>
-     *  <li>an enemy occupies the same position as the player</li>
+     *  <li>a {@link Goblin} occupies the same position as the player</li>
      * </ul>
      *
+     * <p>Ogre collisions are handled separately by {@link #handleOgreHit()}.</p>
+     *
      * <p>When a loss is detected, this method sets the appropriate
-     * {@link EndReason}, triggers {@link #endGame()}, and returns {@code true}</p>
+     * {@link EndReason}, triggers {@link #endGame()}, and returns {@code true}.</p>
      *
      * @return {@code true} if a loss condition was detected, otherwise {@code false}
      */
@@ -786,6 +802,11 @@ public class Game
         return (int) (totalTime / 1000);
     }
 
+    /**
+     * Returns the player's final score, clamped to a minimum of 0.
+     *
+     * @return the final non-negative score
+     */
     public int getFinalScore() {
         return Math.max(0, player.getTotalScore());
     }
@@ -811,7 +832,7 @@ public class Game
     }
 
     /**
-     * returns the total number of bonus rewards on the board
+     * Returns the total number of bonus rewards spawned during the current run
      * 
      * @return totalBonusRewards
      */
