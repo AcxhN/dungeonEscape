@@ -5,7 +5,6 @@ import java.util.List;
 
 import ca.sfu.cmpt276.team7.board.Board;
 import ca.sfu.cmpt276.team7.cells.Cell;
-import ca.sfu.cmpt276.team7.cells.WallCell;
 import ca.sfu.cmpt276.team7.core.Direction;
 import ca.sfu.cmpt276.team7.core.Position;
 
@@ -47,7 +46,7 @@ public class Ogre extends Enemy {
 	int add_y = (direction == Direction.SOUTH) ? 1 : (direction == Direction.NORTH ? -1 : 0);
 
 	// Go in one direction until a wall is hit
-	while (!(next_cell instanceof WallCell)) {
+	while (canMoveto(next_cell)) {
 	    patrolRoute.add(potential_position);
 		
 		int nextX = potential_position.getX() + add_x;
@@ -69,7 +68,7 @@ public class Ogre extends Enemy {
 	add_x *= -1;
 	add_y *= -1;
 
-	while (!(next_cell instanceof WallCell)) {
+	while (canMoveto(next_cell)) {
 	    if (num_added != 0) { // Check to make sure the beginning position isn't added twice
 		patrolRoute.add(0, potential_position);
 	    }
