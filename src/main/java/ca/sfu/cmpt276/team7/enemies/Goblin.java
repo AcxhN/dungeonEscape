@@ -1,11 +1,11 @@
 package ca.sfu.cmpt276.team7.enemies;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.PriorityQueue;
-
-import ca.sfu.cmpt276.team7.board.Board;
 import ca.sfu.cmpt276.team7.core.Position;
+import ca.sfu.cmpt276.team7.board.Board;
+
+import java.util.PriorityQueue;
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  * The goblin pathfinds towards the player
