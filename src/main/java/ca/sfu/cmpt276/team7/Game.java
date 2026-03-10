@@ -12,6 +12,7 @@ import ca.sfu.cmpt276.team7.core.GameCharacter;
 import ca.sfu.cmpt276.team7.core.Position;
 import ca.sfu.cmpt276.team7.enemies.Enemy;
 import ca.sfu.cmpt276.team7.enemies.Goblin;
+import ca.sfu.cmpt276.team7.enemies.Ogre;
 import ca.sfu.cmpt276.team7.reward.BonusReward;
 import ca.sfu.cmpt276.team7.reward.BonusRewardSpawn;
 import ca.sfu.cmpt276.team7.reward.Player;
@@ -20,9 +21,6 @@ import ca.sfu.cmpt276.team7.reward.RegularReward;
 import ca.sfu.cmpt276.team7.reward.Reward;
 import ca.sfu.cmpt276.team7.reward.RewardCell;
 import ca.sfu.cmpt276.team7.reward.TrapPunishment;
-import ca.sfu.cmpt276.team7.EndReason;
-import ca.sfu.cmpt276.team7.PopupReason;
-import ca.sfu.cmpt276.team7.ScreenState;
 
 /**
  * Core controller for the game
@@ -51,6 +49,10 @@ public class Game
 
     /** Duration field stored inside BonusReward when collected. */
     private static final int BONUS_EFFECT_DURATION_TICKS = 20;
+
+    private static final int OGRE_HIT_PENALTY = 25;
+
+    private int ogreHitCooldown = 0;
 
     /**
      * number of ticks since game start
@@ -157,6 +159,7 @@ public class Game
         startTime = System.currentTimeMillis();
         totalTime = 0;
 
+        ogreHitCooldown = 0;
         collectedRegularRewards = 0;
         collectedBonusRewards = 0;
         totalBonusRewards = 0;
@@ -178,6 +181,7 @@ public class Game
         startTime = 0;
         timeElapsed = 0;
         totalTime = 0;
+        ogreHitCooldown = 0;
         collectedRegularRewards = 0;
         collectedBonusRewards = 0;
         totalBonusRewards = 0;
@@ -214,7 +218,12 @@ public class Game
 
         for (int i = 0; i < enemies.size(); i++) {
             Enemy enemy = enemies.get(i);
-            enemy.setPosition(initialEnemyPos.get(i));
+
+            if (enemy instanceof Ogre ogre) {
+                ogre.resetState();
+            } else {
+                enemy.setPosition(initialEnemyPos.get(i));
+            }
         }
     }
 
@@ -237,6 +246,11 @@ public class Game
         {
             return;
         }
+
+        if (ogreHitCooldown > 0)
+        {
+            ogreHitCooldown--;
+        }  
 
         timeElapsed++;
         player.tickBonus();
@@ -494,6 +508,7 @@ public class Game
      */
     public void handleInput(int keyCode)
     {
+        Position beforeMove = player.getPosition();
         if (screenState == ScreenState.START) 
         {
             if (keyCode == 32) 
@@ -561,6 +576,7 @@ public class Game
         else if(collectedReward instanceof BonusReward)
         {
             collectedBonusRewards++;
+            bonusRewards.removeIf(b -> b.getPosition().equals(player.getPosition()));
             pauseForPopup(PopupReason.BONUS_COLLECTED);
             return;
         }
@@ -571,11 +587,45 @@ public class Game
             endGame();
             return;
         }
+        
+        if (isTouchingOgre()) {
+            handleOgreHit(beforeMove);
+            return;
+        }
 
         if (checkLoss()) 
         {
             return;
         }
+    }
+
+    private void handleOgreHit(Position fallbackPosition) {
+        if (ogreHitCooldown > 0)
+        {
+            return;
+        }
+
+        player.setScore(player.getTotalScore() - OGRE_HIT_PENALTY);
+        player.setPosition(fallbackPosition);
+
+        if (player.getTotalScore() < 0)
+        {
+            endReason = EndReason.LOSE_BY_OGRE;
+            endGame();
+            return;
+        }
+
+        ogreHitCooldown = 1;
+        pauseForPopup(PopupReason.OGRE_HIT);
+    }
+
+    private boolean isTouchingOgre() {
+        for (Enemy enemy : enemies) {
+            if (enemy instanceof  Ogre && enemy.getPosition().equals(player.getPosition())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -645,14 +695,8 @@ public class Game
                 {
                     endReason = EndReason.LOSE_BY_GOBLIN;  
                     endGame();
+                    return true;
                 }
-                else
-                {
-                    endReason = EndReason.LOSE_BY_OGRE;
-                    popupReason = PopupReason.OGRE_HIT;
-                    endGame();
-                }
-                return true;
             }
         }
 
@@ -700,14 +744,8 @@ public class Game
         return (int) (totalTime / 1000);
     }
 
-    /**
-     * Returns the player's current total score.
-     *
-     * @return the player's total score
-     */
-    public int getTotalScore()
-    {
-        return player.getTotalScore();
+    public int getFinalScore() {
+        return Math.max(0, player.getTotalScore());
     }
 
     /**
