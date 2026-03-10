@@ -19,6 +19,7 @@ import ca.sfu.cmpt276.team7.cells.Cell;
 import ca.sfu.cmpt276.team7.cells.FloorCell;
 import ca.sfu.cmpt276.team7.cells.WallCell;
 import ca.sfu.cmpt276.team7.core.GameCharacter;
+import ca.sfu.cmpt276.team7.core.Position;
 import ca.sfu.cmpt276.team7.enemies.Goblin;
 import ca.sfu.cmpt276.team7.enemies.Ogre;
 import ca.sfu.cmpt276.team7.reward.BonusReward;
@@ -30,23 +31,26 @@ import ca.sfu.cmpt276.team7.reward.RewardCell;
 
 /**
  * Swing panel responsible for rendering the game.
- * <p>
- * This panel builds a {@link DrawQueue} each frame based on the current {@link ScreenState},
- * then renders all {@link RenderItem}s in layer order.
- * <p>
- * This renderer supports:
- *  <ul>
+ *
+ * <p>This panel builds a {@link DrawQueue} each frame based on the current
+ * {@link ScreenState}, then renders all {@link RenderItem}s in layer order.</p>
+ *
+ * <p>This renderer supports:</p>
+ * <ul>
  *   <li>Padding walls when the board is smaller than a minimum viewport size</li>
  *   <li>A player-centered viewport when the board is larger than a maximum viewport size</li>
  * </ul>
- * 
+ *
  * @author Yui Matsumo
  * @version 1.0
  */
 public class GamePanel extends JPanel {
 
+    /** Queue of render commands for the current frame. */
     private final DrawQueue drawQueue = new DrawQueue();
+    /** Game model used to query state, score, timers, and characters. */
     private final Game game;
+    /** Board model used to query cells and special positions. */
     private final Board board;
     
     /** Board width (in cells). */
@@ -72,7 +76,7 @@ public class GamePanel extends JPanel {
     private int viewEndY;
 
     /** Minimum viewport width (in cells). If board is smaller, padding walls are drawn. */
-    private final int minX = 10;
+    private final int minX = 11;
     /** Minimum viewport height (in cells). If board is smaller, padding walls are drawn. */
     private final int minY = 8;
 
@@ -145,12 +149,13 @@ public class GamePanel extends JPanel {
     /** Layer indices (lower values are drawn first / behind). */
     private final int offsetLayer = 0;
     private final int cellLayer = 1;
-    private final int rewardLayer = 2;
-    private final int characterLayer = 3;
-    private final int playerLayer = 4;
-    private final int hudLayer = 5;
-    private final int popupRectLayer = 6;
-    private final int popupContentsLayer = 7;
+    private final int markerLayer = 2;
+    private final int rewardLayer = 3;
+    private final int characterLayer = 4;
+    private final int playerLayer = 5;
+    private final int hudLayer = 6;
+    private final int popupRectLayer = 7;
+    private final int popupContentsLayer = 8;
 
     /** On-screen cell size in pixels. */
     private final int cellWidth = 50;
@@ -402,6 +407,32 @@ public class GamePanel extends JPanel {
     }
 
     /**
+     * Enqueues a marker sprite at the given board position if it is inside the current viewport.
+     *
+     * <p>The position is converted from board coordinates to viewport-relative
+     * pixel coordinates before the marker is added to the draw queue.</p>
+     *
+     * @param pos board position where the marker should be drawn
+     * @param srcOrder sprite index in the game atlas
+     * @return nothing
+     */
+    private void enqueueMarker(Position pos, int srcOrder) {
+        int px = pos.getX();
+        int py = pos.getY();
+
+        if (px < viewStartX || px >= viewEndX || py < viewStartY || py >= viewEndY) {
+            return;
+        }
+
+        int x = (px - viewStartX + xOffset) * cellWidth;
+        int y = (py - viewStartY + yOffset) * cellHeight;
+
+        int srcSize = srcSize(srcOrder, gameSrcSize);
+        RenderItem marker = RenderItem.sprite(markerLayer, x, y, cellWidth, cellHeight, SheetId.GAME_ATLAS, srcSize, srcPadding, gameSrcSize, gameSrcSize);
+        drawQueue.enqueue(marker);
+    }
+
+    /**
      * Enqueues cells for the current frame, including:
      * <ul>
      *   <li>Padding walls when the board is smaller than {@code minX/minY}</li>
@@ -445,6 +476,8 @@ public class GamePanel extends JPanel {
         viewEndX = endX;
         viewEndY = endY;
         enqueueGameCells(grid, startX, startY, endX, endY);
+        enqueueMarker(board.getStartPosition(), 10);
+        enqueueMarker(board.getEndPosition(), 10);
     }
 
 
@@ -521,7 +554,7 @@ public class GamePanel extends JPanel {
      * Enqueues the start screen UI (title and prompt).
      */
     private void enqueueStartScreen() {
-        String titleText = "TEAM 7 GAME";
+        String titleText = "Dungeon Crawl";
         Font titleFont = new Font("SansSerif", Font.BOLD, 50);
         int[] titleXY = getCenteredTextXY(titleText, titleFont);
         
@@ -539,11 +572,12 @@ public class GamePanel extends JPanel {
     }
 
     /**
-     * Enqueues the end screen UI (image, result text, comment, final score/time, and replay prompt).
+     * Enqueues the end screen UI, including the image, result text, comment,
+     * final score/time, and replay prompt.
      *
      * @param score final score
      * @param endReason reason the game ended
-     * @param sec elapsed seconds (final time)
+     * @param sec elapsed seconds for the completed run
      */
     private void enqueueEndScreen(int score, EndReason endReason, int sec) {
         int srcSize = srcSize(2, screenSrcSize);
@@ -567,12 +601,12 @@ public class GamePanel extends JPanel {
                 break;
 
             case LOSE_BY_OGRE:
-                srcSize = srcSize(2, screenSrcSize);
+                srcSize = srcSize(0, screenSrcSize);
                 commentText = "Bumped into an ogre!";
                 break;
             
             case LOSE_BY_GOBLIN:
-                srcSize = srcSize(2, screenSrcSize);
+                srcSize = srcSize(3, screenSrcSize);
                 commentText = "Caught by a goblin!";
                 break;
         }
@@ -610,7 +644,7 @@ public class GamePanel extends JPanel {
         String playAgainText = "Press Space to Play Again";
         Font playAgainFont = new Font("SansSerif", Font.BOLD, 15);
         int playAgainX = getCenteredTextX(playAgainText, playAgainFont);
-        int playAgainY = scoreTimeY + textPadding + getTextHeight(playAgainFont) + 7;
+        int playAgainY = scoreTimeY + textPadding + getTextHeight(playAgainFont) + 5;
         
         RenderItem playAgain = RenderItem.text(0, playAgainX, playAgainY, Color.WHITE, playAgainText, playAgainFont);
         drawQueue.enqueue(playAgain);
@@ -759,10 +793,42 @@ public class GamePanel extends JPanel {
         drawQueue.enqueue(operation);
     }
 
+    /**
+     * Enqueues the pause overlay shown when the game is paused without an active popup.
+     *
+     * <p>This includes a centered background rectangle, a pause title,
+     * and a prompt explaining how to resume play.</p>
+     */
+    private void enqueuePause() {
+        int pauseRectW = cellWidth * 6;
+        int pauseRextH = cellHeight * 3;
+        int[] pauseRectXY = getCenteredRectXY(pauseRectW, pauseRextH);
+        int pauseRectX = pauseRectXY[0];
+        int pauseRectY = pauseRectXY[1];
+
+        RenderItem pauseRect = RenderItem.rect(popupRectLayer, pauseRectX, pauseRectY, pauseRectW, pauseRextH, Color.BLACK);
+        drawQueue.enqueue(pauseRect);
+
+
+        String pauseText = "Game Paused";
+        Font pauseFont = new Font("SansSerif", Font.BOLD, 30);
+        int[] pauseXY = getCenteredTextXY(pauseText, pauseFont);
+        int pauseY = pauseXY[1] - 15;
+        RenderItem pause = RenderItem.text(popupContentsLayer, pauseXY[0], pauseY, Color.WHITE, pauseText, pauseFont);
+        drawQueue.enqueue(pause);
+
+        String operationText = "Press space to continue";
+        Font operationFont = new Font("SansSerif", Font.PLAIN, 17);
+        int operationX = getCenteredTextX(operationText, operationFont);
+        int operationY = pauseY + getTextHeight(operationFont) + 10;
+        RenderItem operation = RenderItem.text(popupContentsLayer, operationX, operationY, Color.WHITE, operationText, operationFont);
+        drawQueue.enqueue(operation);
+    }
+
 
     /**
-     * Rebuilds the draw queue for the current frame based on {@link ScreenState}.
-     * 
+     * Rebuilds the draw queue for the current frame based on the current {@link ScreenState}.
+     *
      * @param game the game model
      * @param board the board model
      */
@@ -771,9 +837,10 @@ public class GamePanel extends JPanel {
 
         ScreenState screenState = game.getScreenState();
         int sec = game.getSeconds();
-        int score = game.getTotalScore();
+        int score = game.getFinalScore();
         int totalKey = game.getTotalRegularRewards();
         int collectedKey = game.getCollectedRegularRewards();
+        PopupReason popupReason = game.getPopupReason();
 
         switch (screenState) {
             case START:
@@ -790,7 +857,11 @@ public class GamePanel extends JPanel {
                 enqueueCells(board.getGrid());
                 enqueueCharacters(game.getCharacters());
                 enqueueHud(score, totalKey, collectedKey, sec);
-                enqueuePopups(game.getPopupReason());
+                if (popupReason != null) {
+                    enqueuePopups(popupReason);
+                } else {
+                    enqueuePause();
+                }
                 break;
                 
             case END:

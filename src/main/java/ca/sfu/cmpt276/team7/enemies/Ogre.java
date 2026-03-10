@@ -5,35 +5,65 @@ import java.util.List;
 
 import ca.sfu.cmpt276.team7.board.Board;
 import ca.sfu.cmpt276.team7.cells.Cell;
-import ca.sfu.cmpt276.team7.cells.WallCell;
 import ca.sfu.cmpt276.team7.core.Direction;
 import ca.sfu.cmpt276.team7.core.Position;
 
 /**
- * The Ogre class
+ * Enemy that patrols along a predefined route or along a straight line
+ * determined from a starting position and direction.
+ *
+ * <p>An ogre moves back and forth along its patrol path. If it reaches
+ * the end of the path or cannot move forward, it reverses direction.</p>
  */
 public class Ogre extends Enemy {
     /**
      * Small helper enum for directions in constructor
      */
 
+	/** Ordered list of board positions that define this ogre's patrol path. */
     private ArrayList<Position> patrolRoute;
+	/** True if the ogre is currently moving forward through the patrol route. */
     private boolean forward_p;
+	/** Current index of the ogre within {@link #patrolRoute}. */
     private int route_index;
+
+	/** Initial position used to restore this ogre during reset. */
+	private final Position initialPosition;
+	/** Initial patrol direction used to restore this ogre during reset. */
+	private final boolean initialForwardP;
+	/** Initial patrol route index used to restore this ogre during reset. */
+	private final int initialRouteIndex;
+
     /**
-     * Makes the ogre class, takes a list of positions to follow.
-     * sets the ogre to move forward up the list from the first position on the list
+     * Creates an ogre that follows the given patrol route.
+     *
+     * <p>The ogre starts at the first position in the route and initially
+     * moves forward through the list.</p>
+     *
+     * @param board board the ogre moves on
+     * @param route ordered positions that define the patrol route
      */
     public Ogre(Board board, Position... route) {
-	super(board);
-	this.patrolRoute = new ArrayList<>(List.of(route));
-	forward_p = true;
-	position = patrolRoute.get(0);
+		super(board);
+		this.patrolRoute = new ArrayList<>(List.of(route));
+		forward_p = true;
+		position = patrolRoute.get(0);
 
+	    this.initialPosition = this.position;
+		this.initialForwardP = this.forward_p;
+		this.initialRouteIndex = this.route_index;
     }
 
     /**
-     * Helper constructor, that sets the ogre to move back and forth, rather than a patrol route
+     * Creates an ogre that patrols back and forth in a straight line.
+     *
+     * <p>Starting from {@code first_position}, this constructor expands the patrol
+     * route in the given direction until movement is blocked or the board boundary
+     * is reached, then expands in the opposite direction as well.</p>
+     *
+     * @param board board the ogre moves on
+     * @param first_position starting position of the ogre
+     * @param direction direction used to build the straight-line patrol route
      */
     public Ogre(Board board, Position first_position, Direction direction) {
 	super(board);
@@ -47,7 +77,7 @@ public class Ogre extends Enemy {
 	int add_y = (direction == Direction.SOUTH) ? 1 : (direction == Direction.NORTH ? -1 : 0);
 
 	// Go in one direction until a wall is hit
-	while (!(next_cell instanceof WallCell)) {
+	while (canMoveto(next_cell)) {
 	    patrolRoute.add(potential_position);
 		
 		int nextX = potential_position.getX() + add_x;
@@ -69,7 +99,7 @@ public class Ogre extends Enemy {
 	add_x *= -1;
 	add_y *= -1;
 
-	while (!(next_cell instanceof WallCell)) {
+	while (canMoveto(next_cell)) {
 	    if (num_added != 0) { // Check to make sure the beginning position isn't added twice
 		patrolRoute.add(0, potential_position);
 	    }
@@ -91,11 +121,28 @@ public class Ogre extends Enemy {
 
 	this.forward_p = (direction == Direction.SOUTH || direction == Direction.EAST) ? true : false;
 
+	this.initialPosition = this.position;
+	this.initialForwardP = this.forward_p;
+	this.initialRouteIndex = this.route_index;
 	
     }
 
+	/**
+     * Restores the ogre's initial position, patrol direction, and route index.
+     */
+	public void resetState() {
+		this.position = initialPosition;
+		this.forward_p = initialForwardP;
+		this.route_index = initialRouteIndex;
+	}
+
     /**
-     * Moves the ogre to the next postion of the patrol route, changing directions if it reaches the end, or hits a wall
+     * Updates the ogre's movement by attempting to advance along its patrol route.
+     *
+     * <p>If movement in the current direction fails, the ogre reverses direction
+     * and attempts movement once more. If both attempts fail, the ogre remains still.</p>
+     *
+     * @param player_position current player position; currently unused by this enemy type
      */
     public void updateMovement(Position player_position) {
 	if (internalUpdate()) {
@@ -109,7 +156,13 @@ public class Ogre extends Enemy {
 
 
     /**
-     * Internal function for updating position, attempts to move forward, switching direction and returning false if it fails
+     * Attempts to move the ogre one step along its patrol route.
+     *
+     * <p>If the next route index is out of bounds or the next cell is not movable,
+     * the ogre reverses direction and returns {@code false}. Otherwise, it updates
+     * its position and route index and returns {@code true}.</p>
+     *
+     * @return {@code true} if the ogre successfully moved, otherwise {@code false}
      */
     private boolean internalUpdate() {
 	// update index
