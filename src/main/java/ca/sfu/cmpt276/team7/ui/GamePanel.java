@@ -463,8 +463,8 @@ public class GamePanel extends JPanel {
         viewEndX = endX;
         viewEndY = endY;
         enqueueGameCells(grid, startX, startY, endX, endY);
-        enqueueMarker(board.getStartPosition(), 11);
-        enqueueMarker(board.getEndPosition(), 11);
+        enqueueMarker(board.getStartPosition(), 10);
+        enqueueMarker(board.getEndPosition(), 10);
     }
 
 
