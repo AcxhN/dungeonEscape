@@ -12,6 +12,11 @@ public class RegularReward extends Reward{
       super(value);
    }
 
+   /**
+    * Handles collection of this reward.
+    *
+    * <p>This reward has no special effect beyond its point value.</p>
+    */
    @Override
    public void onCollect(){
       // no special behavior.
