@@ -23,8 +23,6 @@ import ca.sfu.cmpt276.team7.ui.GameWindow;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Build OK");
-
         try {
             BoardLoader.Result result = BoardLoader.load(Path.of("./src/main/resources/maps/map1.txt"));
 
