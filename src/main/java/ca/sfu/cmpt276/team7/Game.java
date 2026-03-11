@@ -816,11 +816,11 @@ public class Game
     }
 
     /**
-     * Returns the player's final score, clamped to a minimum of 0.
+     * Returns the displayed score, clamped to a minimum of 0.
      *
-     * @return the final non-negative score
+     * @return the current non-negative displayed score
      */
-    public int getFinalScore() {
+    public int getDisplayedScore() {
         return Math.max(0, player.getTotalScore());
     }
 

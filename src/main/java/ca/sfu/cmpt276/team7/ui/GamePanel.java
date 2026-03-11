@@ -842,7 +842,7 @@ public class GamePanel extends JPanel {
 
         ScreenState screenState = game.getScreenState();
         int sec = game.getSeconds();
-        int score = game.getFinalScore();
+        int score = game.getDisplayedScore();
         int totalKey = game.getTotalRegularRewards();
         int collectedKey = game.getCollectedRegularRewards();
         PopupReason popupReason = game.getPopupReason();
