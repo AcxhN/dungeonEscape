@@ -250,10 +250,13 @@ public class Game
      *
      * <p>When the game is in {@link ScreenState#PLAYING}, each tick:
      * <ol>
+     *  <li>decrements the ogre-hit cooldown if active</li>
      *  <li>increments {@link #timeElapsed}</li>
      *  <li>updates any active player bonus effect</li>
      *  <li>updates enemy movement</li>
-     *  <li>checks win and loss conditions</li>
+     *  <li>checks win condition</li>
+     *  <li>checks ogre collision handling</li>
+     *  <li>checks remaining loss conditions</li>
      *  <li>updates active temporary bonus reward lifetimes</li>
      *  <li>attempts to spawn a new bonus reward when the spawn interval is reached</li>
      * </ol>
@@ -517,7 +520,7 @@ public class Game
     }
 
     /**
-     * Handles one keyboard input event for the current screen state
+     * Handles one keyboard input event for the current screen state.
      *
      * <p>Depending on the current {@link ScreenState}, this method may:
      * <ul>
@@ -525,7 +528,7 @@ public class Game
      *  <li>resume from a pause or popup state</li>
      *  <li>restart after the game ends</li>
      *  <li>toggle pause while playing</li>
-     *  <li>move the player and process collected rewards</li>
+     *  <li>move the player, process collected rewards, and then evaluate win/loss events</li>
      * </ul>
      *
      * <p>Supported movement key codes:
@@ -536,9 +539,12 @@ public class Game
      *  <li>68 (D) or 39 (→) - move EAST</li>
      * </ul>
      *
+     * <p>Reward collection effects are applied immediately. If the move does not
+     * end the game and does not trigger an ogre collision, a reward popup may be shown.</p>
+     *
      * <p>Key code 80 (P) toggles pause while playing, and can also resume
      * from the pause screen. Space is used for start, resume, and restart
-     * depending on the current screen state</p>
+     * depending on the current screen state.</p>
      *
      * @param keyCode integer key code from a keyboard event
      */
@@ -603,19 +609,18 @@ public class Game
                 return;
         }
 
+        PopupReason rewardPopup = null;
+
         if (collectedReward instanceof RegularReward) 
         {
             collectedRegularRewards++;
-            popupReason = PopupReason.KEY_COLLECTED;
-            pauseForPopup(PopupReason.KEY_COLLECTED);
-	    return;
+            rewardPopup = PopupReason.KEY_COLLECTED;
         }
         else if(collectedReward instanceof BonusReward)
         {
             collectedBonusRewards++;
             bonusRewards.removeIf(b -> b.getPosition().equals(player.getPosition()));
-            pauseForPopup(PopupReason.BONUS_COLLECTED);
-            return;
+            rewardPopup = PopupReason.BONUS_COLLECTED;
         }
 
         if (checkWin()) 
@@ -634,6 +639,11 @@ public class Game
         {
             return;
         }
+
+        if (rewardPopup != null)
+        {
+            pauseForPopup(rewardPopup);
+        }
     }
 
     /**
@@ -641,7 +651,8 @@ public class Game
      *
      * <p>If the player's score becomes negative after the penalty,
      * the game ends with {@link EndReason#LOSE_BY_OGRE}. Otherwise,
-     * an ogre hit cooldown is started and an ogre-hit popup is shown.</p>
+     * an ogre-hit cooldown is started, preventing another ogre penalty
+     * on the next tick, and an ogre-hit popup is shown.</p>
      */
     private void handleOgreHit() {
         player.setScore(player.getTotalScore() - OGRE_HIT_PENALTY);
@@ -854,7 +865,7 @@ public class Game
     }
 
     /**
-     * Returns the currently tracked active temporary bonus reward spawns
+     * Returns the currently tracked active temporary bonus reward spawns.
      *
      * @return active bonus reward spawn trackers
      */
