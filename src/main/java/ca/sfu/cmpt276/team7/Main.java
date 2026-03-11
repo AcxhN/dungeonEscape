@@ -56,7 +56,7 @@ public class Main {
      */
     public static void main(String[] args) {
         try {
-            BoardLoader.Result result = BoardLoader.load(Path.of("./src/main/resources/maps/map1.txt"));
+            BoardLoader.Result result = BoardLoader.load(Path.of("./src/main/resources/maps/map3.txt"));
 
             Board board = result.getBoard();
             List<Position> goblin_spawns = result.getGoblinSpawns();
