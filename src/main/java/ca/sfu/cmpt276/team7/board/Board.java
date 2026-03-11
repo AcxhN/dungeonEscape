@@ -15,11 +15,16 @@ import ca.sfu.cmpt276.team7.core.Position;
  */
 public class Board {
 
+    /** Backing 2D grid that stores all board cells. */
     private final Cell[][] grid;
+    /** Number of columns in the board. */
     private final int width;
+    /** Number of rows in the board. */
     private final int height;
 
+    /** Starting position defined by the map. */
     private Position startPosition;
+    /** Exit position defined by the map. */
     private Position endPosition;
 
     /**
@@ -89,6 +94,7 @@ public class Board {
      * 
      * @param startPosition start position
      * @throws IllegalArgumentsException if null or out of bounds 
+     * @throws IndexOutOfBoundsException if the position is outside the board
      */
     public void setStartPosition(Position startPosition) {
         if (startPosition == null) throw new IllegalArgumentException("startPosition cannot be null");
@@ -106,6 +112,7 @@ public class Board {
      * 
      * @param endPosition exit tile coordinate 
      * @throws IllgealArgumentException if null or out of bounds 
+     * @throws IndexOutOfBoundsException if the position is outside the board
      */
     public void setEndPosition(Position endPosition) {
         if (endPosition == null) throw new IllegalArgumentException("startPosition cannot be null");

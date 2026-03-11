@@ -18,8 +18,12 @@ public class Player extends GameCharacter {
     private int totalScore;
     /** Currently active bonus reward (if any). */
     private BonusReward activeBonus;
+
     /**
      * Creates a player at the given starting position on the board.
+     *
+     * @param board board the player moves on
+     * @param start initial player position
      */
     public Player(Board board, Position start) {
         super(board);
@@ -28,6 +32,14 @@ public class Player extends GameCharacter {
         this.activeBonus = null;
     }
 
+    /**
+     * Resets the player's state to a fresh starting state.
+     *
+     * <p>This restores the player's position, clears the score,
+     * and removes any active bonus effect.</p>
+     *
+     * @param start position to reset the player to
+     */
     public void resetState(Position start) {
         this.position = start;
         this.totalScore = 0;
@@ -120,10 +132,15 @@ public class Player extends GameCharacter {
     public boolean canMoveto(Cell cell) {
         return cell.isWalkable();
     }
-/**
- * Applies the effects of a collected reward.
- * Regular rewards add points; bonus rewards activate a timed effect. 
-*/
+
+    /**
+     * Applies the effects of a collected reward.
+     *
+     * <p>Regular rewards add points, while bonus rewards add points
+     * and activate a timed bonus effect.</p>
+     *
+     * @param reward the collected reward
+     */
     public void collectReward(Reward reward) {
         reward.onCollect();
 
@@ -134,9 +151,12 @@ public class Player extends GameCharacter {
             this.activeBonus = bonus;
         }
     }
-/** 
- * Applies the effects of a punishment by reducing the player's score. 
- */
+    
+    /**
+     * Applies the effects of a punishment by reducing the player's score.
+     *
+     * @param punishment the punishment to apply
+     */
     public void applyPunishment(Punishment punishment) {
         punishment.onTrigger();
         totalScore -= punishment.getPenaltyValue();
@@ -155,9 +175,10 @@ public class Player extends GameCharacter {
     }
 
     /**
-     * Sets the player's score
+     * Sets the player's total score.
+     *
+     * @param score new score value
      */
-
     public void setScore(int score) {
 	this.totalScore = score;
     }

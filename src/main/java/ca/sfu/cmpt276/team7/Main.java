@@ -21,12 +21,46 @@ import ca.sfu.cmpt276.team7.reward.RewardCell;
 import ca.sfu.cmpt276.team7.reward.TrapPunishment;
 import ca.sfu.cmpt276.team7.ui.GameWindow;
 
+/**
+ * Entry point for the game application
+ * 
+ * <p>This class is responsible for bootstrapping the game world at startup
+ * It loads the map file, creates the board and player, spawns enemies,
+ * places key rewards and trap punishments onto the board, constructs the
+ * {@link Game} controller, and launches the graphical user interface
+ * 
+ * <p>The startup flow is:
+ * <ol>
+ *   <li>Load the board and marker positions from the map file</li>
+ *   <li>Create the player at the board's start position</li>
+ *   <li>Spawn goblins and ogres at their configured positions</li>
+ *   <li>Place reward cells for keys and punishment cells for traps</li>
+ *   <li>Create the {@link Game} instance with the initialized objects</li>
+ *   <li>Start the {@link GameWindow}</li>
+ * </ol>
+ */
 public class Main {
-    public static void main(String[] args) {
-        System.out.println("Build OK");
 
+    /**
+     * Starts the game application
+     * 
+     * <p>This method loads the map data from the resource file, initializes all
+     * core game objects, and opens the game window. Marker positions produced
+     * by {@link BoardLoader} are used to spawn enemies and place special cells
+     * such as rewards and punishments
+     * 
+     * <p>If the map file cannot be loaded, the resulting {@link IOException}
+     * is caught and printed to the console
+     * 
+     * @param args command-line arguments that are not used by this application
+     */
+    public static void main(String[] args) {
         try {
-            BoardLoader.Result result = BoardLoader.load(Path.of("./src/main/resources/maps/map2.txt"));
+<<<<<<< HEAD
+            BoardLoader.Result result = BoardLoader.load(Path.of("./src/main/resources/maps/map3.txt"));
+=======
+            BoardLoader.Result result = BoardLoader.load(Path.of("./src/main/resources/maps/map3.txt"));
+>>>>>>> ce17bd20a179e816fc6d8c8086491a7a7a9deb72
 
             Board board = result.getBoard();
             List<Position> goblin_spawns = result.getGoblinSpawns();
