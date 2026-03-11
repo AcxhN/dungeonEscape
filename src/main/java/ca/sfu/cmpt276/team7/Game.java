@@ -43,7 +43,7 @@ import ca.sfu.cmpt276.team7.reward.TrapPunishment;
 public class Game 
 {
     /** How often the game tries to spawn a bonus reward. */
-    private static final int BONUS_SPAWN_INTERVAL_TICKS = 50;
+    private static final int BONUS_SPAWN_INTERVAL_TICKS = 15;
 
     /** How long a spawned bonus reward stays on the board. */
     private static final int BONUS_SPAWN_LIFETIME_TICKS = 30;
