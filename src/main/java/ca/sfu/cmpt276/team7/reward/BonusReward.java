@@ -1,4 +1,4 @@
-package ca.sfu.cmpt276.team7;
+package ca.sfu.cmpt276.team7.reward;
 /**
  * A reward that provides a temp bonus eefect for a limited duration.
  */

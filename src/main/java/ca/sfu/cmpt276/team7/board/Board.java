@@ -15,11 +15,16 @@ import ca.sfu.cmpt276.team7.core.Position;
  */
 public class Board {
 
+    /** Backing 2D grid that stores all board cells. */
     private final Cell[][] grid;
+    /** Number of columns in the board. */
     private final int width;
+    /** Number of rows in the board. */
     private final int height;
 
+    /** Starting position defined by the map. */
     private Position startPosition;
+    /** Exit position defined by the map. */
     private Position endPosition;
 
     /**
@@ -60,6 +65,25 @@ public class Board {
         return height;
     }
 
+    /**@return returns if a given position is inside the board*/
+    public boolean isInside(Position position) {
+        if (position.getX() < 0 ||
+            position.getY() < 0 ||
+            position.getX() >= width ||
+            position.getY() >= height) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     *@return returns the grid
+     */
+    public Cell[][] getGrid() {
+	return grid;
+    }
+
     /**@return start position defined by the map */
     public Position getStartPosition() {
         return startPosition; 
@@ -70,6 +94,7 @@ public class Board {
      * 
      * @param startPosition start position
      * @throws IllegalArgumentsException if null or out of bounds 
+     * @throws IndexOutOfBoundsException if the position is outside the board
      */
     public void setStartPosition(Position startPosition) {
         if (startPosition == null) throw new IllegalArgumentException("startPosition cannot be null");
@@ -87,6 +112,7 @@ public class Board {
      * 
      * @param endPosition exit tile coordinate 
      * @throws IllgealArgumentException if null or out of bounds 
+     * @throws IndexOutOfBoundsException if the position is outside the board
      */
     public void setEndPosition(Position endPosition) {
         if (endPosition == null) throw new IllegalArgumentException("startPosition cannot be null");
@@ -104,7 +130,7 @@ public class Board {
      */
     public Cell getCell(int x, int y) {
         ensureInBounds(x, y);
-        return grid[x][y]; 
+        return grid[y][x]; 
     }
 
     /**

@@ -28,7 +28,7 @@ public abstract class Cell {
     /**
      * @return this cell's grid coordinate 
      */
-    public Position gePosition() {
+    public Position getPosition() {
         return position; 
     }
 

@@ -1,4 +1,4 @@
-package ca.sfu.cmpt276.team7;
+package ca.sfu.cmpt276.team7.reward;
 /**
  * A standard reward that simply gives the player points.
  * It has no special behavior beyond its point value.
@@ -12,6 +12,11 @@ public class RegularReward extends Reward{
       super(value);
    }
 
+   /**
+    * Handles collection of this reward.
+    *
+    * <p>This reward has no special effect beyond its point value.</p>
+    */
    @Override
    public void onCollect(){
       // no special behavior.
