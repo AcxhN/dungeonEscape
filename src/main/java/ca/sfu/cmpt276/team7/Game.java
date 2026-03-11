@@ -57,6 +57,8 @@ public class Game
     /** Score penalty applied when the player is hit by an ogre. */
     private static final int OGRE_HIT_PENALTY = 25;
 
+    private Direction pendingMove = null;
+
     /** Remaining ticks before another ogre collision can apply damage. */
     private int ogreHitCooldown = 0;
 
@@ -173,6 +175,7 @@ public class Game
         startTime = System.currentTimeMillis();
         totalTime = 0;
 
+        pendingMove = null;
         ogreHitCooldown = 0;
         collectedRegularRewards = 0;
         collectedBonusRewards = 0;
@@ -199,6 +202,7 @@ public class Game
         startTime = 0;
         timeElapsed = 0;
         totalTime = 0;
+        pendingMove = null;
         ogreHitCooldown = 0;
         collectedRegularRewards = 0;
         collectedBonusRewards = 0;
@@ -277,18 +281,42 @@ public class Game
         }  
 
         timeElapsed++;
+
+        PopupReason rewardPopup = null;
+        Reward collectedReward = null;
+
+        if (pendingMove != null)
+        {
+            collectedReward = player.move(pendingMove);
+            pendingMove = null;
+
+            if (collectedReward instanceof RegularReward)
+            {
+                collectedRegularRewards++;
+                rewardPopup = PopupReason.KEY_COLLECTED;
+            }
+            else if (collectedReward instanceof BonusReward)
+            {
+                collectedBonusRewards++;
+                bonusRewards.removeIf(b -> b.getPosition().equals(player.getPosition()));
+                rewardPopup = PopupReason.BONUS_COLLECTED;
+            }
+
+            if (isTouchingOgre() && ogreHitCooldown == 0) {
+                handleOgreHit();
+                return;
+            }
+
+            if (checkLoss()) {
+                return;
+            }
+        }
+
         player.tickBonus();
 
         for(Enemy enemy : enemies)
         {
             enemy.updateMovement(player.getPosition());
-        }
-
-        if(checkWin())
-        {
-            endReason = EndReason.WIN;
-            endGame();
-            return;
         }
 
         if (isTouchingOgre() && ogreHitCooldown == 0) {
@@ -301,11 +329,23 @@ public class Game
             return;
         }
 
+        if(checkWin())
+        {
+            endReason = EndReason.WIN;
+            endGame();
+            return;
+        }
+
         updateActiveBonusRewards();
 
         if (shouldTrySpawnBonusReward())
         {
             trySpawnBonusReward();
+        }
+
+        if (rewardPopup != null)
+        {
+            pauseForPopup(rewardPopup);
         }
     }
 
@@ -589,60 +629,22 @@ public class Game
             return;
         }
 
-        Reward collectedReward = null;
-
         switch(keyCode)
         {
-            case 87: case 38: 
-                collectedReward = player.move(Direction.NORTH);
+            case 87: case 38:
+                pendingMove = Direction.NORTH;
                 break;
-            case 83: case 40: 
-                collectedReward = player.move(Direction.SOUTH);
+            case 83: case 40:
+                pendingMove = Direction.SOUTH;
                 break;
             case 65: case 37:
-                collectedReward = player.move(Direction.WEST);
+                pendingMove = Direction.WEST;
                 break;
             case 68: case 39:
-                collectedReward = player.move(Direction.EAST);
+                pendingMove = Direction.EAST;
                 break;
             default:
                 return;
-        }
-
-        PopupReason rewardPopup = null;
-
-        if (collectedReward instanceof RegularReward) 
-        {
-            collectedRegularRewards++;
-            rewardPopup = PopupReason.KEY_COLLECTED;
-        }
-        else if(collectedReward instanceof BonusReward)
-        {
-            collectedBonusRewards++;
-            bonusRewards.removeIf(b -> b.getPosition().equals(player.getPosition()));
-            rewardPopup = PopupReason.BONUS_COLLECTED;
-        }
-
-        if (checkWin()) 
-        {
-            endReason = EndReason.WIN;
-            endGame();
-            return;
-        }
-        
-        if (isTouchingOgre() && ogreHitCooldown == 0) {
-            handleOgreHit();
-            return;
-        }
-
-        if (checkLoss()) 
-        {
-            return;
-        }
-
-        if (rewardPopup != null)
-        {
-            pauseForPopup(rewardPopup);
         }
     }
 
@@ -693,6 +695,7 @@ public class Game
      */
     private void pauseForPopup(PopupReason reason) 
     {
+        pendingMove = null;
         popupReason = reason;
         totalTime += System.currentTimeMillis() - startTime;
         screenState = ScreenState.PAUSE;
@@ -706,6 +709,7 @@ public class Game
      */
     private void resumeFromPopup() 
     {
+        pendingMove = null;
         popupReason = null;
         startTime = System.currentTimeMillis();
         screenState = ScreenState.PLAYING;
@@ -779,11 +783,13 @@ public class Game
     {
         if(screenState == ScreenState.PLAYING)
         {
+            pendingMove = null;
             totalTime += System.currentTimeMillis() - startTime;
             screenState = ScreenState.PAUSE;
         }
         else if(screenState == ScreenState.PAUSE)
         {
+            pendingMove = null;
             startTime = System.currentTimeMillis();
             screenState = ScreenState.PLAYING;
         }
@@ -797,6 +803,7 @@ public class Game
      */
     private void endGame()
     {
+        pendingMove = null;
         totalTime += System.currentTimeMillis() - startTime;
         screenState = ScreenState.END;
     }
