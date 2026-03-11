@@ -601,8 +601,8 @@ public class GamePanel extends JPanel {
                 break;
 
             case LOSE_BY_OGRE:
-                srcSize = srcSize(0, screenSrcSize);
-                commentText = "Bumped into an ogre!";
+                srcSize = srcSize(5, screenSrcSize);
+                commentText = "Stuck, mashed, and boiled into a stew!";
                 break;
             
             case LOSE_BY_GOBLIN:
@@ -773,6 +773,11 @@ public class GamePanel extends JPanel {
                 srcSize = srcSize(1, screenSrcSize);
                 commentText = "* You found a treasure chest!";
                 break;
+
+			case KEY_COLLECTED:
+				srcSize = srcSize(4, screenSrcSize);
+				commentText = "* After some 'convincing', the gnome gives up his key.";
+				break;
         }
         
         RenderItem popupImage = RenderItem.sprite(popupContentsLayer, imageX, imageY, imageW, imageH, SheetId.SCREEN_ATLAS, srcSize, srcPadding, screenSrcSize, screenSrcSize);

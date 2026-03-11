@@ -606,7 +606,9 @@ public class Game
         if (collectedReward instanceof RegularReward) 
         {
             collectedRegularRewards++;
-            popupReason = null;
+            popupReason = PopupReason.KEY_COLLECTED;
+            pauseForPopup(PopupReason.KEY_COLLECTED);
+	    return;
         }
         else if(collectedReward instanceof BonusReward)
         {
