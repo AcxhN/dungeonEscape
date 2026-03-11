@@ -414,7 +414,6 @@ public class GamePanel extends JPanel {
      *
      * @param pos board position where the marker should be drawn
      * @param srcOrder sprite index in the game atlas
-     * @return nothing
      */
     private void enqueueMarker(Position pos, int srcOrder) {
         int px = pos.getX();
@@ -438,7 +437,8 @@ public class GamePanel extends JPanel {
      *   <li>Padding walls when the board is smaller than {@code minX/minY}</li>
      *   <li>A player-centered viewport when the board is larger than {@code maxX/maxY}</li>
      * </ul>
-     * Also updates the current viewport bounds used for character rendering.
+     * Updates the current viewport bounds used for character rendering,
+     * and enqueues the start and end markers if they are visible in the viewport.
      *
      * @param grid the board grid of cells
      */
@@ -601,8 +601,8 @@ public class GamePanel extends JPanel {
                 break;
 
             case LOSE_BY_OGRE:
-                srcSize = srcSize(0, screenSrcSize);
-                commentText = "Bumped into an ogre!";
+                srcSize = srcSize(5, screenSrcSize);
+                commentText = "Stuck, mashed, and boiled into a stew!";
                 break;
             
             case LOSE_BY_GOBLIN:
@@ -766,13 +766,18 @@ public class GamePanel extends JPanel {
         switch (popupReason) {
             case OGRE_HIT:
                 srcSize = srcSize(0, screenSrcSize);
-                commentText = "* An ogre energes from the darkness. It demands all of your gold!";
+                commentText = "* An ogre emerges from the darkness.";
                 break;
         
             case BONUS_COLLECTED:
                 srcSize = srcSize(1, screenSrcSize);
                 commentText = "* You found a treasure chest!";
                 break;
+
+			case KEY_COLLECTED:
+				srcSize = srcSize(4, screenSrcSize);
+				commentText = "* After some 'convincing', the gnome gives up his key.";
+				break;
         }
         
         RenderItem popupImage = RenderItem.sprite(popupContentsLayer, imageX, imageY, imageW, imageH, SheetId.SCREEN_ATLAS, srcSize, srcPadding, screenSrcSize, screenSrcSize);
@@ -837,7 +842,7 @@ public class GamePanel extends JPanel {
 
         ScreenState screenState = game.getScreenState();
         int sec = game.getSeconds();
-        int score = game.getFinalScore();
+        int score = game.getDisplayedScore();
         int totalKey = game.getTotalRegularRewards();
         int collectedKey = game.getCollectedRegularRewards();
         PopupReason popupReason = game.getPopupReason();
