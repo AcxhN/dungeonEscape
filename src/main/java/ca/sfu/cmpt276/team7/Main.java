@@ -26,7 +26,7 @@ public class Main {
         System.out.println("Build OK");
 
         try {
-            BoardLoader.Result result = BoardLoader.load(Path.of("./src/main/resources/maps/map1.txt"));
+            BoardLoader.Result result = BoardLoader.load(Path.of("./src/main/resources/maps/map2.txt"));
 
             Board board = result.getBoard();
             List<Position> goblin_spawns = result.getGoblinSpawns();
