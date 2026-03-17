@@ -1,16 +1,13 @@
 package ca.sfu.cmpt276.team7;
 
-import java.beans.Transient;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
-
-import javax.swing.text.Position;
 
 import ca.sfu.cmpt276.team7.board.Board;
 import ca.sfu.cmpt276.team7.board.BoardLoader;
@@ -26,10 +23,13 @@ import ca.sfu.cmpt276.team7.reward.RegularReward;
 import ca.sfu.cmpt276.team7.reward.Reward;
 import ca.sfu.cmpt276.team7.reward.RewardCell;
 import ca.sfu.cmpt276.team7.reward.TrapPunishment;
-import ca.sfu.cmpt276.team7.ui.GameWindow;
+import ca.sfu.cmpt276.team7.ScreenState;
+import ca.sfu.cmpt276.team7.EndReason;
 
 
-
+/**
+ * Test suite for core game logic
+ */
 public class coreGameTests 
 {
     /**
@@ -42,10 +42,17 @@ public class coreGameTests
      * <p>If the map file cannot be loaded, the resulting {@link IOException}
      * is caught and printed to the console
      * 
+     * <p>Method is called before every test using {@BeforeEach}
+     * 
      * @param args command-line arguments that are not used by this application
      */
+
+    private Game game;
+    private Player player;
+    private Board board;
+
     @BeforeEach
-    public void setUp() 
+    public void setUp() throws IOException 
     {
         BoardLoader.Result result = BoardLoader.load(Path.of("src/test/resources/maps/valid/map1.txt"));
 
@@ -106,10 +113,10 @@ public class coreGameTests
     public void winConditionTest()
     {
         game.startGame();
-        player.setPosition(new Position(3, 1)); //key 1
+        player.setPosition(new Position(3, 1)); //left of key 1
         game.handleInput(68);
         game.updateTick();
-        player.setPosition(new Position(4, 3)); //key 2
+        player.setPosition(new Position(4, 3)); //left of key 2
         game.handleInput(68);
         game.updateTick();
         player.setPosition(new Position(8, 4)); //exit
