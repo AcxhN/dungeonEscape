@@ -7,5 +7,5 @@ public enum PopupReason
 {
     OGRE_HIT, 
     BONUS_COLLECTED,
-    KEY_COLLECTED,
+    KEY_COLLECTED
 }
