@@ -34,6 +34,11 @@ import ca.sfu.cmpt276.team7.PopupReason;
  */
 public class coreGameTests 
 {
+
+    private Game game;
+    private Player player;
+    private Board board;
+    private List<Enemy> enemies;
     /**
      * Sets up game application for testing
      * 
@@ -47,12 +52,6 @@ public class coreGameTests
      * <p>Method is called before every test using {@BeforeEach}
      * 
      */
-
-    private Game game;
-    private Player player;
-    private Board board;
-    private List<Enemy> enemies;
-
     @BeforeEach
     public void setUp() throws IOException 
     {
@@ -91,10 +90,52 @@ public class coreGameTests
 
         // Bonus rewards are runtime-spawned, so initial total is 0.
         game = new Game(board, player, enemies, key_spawns.size(), 0, key_spawns, trap_spawns);
-
     }
 
-    //
+    /**
+     * set up but takes path as a parameter
+     * @param mapPath
+     * @throws IOException
+     */
+    public void setUpWithPath(String mapPath) throws IOException 
+    {
+        BoardLoader.Result result = BoardLoader.load(Path.of(mapPath));
+
+        board = result.getBoard();
+        List<Position> goblin_spawns = result.getGoblinSpawns();
+        List<Position> ogre_spawns = result.getOgreSpawns();
+        List<Position> key_spawns = result.getKeyPositions();
+        List<Position> trap_spawns = result.getTrapPositions();
+
+        player = new Player(board, board.getStartPosition());
+
+        // === Spawn enemies ===
+        enemies = new ArrayList<>();
+
+        for (Position pos : goblin_spawns) {
+            enemies.add(new Goblin(board, pos));
+        }
+
+        for (Position pos : ogre_spawns) {
+            enemies.add(new Ogre(board, pos, Direction.EAST));
+        }
+
+        // === Spawn keys ===
+        for (Position pos : key_spawns) {
+            Reward reward = new RegularReward(10);
+            board.setCell(pos.getX(), pos.getY(), new RewardCell(pos, reward));
+        }
+
+        // === Spawn traps ===
+        for (Position pos : trap_spawns) {
+            Punishment trap = new TrapPunishment(5);
+            board.setCell(pos.getX(), pos.getY(), new PunishmentCell(pos, trap));
+        }
+
+        // Bonus rewards are runtime-spawned, so initial total is 0.
+        game = new Game(board, player, enemies, key_spawns.size(), 0, key_spawns, trap_spawns);
+    }
+
     @Test
     public void initialScreenStateTest()
     {
@@ -105,7 +146,7 @@ public class coreGameTests
     public void tickAfterInputTest()
     {
         game.startGame();
-        game.handleInput(87);
+        game.handleInput(87); //W
         game.updateTick();
         assertEquals(1, game.getTimeElapsed());
     }
@@ -119,25 +160,42 @@ public class coreGameTests
     }
 
     @Test
-    public void winConditionTest()
+    public void scoreIncreaseOnCollectTest()
     {
-        for (Enemy e : enemies) 
-        {
-            e.setPosition(new Position(1, 1));
-        }
-
         game.startGame();
         player.setPosition(new Position(3, 1)); //left of key 1
-        game.handleInput(68);
+        game.handleInput(68); //D
+        game.updateTick();
+        assertEquals(1, game.getCollectedRegularRewards(), "K1 not collected");
+        assertEquals(PopupReason.KEY_COLLECTED, game.getPopupReason());
+        assertEquals(10, game.getDisplayedScore());
+    }
+
+    @Test
+    public void winConditionTest()
+    {
+        game.startGame();
+        player.setPosition(new Position(3, 1)); //left of key 1
+        game.handleInput(68); //D
         game.updateTick();
         assertEquals(1, game.getCollectedRegularRewards(), "K1 not collected");
         assertEquals(PopupReason.KEY_COLLECTED, game.getPopupReason());
 
+        if (game.getScreenState() == ScreenState.PAUSE)
+        {
+            game.handleInput(32); //Space
+        }
+
         player.setPosition(new Position(4, 3)); //left of key 2
-        game.handleInput(68);
+        game.handleInput(68); //D
         game.updateTick();
         assertEquals(2, game.getCollectedRegularRewards(), "K2 not collected");
         assertEquals(PopupReason.KEY_COLLECTED, game.getPopupReason());
+
+        if (game.getScreenState() == ScreenState.PAUSE)
+        {
+            game.handleInput(32); //Space
+        }
 
         player.setPosition(board.getEndPosition());
         game.updateTick();
@@ -171,24 +229,22 @@ public class coreGameTests
     {
         game.startGame();
         player.setPosition(new Position(6, 2)); //left of trap
-        game.handleInput(68);
+        game.handleInput(68); //D
         game.updateTick();
         assertEquals(ScreenState.END, game.getScreenState());
         assertEquals(EndReason.LOSE_BY_TRAP, game.getEndReason());
     }
 
-    //
     @Test
     public void loseByOgreTest()
     {
         game.startGame();
-        player.setPosition(new Position(6, 4));
+        player.setPosition(new Position(6, 4)); //left of ogre
         game.updateTick();
         assertEquals(ScreenState.END, game.getScreenState());
         assertEquals(EndReason.LOSE_BY_OGRE, game.getEndReason());
     }
 
-    //
     @Test
     public void pauseFreezeTickTest()
     {
@@ -198,18 +254,16 @@ public class coreGameTests
         assertEquals(0, game.getTimeElapsed());
     }
 
-    //
     @Test
     public void pauseFreezeAccumulatedTimeTest() throws InterruptedException
     {
         game.startGame();
-        game.handleInput(80);
+        game.handleInput(80); //P
         Thread.sleep(500);
-        game.handleInput(80);
+        game.handleInput(80); //P
         assertTrue(game.getSeconds() < 1);
     }
 
-    //
     @Test
     public void resumeFromPauseTest()
     {
@@ -219,7 +273,6 @@ public class coreGameTests
         assertEquals(ScreenState.PLAYING, game.getScreenState());
     }
 
-    //
     @Test
     public void noPopupOnStartTest()
     {
@@ -227,7 +280,6 @@ public class coreGameTests
         assertNull(game.getPopupReason());
     }
 
-    //
     @Test
     public void restartGameTest()
     {
@@ -242,14 +294,12 @@ public class coreGameTests
         assertEquals(board.getStartPosition(), player.getPosition());
     }
 
-    //
     @Test
     public void bonusSpawnPositionsNotEmptyTest()
     {
         assertFalse(game.getBonusSpawnPositions().isEmpty());
     }
 
-    //
     @Test
     public void bonusSpawnPositionsNotStartOrEndTest()
     {
@@ -258,7 +308,27 @@ public class coreGameTests
         assertFalse(spawns.contains(board.getEndPosition()));
     }
 
-    //
+    @Test
+    public void bonusSpawnLifetimeTest() throws IOException
+    {
+        setUpWithPath("src/test/resources/maps/valid/map_bonusTest.txt");
+        game.startGame();
+
+        for(int i = 0;i<15;i++)
+        {
+            game.updateTick();
+        }
+
+        assertFalse(game.getBonusRewards().isEmpty(), "bonus should have spawned at tick 15");
+        
+        for(int j = 0;j<30;j++)
+        {
+            game.updateTick();
+        }
+        
+        assertEquals(2, game.getTotalBonusRewards(), "old expired, new spawned");
+    }
+
     @Test
     public void noTickAfterGameEndTest()
     {
@@ -270,4 +340,14 @@ public class coreGameTests
         assertEquals(ticksAtEnd, game.getTimeElapsed());
     }
 
+    @Test
+    public void noInputAfterGameEndTest()
+    {
+        game.startGame();
+        player.setPosition(new Position(6, 2)); //above goblin
+        game.updateTick();
+        int ticksAtEnd = game.getTimeElapsed();
+        game.handleInput(87);
+        assertEquals(ticksAtEnd, game.getTimeElapsed());
+    }
 }
