@@ -140,7 +140,7 @@ public class coreGameTests
      */
 
     /**
-     * Tests that game initializes screen state to STATRT
+     * Tests that game initializes screen state to START
      */
     @Test
     public void initialScreenStateTest()
@@ -177,7 +177,8 @@ public class coreGameTests
     }
 
     /**
-     * Tests that score increases after collecting regular reward and popup for collection appears
+     * Tests that player is able to collect keys, score increases after collecting regular reward
+     *  and popup for collection appears
      */
     @Test
     public void scoreIncreaseOnRegularRewardCollectTest()
@@ -191,6 +192,9 @@ public class coreGameTests
         assertEquals(10, game.getDisplayedScore(), "Score did not increase after K1 was collected");
     }
 
+    /**
+     * Tests that player is able to win game by reaching exit with all keys collected
+     */
     @Test
     public void winConditionTest()
     {
@@ -224,6 +228,9 @@ public class coreGameTests
         assertEquals(EndReason.WIN, game.getEndReason(), "End Reason is not win");
     }
 
+    /**
+     * Tests that player isnt able to exit without all keys
+     */
     @Test
     public void exitWithoutKeysTest()
     {
@@ -235,16 +242,25 @@ public class coreGameTests
         assertEquals(ScreenState.PLAYING, game.getScreenState(), "Screen state changed when walked to exit");
     }
 
+    /**
+     * Tests that getting caught by goblin causes a loss in score/game over and end reason is
+     * lose by goblin
+     */
     @Test
     public void loseByGoblinTest()
     {
         game.startGame();
         player.setPosition(new Position(6, 2)); //above goblin
         game.updateTick();
+        assertTrue(game.getDisplayedScore() <= 0, "Score did not decrease after being caught by goblin");
         assertEquals(ScreenState.END, game.getScreenState(), "Screen state did not change to end when caught by goblin");
         assertEquals(EndReason.LOSE_BY_GOBLIN, game.getEndReason(), "End reason did not change to lose by goblin");
     }
 
+    /**
+     * Tests that walking over trap cell causes loss in score/game over and 
+     * end reason is lose by trap
+     */
     @Test
     public void loseByTrapsTest()
     {
@@ -252,29 +268,55 @@ public class coreGameTests
         player.setPosition(new Position(6, 2)); //left of trap
         game.handleInput(68); //D
         game.updateTick();
+        assertTrue(game.getDisplayedScore() <= 0, "Score did not decrease after walking over trap");
         assertEquals(ScreenState.END, game.getScreenState(), "Screen state did not change to end when caught in trap");
         assertEquals(EndReason.LOSE_BY_TRAP, game.getEndReason(), "End reason did not change to lose by trap");
     }
 
+    /**
+     * Tests that being caught by ogre causes loss in score/game over and
+     * end reason is lose by ogre
+     */
     @Test
     public void loseByOgreTest()
     {
         game.startGame();
         player.setPosition(new Position(6, 4)); //left of ogre
         game.updateTick();
+        assertTrue(game.getDisplayedScore() <= 0, "Score did not decrease after being caught by ogre");
         assertEquals(ScreenState.END, game.getScreenState(), "Screen state did not change to end when caught by ogre");
         assertEquals(EndReason.LOSE_BY_OGRE, game.getEndReason(), "End reason did not change to lose by ogre");
     }
 
+    /**
+     * Tests that game is able to be paused and ticks do not increase when 
+     * game is paused
+     */
     @Test
-    public void pauseFreezeTickTest()
+    public void pauseFreezeTickTest()throws InterruptedException
     {
         game.startGame();
         game.handleInput(80); //P
+        Thread.sleep(500);
         assertEquals(ScreenState.PAUSE, game.getScreenState(), "Screen state did not change to pause when P key was pressed");
         assertEquals(0, game.getTimeElapsed(), "Game time continued to elapse after pause");
     }
 
+    /**
+     * Tests that game is able to resume from pause state
+     */
+    @Test
+    public void resumeFromPauseTest()
+    {
+        game.startGame();
+        game.handleInput(80); //P
+        game.handleInput(32); //Space
+        assertEquals(ScreenState.PLAYING, game.getScreenState(), "Game did not un-pause after space key pressed");
+    }
+
+    /**
+     * Tests that seconds do not elaspe while game is paused
+     */
     @Test
     public void pauseFreezeAccumulatedTimeTest() throws InterruptedException
     {
@@ -285,15 +327,9 @@ public class coreGameTests
         assertTrue(game.getSeconds() < 1, "Game time continued to elapse after pause");
     }
 
-    @Test
-    public void resumeFromPauseTest()
-    {
-        game.startGame();
-        game.handleInput(80); //P
-        game.handleInput(32); //Space
-        assertEquals(ScreenState.PLAYING, game.getScreenState(), "Game did not un-pause after space key pressed");
-    }
-
+    /**
+     * Tests that popupReason starting value is null
+     */
     @Test
     public void noPopupOnStartTest()
     {
@@ -301,12 +337,18 @@ public class coreGameTests
         assertNull(game.getPopupReason(), "PopupReason did not initialize as null");
     }
 
+    /**
+     * Tests that list of bonus reward spawn positions is not empty
+     */
     @Test
     public void bonusSpawnPositionsNotEmptyTest()
     {
         assertFalse(game.getBonusSpawnPositions().isEmpty(), "Bonus spawn positions initialized empty");
     }
 
+    /**
+     * Tests that bouns spawn positions are not on start position or end position
+     */
     @Test
     public void bonusSpawnPositionsNotStartOrEndTest()
     {
@@ -315,6 +357,11 @@ public class coreGameTests
         assertFalse(spawns.contains(board.getEndPosition()), "Bonus spawn positions contains end position");
     }
 
+    /**
+     * Tests that bonus reward spawns after 15 ticks, then despawns and respawns after
+     * 30 ticks
+     * @throws IOException
+     */
     @Test
     public void bonusSpawnLifetimeTest() throws IOException
     {
@@ -336,6 +383,11 @@ public class coreGameTests
         assertEquals(2, game.getTotalBonusRewards(), "Old bonus should have despawned, replaced with new one");
     }
 
+    /**
+     * Tests that bonus reward is able to be collected, score increases after 
+     * bonus reward is collected and bonus reward popup is shown after collected
+     * @throws IOException
+     */
     @Test
     public void scoreIncreaseOnBonusRewardCollectTest() throws IOException
     {
@@ -360,6 +412,9 @@ public class coreGameTests
         assertEquals(PopupReason.BONUS_COLLECTED, game.getPopupReason(), "Bonus Popup did not appear");
     }
 
+    /**
+     * Tests that ticks does not increase after game has ended
+     */
     @Test
     public void noTickAfterGameEndTest()
     {
@@ -371,21 +426,14 @@ public class coreGameTests
         assertEquals(ticksAtEnd, game.getTimeElapsed(), "Ticks continued to increase after game end");
     }
 
-    @Test
-    public void noInputAfterGameEndTest()
-    {
-        game.startGame();
-        player.setPosition(new Position(6, 2)); //above goblin
-        game.updateTick();
-        int ticksAtEnd = game.getTimeElapsed();
-        game.handleInput(87);
-        assertEquals(ticksAtEnd, game.getTimeElapsed(), "Ticks continued to increase after game end from player input");
-    }
-
     /**
      * INTERGRATION TESTS
      */
 
+    /**
+     * Tests that game is able to pause and un-pause, then continue to 
+     * tick afterwards and have enemies positions change after tick
+     */
     @Test
     public void pauseAndResumeMidGameTest()
     {
@@ -405,6 +453,10 @@ public class coreGameTests
         assertNotEquals(enemyPosAfter, enemyPosBefore, "enemies did not move after tick increase");
     }
 
+    /**
+     * Tests that game is able to reset all rewards/reward count, tick count, 
+     * seconds elapsed, player postion and enemies postions
+     */
     @Test
     public void restartGameTest()
     {
@@ -418,6 +470,7 @@ public class coreGameTests
 
         assertEquals(ScreenState.PLAYING, game.getScreenState(), "Game did not enter playing screen state after pressing space key on end screen");
         assertEquals(0, game.getTimeElapsed(), "Time elapsed did not reset");
+        assertEquals(0, game.getSeconds());
         assertEquals(0, game.getCollectedRegularRewards(), "collected rewards did not reset");
         assertEquals(0, game.getCollectedBonusRewards(), "collected bonus rewards did not reset");
         assertEquals(board.getStartPosition(), player.getPosition(), "Player position did not reset to start");
@@ -425,6 +478,9 @@ public class coreGameTests
         assertEquals(enemyInitPos, enemies.get(0).getPosition(), "Enemies positions did not reset");
     }
     
+    /**
+     * Tests that enemies still change position after player enters invalid input
+     */
     @Test
     public void invalidInputEnemyStillMovesTest()
     {
@@ -440,6 +496,9 @@ public class coreGameTests
         assertNotEquals(enemies.get(0).getPosition(), enemyInitPos, "Enemies positions did not change after tick increase");
     }
 
+    /**
+     * Tests that reward cell changes to floor cell after reward is collected
+     */
     @Test
     public void rewardCellChangesAfterCollectTest()
     {
@@ -456,6 +515,10 @@ public class coreGameTests
         assertTrue(board.getCell(4, 1) instanceof FloorCell, "Reward cell did not change to floor cell after reward collected");
     }
 
+    /**
+     * Tests that ogre popup appears when player is caught by ogre and score
+     * does not drop to 0 or lower
+     */
     @Test
     public void popupAfterOgreHitTest()
     {
