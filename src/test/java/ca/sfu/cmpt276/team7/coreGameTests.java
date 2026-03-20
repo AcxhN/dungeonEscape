@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 
 import ca.sfu.cmpt276.team7.board.Board;
 import ca.sfu.cmpt276.team7.board.BoardLoader;
+import ca.sfu.cmpt276.team7.cells.FloorCell;
 import ca.sfu.cmpt276.team7.core.Direction;
 import ca.sfu.cmpt276.team7.core.Position;
 import ca.sfu.cmpt276.team7.enemies.Enemy;
@@ -26,8 +27,6 @@ import ca.sfu.cmpt276.team7.reward.TrapPunishment;
 import ca.sfu.cmpt276.team7.ScreenState;
 import ca.sfu.cmpt276.team7.EndReason;
 import ca.sfu.cmpt276.team7.PopupReason;
-
-
 
 /**
  * Test suite for core game logic
@@ -136,39 +135,60 @@ public class coreGameTests
         game = new Game(board, player, enemies, key_spawns.size(), 0, key_spawns, trap_spawns);
     }
 
+    /**
+     * UNIT TESTS
+     */
+
+    /**
+     * Tests that game initializes screen state to STATRT
+     */
     @Test
     public void initialScreenStateTest()
     {
-        assertEquals(ScreenState.START, game.getScreenState());
+        assertEquals(ScreenState.START, game.getScreenState(), "Screen State not initialized to start screen");
     }
 
+    /**
+     * Tests that game tick system increases after player gives valid input and 
+     * player position changes
+     */
     @Test
-    public void tickAfterInputTest()
+    public void validInputTest()
     {
         game.startGame();
-        game.handleInput(87); //W
+        Position initPlayerPos = player.getPosition();
+        game.handleInput(68); //W
         game.updateTick();
-        assertEquals(1, game.getTimeElapsed());
+        assertEquals(1, game.getTimeElapsed(), "Tick not increasing after valid input");
+        assertNotEquals(initPlayerPos, player.getPosition(), "Player position did not change after valid input");
     }
 
+    /**
+     * Tests that player position does not change after an invalid input
+     */
     @Test
-    public void tickAfterInvalidInputTest()
+    public void invalidInputTest()
     {
         game.startGame();
+        Position initPlayerPos = player.getPosition();
         game.handleInput(999);
-        assertEquals(0, game.getTimeElapsed());
+        game.updateTick();
+        assertEquals(initPlayerPos, player.getPosition(), "Player position changed after invalid input");
     }
 
+    /**
+     * Tests that score increases after collecting regular reward and popup for collection appears
+     */
     @Test
-    public void scoreIncreaseOnCollectTest()
+    public void scoreIncreaseOnRegularRewardCollectTest()
     {
         game.startGame();
         player.setPosition(new Position(3, 1)); //left of key 1
         game.handleInput(68); //D
         game.updateTick();
         assertEquals(1, game.getCollectedRegularRewards(), "K1 not collected");
-        assertEquals(PopupReason.KEY_COLLECTED, game.getPopupReason());
-        assertEquals(10, game.getDisplayedScore());
+        assertEquals(PopupReason.KEY_COLLECTED, game.getPopupReason(), "Key Popup did not appear");
+        assertEquals(10, game.getDisplayedScore(), "Score did not increase after K1 was collected");
     }
 
     @Test
@@ -179,7 +199,7 @@ public class coreGameTests
         game.handleInput(68); //D
         game.updateTick();
         assertEquals(1, game.getCollectedRegularRewards(), "K1 not collected");
-        assertEquals(PopupReason.KEY_COLLECTED, game.getPopupReason());
+        assertEquals(PopupReason.KEY_COLLECTED, game.getPopupReason(), "Key Popup did not appear");
 
         if (game.getScreenState() == ScreenState.PAUSE)
         {
@@ -190,7 +210,7 @@ public class coreGameTests
         game.handleInput(68); //D
         game.updateTick();
         assertEquals(2, game.getCollectedRegularRewards(), "K2 not collected");
-        assertEquals(PopupReason.KEY_COLLECTED, game.getPopupReason());
+        assertEquals(PopupReason.KEY_COLLECTED, game.getPopupReason(), "Key Popup did not appear");
 
         if (game.getScreenState() == ScreenState.PAUSE)
         {
@@ -200,18 +220,19 @@ public class coreGameTests
         player.setPosition(board.getEndPosition());
         game.updateTick();
 
-        assertEquals(ScreenState.END, game.getScreenState());
-        assertEquals(EndReason.WIN, game.getEndReason());
+        assertEquals(ScreenState.END, game.getScreenState(), "Screen state did not change to end");
+        assertEquals(EndReason.WIN, game.getEndReason(), "End Reason is not win");
     }
 
     @Test
     public void exitWithoutKeysTest()
     {
         game.startGame();
-        player.setPosition(new Position(9, 4)); //exit
+        player.setPosition(new Position(8, 4)); //exit
+        game.handleInput(68);
         game.updateTick();
 
-        assertEquals(ScreenState.PLAYING, game.getScreenState());
+        assertEquals(ScreenState.PLAYING, game.getScreenState(), "Screen state changed when walked to exit");
     }
 
     @Test
@@ -220,8 +241,8 @@ public class coreGameTests
         game.startGame();
         player.setPosition(new Position(6, 2)); //above goblin
         game.updateTick();
-        assertEquals(ScreenState.END, game.getScreenState());
-        assertEquals(EndReason.LOSE_BY_GOBLIN, game.getEndReason());
+        assertEquals(ScreenState.END, game.getScreenState(), "Screen state did not change to end when caught by goblin");
+        assertEquals(EndReason.LOSE_BY_GOBLIN, game.getEndReason(), "End reason did not change to lose by goblin");
     }
 
     @Test
@@ -231,8 +252,8 @@ public class coreGameTests
         player.setPosition(new Position(6, 2)); //left of trap
         game.handleInput(68); //D
         game.updateTick();
-        assertEquals(ScreenState.END, game.getScreenState());
-        assertEquals(EndReason.LOSE_BY_TRAP, game.getEndReason());
+        assertEquals(ScreenState.END, game.getScreenState(), "Screen state did not change to end when caught in trap");
+        assertEquals(EndReason.LOSE_BY_TRAP, game.getEndReason(), "End reason did not change to lose by trap");
     }
 
     @Test
@@ -241,8 +262,8 @@ public class coreGameTests
         game.startGame();
         player.setPosition(new Position(6, 4)); //left of ogre
         game.updateTick();
-        assertEquals(ScreenState.END, game.getScreenState());
-        assertEquals(EndReason.LOSE_BY_OGRE, game.getEndReason());
+        assertEquals(ScreenState.END, game.getScreenState(), "Screen state did not change to end when caught by ogre");
+        assertEquals(EndReason.LOSE_BY_OGRE, game.getEndReason(), "End reason did not change to lose by ogre");
     }
 
     @Test
@@ -250,8 +271,8 @@ public class coreGameTests
     {
         game.startGame();
         game.handleInput(80); //P
-        assertEquals(ScreenState.PAUSE, game.getScreenState());
-        assertEquals(0, game.getTimeElapsed());
+        assertEquals(ScreenState.PAUSE, game.getScreenState(), "Screen state did not change to pause when P key was pressed");
+        assertEquals(0, game.getTimeElapsed(), "Game time continued to elapse after pause");
     }
 
     @Test
@@ -261,7 +282,7 @@ public class coreGameTests
         game.handleInput(80); //P
         Thread.sleep(500);
         game.handleInput(80); //P
-        assertTrue(game.getSeconds() < 1);
+        assertTrue(game.getSeconds() < 1, "Game time continued to elapse after pause");
     }
 
     @Test
@@ -270,28 +291,28 @@ public class coreGameTests
         game.startGame();
         game.handleInput(80); //P
         game.handleInput(32); //Space
-        assertEquals(ScreenState.PLAYING, game.getScreenState());
+        assertEquals(ScreenState.PLAYING, game.getScreenState(), "Game did not un-pause after space key pressed");
     }
 
     @Test
     public void noPopupOnStartTest()
     {
         game.startGame();
-        assertNull(game.getPopupReason());
+        assertNull(game.getPopupReason(), "PopupReason did not initialize as null");
     }
 
     @Test
     public void bonusSpawnPositionsNotEmptyTest()
     {
-        assertFalse(game.getBonusSpawnPositions().isEmpty());
+        assertFalse(game.getBonusSpawnPositions().isEmpty(), "Bonus spawn positions initialized empty");
     }
 
     @Test
     public void bonusSpawnPositionsNotStartOrEndTest()
     {
         List<Position> spawns = game.getBonusSpawnPositions();
-        assertFalse(spawns.contains(board.getStartPosition()));
-        assertFalse(spawns.contains(board.getEndPosition()));
+        assertFalse(spawns.contains(board.getStartPosition()), "Bonus spawn positions contains starting position");
+        assertFalse(spawns.contains(board.getEndPosition()), "Bonus spawn positions contains end position");
     }
 
     @Test
@@ -305,14 +326,38 @@ public class coreGameTests
             game.updateTick();
         }
 
-        assertFalse(game.getBonusRewards().isEmpty(), "bonus should have spawned at tick 15");
+        assertFalse(game.getBonusRewards().isEmpty(), "Bonus should have spawned at tick 15");
         
         for(int j = 0;j<30;j++)
         {
             game.updateTick();
         }
         
-        assertEquals(2, game.getTotalBonusRewards(), "old expired, new spawned");
+        assertEquals(2, game.getTotalBonusRewards(), "Old bonus should have despawned, replaced with new one");
+    }
+
+    @Test
+    public void scoreIncreaseOnBonusRewardCollectTest() throws IOException
+    {
+        setUpWithPath("src/test/resources/maps/valid/map_bonusTest.txt");
+        game.startGame();
+
+        for(int i = 0;i<15;i++)
+        {
+            game.updateTick();
+        }
+
+        Position bonusPos = game.getBonusRewards().get(0).getPosition();
+        int bx = bonusPos.getX();
+        int by = bonusPos.getY();
+
+        player.setPosition(new Position(bx - 1, by));
+        game.handleInput(68);
+        game.updateTick();
+
+        assertTrue(game.getDisplayedScore() > 0);
+        assertEquals(1, game.getCollectedBonusRewards(), "B1 not collected");
+        assertEquals(PopupReason.BONUS_COLLECTED, game.getPopupReason(), "Bonus Popup did not appear");
     }
 
     @Test
@@ -323,7 +368,7 @@ public class coreGameTests
         game.updateTick();
         int ticksAtEnd = game.getTimeElapsed();
         game.updateTick();
-        assertEquals(ticksAtEnd, game.getTimeElapsed());
+        assertEquals(ticksAtEnd, game.getTimeElapsed(), "Ticks continued to increase after game end");
     }
 
     @Test
@@ -334,7 +379,7 @@ public class coreGameTests
         game.updateTick();
         int ticksAtEnd = game.getTimeElapsed();
         game.handleInput(87);
-        assertEquals(ticksAtEnd, game.getTimeElapsed());
+        assertEquals(ticksAtEnd, game.getTimeElapsed(), "Ticks continued to increase after game end from player input");
     }
 
     /**
@@ -348,16 +393,16 @@ public class coreGameTests
         Position enemyPosBefore = enemies.get(0).getPosition();
 
         game.handleInput(80);
-        assertEquals(ScreenState.PAUSE, game.getScreenState());
+        assertEquals(ScreenState.PAUSE, game.getScreenState(), "Game did not pause after P key was pressed");
 
         game.handleInput(80);
-        assertEquals(ScreenState.PLAYING, game.getScreenState());
+        assertEquals(ScreenState.PLAYING, game.getScreenState(), "Game did not un-pause after P key");
 
         game.updateTick();
-        assertEquals(1, game.getTimeElapsed());
+        assertEquals(1, game.getTimeElapsed(), "Game did not continue to tick after un-paused");
 
         Position enemyPosAfter = enemies.get(0).getPosition();
-        assertNotEquals(enemyPosAfter, enemyPosBefore);
+        assertNotEquals(enemyPosAfter, enemyPosBefore, "enemies did not move after tick increase");
     }
 
     @Test
@@ -365,19 +410,61 @@ public class coreGameTests
     {
         game.startGame();
 
-        game.startGame();
         Position enemyInitPos = enemies.get(0).getPosition();
 
         player.setPosition(new Position(6, 2)); //above goblin
         game.updateTick();
         game.handleInput(32); //Space
-        assertEquals(ScreenState.PLAYING, game.getScreenState());
-        assertEquals(0, game.getTimeElapsed());
-        assertEquals(0, game.getCollectedRegularRewards());
-        assertEquals(0, game.getCollectedBonusRewards());
-        assertEquals(board.getStartPosition(), player.getPosition());
-        assertTrue(board.getCell(4, 1) instanceof RewardCell);
-        assertEquals(enemyInitPos, enemies.get(0).getPosition());
+
+        assertEquals(ScreenState.PLAYING, game.getScreenState(), "Game did not enter playing screen state after pressing space key on end screen");
+        assertEquals(0, game.getTimeElapsed(), "Time elapsed did not reset");
+        assertEquals(0, game.getCollectedRegularRewards(), "collected rewards did not reset");
+        assertEquals(0, game.getCollectedBonusRewards(), "collected bonus rewards did not reset");
+        assertEquals(board.getStartPosition(), player.getPosition(), "Player position did not reset to start");
+        assertTrue(board.getCell(4, 1) instanceof RewardCell, "Reward cells did not reset");
+        assertEquals(enemyInitPos, enemies.get(0).getPosition(), "Enemies positions did not reset");
+    }
+    
+    @Test
+    public void invalidInputEnemyStillMovesTest()
+    {
+        game.startGame();
+
+        Position enemyInitPos = enemies.get(0).getPosition();
+        Position playerInitPos = player.getPosition();
+
+        game.handleInput(999);
+        game.updateTick();
+    
+        assertEquals(player.getPosition(), playerInitPos, "Player position changed after invalid input");
+        assertNotEquals(enemies.get(0).getPosition(), enemyInitPos, "Enemies positions did not change after tick increase");
     }
 
+    @Test
+    public void rewardCellChangesAfterCollectTest()
+    {
+        game.startGame();
+        player.setPosition(new Position(3, 1)); //left of key 1
+        game.handleInput(68); //D
+        game.updateTick();
+
+        if (game.getScreenState() == ScreenState.PAUSE)
+        {
+            game.handleInput(32); //Space
+        }
+
+        assertTrue(board.getCell(4, 1) instanceof FloorCell, "Reward cell did not change to floor cell after reward collected");
+    }
+
+    @Test
+    public void popupAfterOgreHitTest()
+    {
+        game.startGame();
+        player.setScore(100);
+        player.setPosition(new Position(6, 4)); //left of ogre
+        game.updateTick();
+
+        assertEquals(PopupReason.OGRE_HIT, game.getPopupReason(), "PopupReason did not change to ogre hit");
+        assertEquals(ScreenState.PAUSE, game.getScreenState(), "Game did not pause for popup after player got hit by ogre");
+    }
 }
