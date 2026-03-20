@@ -281,20 +281,6 @@ public class coreGameTests
     }
 
     @Test
-    public void restartGameTest()
-    {
-        game.startGame();
-        player.setPosition(new Position(6, 2)); //above goblin
-        game.updateTick();
-        game.handleInput(32); //Space
-        assertEquals(ScreenState.PLAYING, game.getScreenState());
-        assertEquals(0, game.getTimeElapsed());
-        assertEquals(0, game.getCollectedRegularRewards());
-        assertEquals(0, game.getCollectedBonusRewards());
-        assertEquals(board.getStartPosition(), player.getPosition());
-    }
-
-    @Test
     public void bonusSpawnPositionsNotEmptyTest()
     {
         assertFalse(game.getBonusSpawnPositions().isEmpty());
@@ -350,4 +336,48 @@ public class coreGameTests
         game.handleInput(87);
         assertEquals(ticksAtEnd, game.getTimeElapsed());
     }
+
+    /**
+     * INTERGRATION TESTS
+     */
+
+    @Test
+    public void pauseAndResumeMidGameTest()
+    {
+        game.startGame();
+        Position enemyPosBefore = enemies.get(0).getPosition();
+
+        game.handleInput(80);
+        assertEquals(ScreenState.PAUSE, game.getScreenState());
+
+        game.handleInput(80);
+        assertEquals(ScreenState.PLAYING, game.getScreenState());
+
+        game.updateTick();
+        assertEquals(1, game.getTimeElapsed());
+
+        Position enemyPosAfter = enemies.get(0).getPosition();
+        assertNotEquals(enemyPosAfter, enemyPosBefore);
+    }
+
+    @Test
+    public void restartGameTest()
+    {
+        game.startGame();
+
+        game.startGame();
+        Position enemyInitPos = enemies.get(0).getPosition();
+
+        player.setPosition(new Position(6, 2)); //above goblin
+        game.updateTick();
+        game.handleInput(32); //Space
+        assertEquals(ScreenState.PLAYING, game.getScreenState());
+        assertEquals(0, game.getTimeElapsed());
+        assertEquals(0, game.getCollectedRegularRewards());
+        assertEquals(0, game.getCollectedBonusRewards());
+        assertEquals(board.getStartPosition(), player.getPosition());
+        assertTrue(board.getCell(4, 1) instanceof RewardCell);
+        assertEquals(enemyInitPos, enemies.get(0).getPosition());
+    }
+
 }
