@@ -48,7 +48,7 @@ public class BoardTest {
      */
 
     /**
-     * testing Board constructor:
+     * testing if Board constructor properly sets height and width:
         * this.height = grid.length;
         * this.width = grid[0].length;
      * testing if we pass a 2x3 grid does height = 2 and width = 3?
@@ -76,5 +76,46 @@ public class BoardTest {
         // ========================
         assertEquals(3, board.getWidth());
         assertEquals(2, board.getHeight());
+    }
+
+    /*
+    testing if Board constructor throws the right exception
+    learning to use assertThrows(), which will also be used to test:
+        invalid maps
+        bad symbols
+        missing start/end
+        out of bounds access 
+
+    Board constructor starts with: 
+
+    if (grid == null || grid.length == 0) {
+    throw new IllegalArgumentException("grid must be non null and not empty");
+    }
+
+    so 
+    new Board(null);
+
+    should throw
+    IllegalArgumentException 
+
+    lets tests it 
+    */
+   /*
+    the basic form of assert throws is:
+
+    assertThrows(ExceptionType.class, () -> {
+    // code that should throw
+    });
+
+    () -> { ...}
+    is a lambda, a function with not arguments 
+    JUnit needs it because it wants to "run this code and watch whether it throws"
+    for testing just think that lambas, () -> { ...}, just mean "here is the code I want JUnit to execute"
+    */
+    @Test
+    void constructor_rejectsNullGrid() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            new Board(null);
+        });
     }
 }
