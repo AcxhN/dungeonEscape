@@ -118,4 +118,16 @@ public class BoardTest {
             new Board(null);
         });
     }
+
+    /*
+    constructor rejects grid.length = 0; 
+    */
+    @Test
+    void constructor_rejectsEmptyGrid() {
+        Cell[][] grid = new Cell[0][0];
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            new Board(grid);
+        });
+    }
 }
