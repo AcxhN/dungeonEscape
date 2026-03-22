@@ -1,4 +1,4 @@
-package ca.sfu.cmpt276.team7.integration;
+package ca.sfu.cmpt276.team7.integration.board;
 
 /**
  * Integration tests for board/map initialization flow

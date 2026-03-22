@@ -1,4 +1,4 @@
-package ca.sfu.cmpt276.team7.board;
+package ca.sfu.cmpt276.team7.unit.board;
 
 /**
  * Unit tests for BoardLoader

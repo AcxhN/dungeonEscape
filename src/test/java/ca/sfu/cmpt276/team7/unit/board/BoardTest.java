@@ -1,5 +1,6 @@
-package ca.sfu.cmpt276.team7.board;
+package ca.sfu.cmpt276.team7.unit.board;
 
+import ca.sfu.cmpt276.team7.board.Board;
 import ca.sfu.cmpt276.team7.cells.Cell;
 import ca.sfu.cmpt276.team7.cells.FloorCell;
 import ca.sfu.cmpt276.team7.core.Position;
