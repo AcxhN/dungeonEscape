@@ -88,30 +88,29 @@ public class BoardTest {
         out of bounds access 
 
     Board constructor starts with: 
-
-    if (grid == null || grid.length == 0) {
-    throw new IllegalArgumentException("grid must be non null and not empty");
-    }
-
+        if (grid == null || grid.length == 0) {
+        throw new IllegalArgumentException("grid must be non null and not empty");
+        }
     so 
-    new Board(null);
-
+        new Board(null);
     should throw
-    IllegalArgumentException 
+        IllegalArgumentException 
 
     lets tests it 
     */
    /*
     the basic form of assert throws is:
-
-    assertThrows(ExceptionType.class, () -> {
-    // code that should throw
-    });
+        assertThrows(ExceptionType.class, () -> {
+        // code that should throw
+        });
 
     () -> { ...}
     is a lambda, a function with not arguments 
     JUnit needs it because it wants to "run this code and watch whether it throws"
     for testing just think that lambas, () -> { ...}, just mean "here is the code I want JUnit to execute"
+    */
+    /**
+    * testing if constructor rejects null grid 
     */
     @Test
     void constructor_rejectsNullGrid() {
@@ -120,8 +119,8 @@ public class BoardTest {
         });
     }
 
-    /*
-    constructor rejects grid.length = 0; 
+    /**
+    * constructor rejects grid.length = 0; 
     */
     @Test
     void constructor_rejectsEmptyGrid() {
@@ -132,9 +131,9 @@ public class BoardTest {
         });
     }
 
-    /*
-    Board constructor rejects rows with different lengths:
-    if (grid[y] == null || grid[y].length != width)
+    /**
+     * Board constructor rejects rows with different lengths:
+     *  if (grid[y] == null || grid[y].length != width)
      */
     @Test
     void constructor_rejectsNonRectangularGrid() {
@@ -150,6 +149,31 @@ public class BoardTest {
         for (int x = 0; x < 2; x++) {
             grid[1][x] = new FloorCell(new Position(x, 1));
         }
+
+        // Act + Assert
+        assertThrows(IllegalArgumentException.class, () -> {
+            new Board(grid);
+        });
+    }
+
+    /*
+    Board constructor ensures every coordinate contains a real Cell object:
+        if (grid[y][x] == null) {
+        throw new IllegalArgumentException(...);
+        }
+     */
+    /**
+     * tests if constructors rejects null cells 
+     */
+    @Test
+    void constructor_rejectsNullCell() {
+        // Arrange
+        Cell[][] grid = new Cell[2][2];
+
+        grid[0][0] = new FloorCell(new Position(0, 0));
+        grid[0][1] = new FloorCell(new Position(1, 0));
+        grid[1][0] = new FloorCell(new Position(0, 1));
+        grid[1][1] = null; // the one invalid cell
 
         // Act + Assert
         assertThrows(IllegalArgumentException.class, () -> {
