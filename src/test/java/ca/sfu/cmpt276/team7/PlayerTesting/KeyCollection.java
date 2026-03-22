@@ -69,7 +69,7 @@ public class KeyCollection {
         assertEquals(reward, collected, "The returned reward must match the placed reward");
 
         // 2. Player score must increase
-        assertEquals(10, player.getScore(), "Player score should increase by reward value");
+        assertEquals(10, player.getTotalScore(), "Player score should increase by reward value");
 
         // 3. The reward cell must be replaced with a FloorCell
         Cell newCell = board.getCell(2, 1);
