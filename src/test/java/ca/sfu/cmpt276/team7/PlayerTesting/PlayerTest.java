@@ -19,7 +19,16 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class PlayerTest {
 
-    /** Helper: creates a simple empty board of FloorCells using the correct Board constructor. */
+    /**
+     * Creates a rectangular board filled entirely with {@link FloorCell} instances.
+     * 
+     * <p>This helper is used to isolate movement logic by ensuring that all cells
+     * are walkable unless explicitly replaced in a test.</p>
+     *
+     * @param w width of the board (number of columns)
+     * @param h height of the board (number of rows)
+     * @return a fully initialized {@link Board} containing only floor cells
+     */
     private Board makeEmptyBoard(int w, int h) {
         Cell[][] grid = new Cell[h][w];
         for (int y = 0; y < h; y++) {
@@ -29,6 +38,15 @@ public class PlayerTest {
         }
         return new Board(grid);
     }
+    /**
+     * Tests that the player successfully moves into a valid walkable cell.
+     *
+     * <p>Expected behavior:</p>
+     * <ul>
+     *     <li>No reward is collected.</li>
+     *     <li>The player's position updates correctly.</li>
+     * </ul>
+     */
 
     @Test
     void testPlayerMovesIntoValidCell() {
@@ -41,6 +59,15 @@ public class PlayerTest {
         assertEquals(2, player.getPosition().getX());
         assertEquals(1, player.getPosition().getY());
     }
+    /**
+     * Tests that the player cannot move outside the boundaries of the board.
+     *
+     * <p>Expected behavior:</p>
+     * <ul>
+     *     <li>The move returns null.</li>
+     *     <li>The player's position remains unchanged.</li>
+     * </ul>
+     */
 
     @Test
     void testPlayerCannotMoveOutsideBoard() {
@@ -53,6 +80,15 @@ public class PlayerTest {
         assertEquals(0, player.getPosition().getX());
         assertEquals(0, player.getPosition().getY());
     }
+    /**
+     * Tests that the player cannot move into a non-walkable cell.
+     *
+     * <p>Expected behavior:</p>
+     * <ul>
+     *     <li>The move returns null.</li>
+     *     <li>The player's position remains unchanged.</li>
+     * </ul>
+     */
 
     @Test
     void testPlayerCannotMoveIntoBlockedCell() {
