@@ -131,4 +131,29 @@ public class BoardTest {
             new Board(grid);
         });
     }
+
+    /*
+    Board constructor rejects rows with different lengths:
+    if (grid[y] == null || grid[y].length != width)
+     */
+    @Test
+    void constructor_rejectsNonRectangularGrid() {
+        // Arrange
+        Cell[][] grid = new Cell[2][];
+        grid[0] = new Cell[3];
+        grid[1] = new Cell[2];
+
+        for (int x = 0; x < 3; x++) {
+            grid[0][x] = new FloorCell(new Position(x, 0));
+        }
+
+        for (int x = 0; x < 2; x++) {
+            grid[1][x] = new FloorCell(new Position(x, 1));
+        }
+
+        // Act + Assert
+        assertThrows(IllegalArgumentException.class, () -> {
+            new Board(grid);
+        });
+    }
 }
