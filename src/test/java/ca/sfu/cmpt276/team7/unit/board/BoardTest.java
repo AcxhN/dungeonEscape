@@ -478,4 +478,21 @@ public class BoardTest {
             board.setStartPosition(null);
         });
     }
+
+    @Test
+    void setStartPosition_rejectsOutOfBounds() {
+        // Arrange
+        Cell[][] grid = new Cell[2][2];
+        grid[0][0] = new FloorCell(new Position(0, 0));
+        grid[0][1] = new FloorCell(new Position(1, 0));
+        grid[1][0] = new FloorCell(new Position(0, 1));
+        grid[1][1] = new FloorCell(new Position(1, 1));
+
+        Board board = new Board(grid);
+
+        // Act + Assert
+        assertThrows(IndexOutOfBoundsException.class, () -> {
+            board.setStartPosition(new Position(2, 0));
+        });
+    }
 }
