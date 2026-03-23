@@ -256,13 +256,14 @@ public class Game
      * <ol>
      *  <li>decrements the ogre-hit cooldown if active</li>
      *  <li>increments {@link #timeElapsed}</li>
+     *  <li>applies any pending player movement and processes any collected reward</li>
+     *  <li>checks immediate ogre and loss conditions after player movement</li>
      *  <li>updates any active player bonus effect</li>
      *  <li>updates enemy movement</li>
-     *  <li>checks win condition</li>
-     *  <li>checks ogre collision handling</li>
-     *  <li>checks remaining loss conditions</li>
+     *  <li>checks ogre, loss, and win conditions after enemy movement</li>
      *  <li>updates active temporary bonus reward lifetimes</li>
      *  <li>attempts to spawn a new bonus reward when the spawn interval is reached</li>
+     *  <li>pauses for a reward popup if one was triggered this tick</li>
      * </ol>
      *
      * <p>If the game is not currently in {@link ScreenState#PLAYING},
@@ -568,8 +569,13 @@ public class Game
      *  <li>resume from a pause or popup state</li>
      *  <li>restart after the game ends</li>
      *  <li>toggle pause while playing</li>
-     *  <li>move the player, process collected rewards, and then evaluate win/loss events</li>
+     *  <li>queue the player's next movement direction while playing</li>
      * </ul>
+     *
+     * <p>During {@link ScreenState#PLAYING}, movement input does not move the player
+     * immediately. It stores the requested direction in {@code pendingMove}, and the
+     * actual movement and any related reward, popup, or win/loss processing are
+     * handled on the next call to {@link #updateTick()}.</p>
      *
      * <p>Supported movement key codes:
      * <ul>
@@ -579,12 +585,8 @@ public class Game
      *  <li>68 (D) or 39 (→) - move EAST</li>
      * </ul>
      *
-     * <p>Reward collection effects are applied immediately. If the move does not
-     * end the game and does not trigger an ogre collision, a reward popup may be shown.</p>
-     *
-     * <p>Key code 80 (P) toggles pause while playing, and can also resume
-     * from the pause screen. Space is used for start, resume, and restart
-     * depending on the current screen state.</p>
+     * <p>Key code 80 (P) toggles pause while playing. Space is used for start,
+     * resume, and restart depending on the current screen state.</p>
      *
      * @param keyCode integer key code from a keyboard event
      */
@@ -878,6 +880,8 @@ public class Game
 
     /**
      * Returns the currently tracked active temporary bonus reward spawns.
+     *
+     * <p>The returned list is the internal tracking list used by this game.</p>
      *
      * @return active bonus reward spawn trackers
      */

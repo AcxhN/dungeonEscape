@@ -888,8 +888,90 @@ public class GamePanel extends JPanel {
         drawQueue.renderAll(g);
     }
 
-    public List<RenderItem> bulidRenderItemsForTest() {
+    /**
+     * Rebuilds the draw queue for the current state and returns the render items.
+     *
+     * <p>This method is intended for tests that need to verify what would be
+     * rendered without calling {@link #paintComponent(Graphics)}.</p>
+     *
+     * @return the render items generated for the current frame
+     */
+    public List<RenderItem> buildRenderItemsForTest() {
         buildDrawQueue(game, board);
         return drawQueue.getRenderItems();
+    }
+
+    /**
+     * Returns the viewport/render width in cells.
+     *
+     * @return the render width in cells
+     */
+    public int getRenderXForTest() {
+        return renderX;
+    }
+    
+    /**
+     * Returns the viewport/render height in cells.
+     *
+     * @return the render height in cells
+     */
+    public int getRenderYForTest() {
+        return renderY;
+    }
+
+    /**
+     * Returns the horizontal padding applied on each side when the board width
+     * is smaller than the minimum viewport width.
+     *
+     * @return the horizontal padding in cells
+     */
+    public int getXOffsetForTest() {
+        return xOffset;
+    }
+
+    /**
+     * Returns the vertical padding applied on each side when the board height
+     * is smaller than the minimum viewport height.
+     *
+     * @return the vertical padding in cells
+     */
+    public int getYOffsetForTest() {
+        return yOffset;
+    }
+    
+    /**
+     * Returns the current viewport left bound in board coordinates (inclusive).
+     *
+     * @return the viewport start x-coordinate
+     */
+    public int getViewStartXForTest() {
+        return viewStartX;
+    }
+
+    /**
+     * Returns the current viewport top bound in board coordinates (inclusive).
+     *
+     * @return the viewport start y-coordinate
+     */
+    public int getViewStartYForTest() {
+        return viewStartY;
+    }
+
+    /**
+     * Returns the current viewport right bound in board coordinates (exclusive).
+     *
+     * @return the viewport end x-coordinate
+     */
+    public int getViewEndXForTest() {
+        return viewEndX;
+    }
+
+    /**
+     * Returns the current viewport bottom bound in board coordinates (exclusive).
+     *
+     * @return the viewport end y-coordinate
+     */
+    public int getViewEndYForTest() {
+        return viewEndY;
     }
 }
