@@ -30,9 +30,8 @@ public class BoardTest {
         * constructor_rejectsNonRectangularGrid DONE 
         * constructor_rejectsNullCell DONE 
      *
-     * board behaviour: 
      * getCell_returnsCellInBounds DONE
-     * getCell_throwsWhenOutOfBounds (when X too small or large, when y too small or large, 4 tests total)
+     * getCell_throwsWhenOutOfBounds (when X too small or large, when y too small or large, 4 tests total) DONE 
      *
      * setCell_replacesCellInBounds
      * setCell_rejectsNullCell
@@ -226,5 +225,75 @@ public class BoardTest {
 
         // Assert
         assertSame(topRight, result);
+    }
+
+    /*
+        private void ensureInBounds(int x, int y) {
+        if (x < 0 || x >= width || y < 0 || y >= height)
+            throw new IndexOutOfBoundsException(...);
+        }
+    so any invalid coordinate should throw IndexOutofBoundsException
+    The next four tests will cover all boundary directions 
+    */
+    @Test
+    void getCell_throwsWhenXTooSmall() {
+        // Arrange
+        Cell[][] grid = new Cell[2][2];
+        grid[0][0] = new FloorCell(new Position(0, 0));
+        grid[0][1] = new FloorCell(new Position(1, 0));
+        grid[1][0] = new FloorCell(new Position(0, 1));
+        grid[1][1] = new FloorCell(new Position(1, 1));
+
+        Board board = new Board(grid);
+
+        // Act + Assert
+        assertThrows(IndexOutOfBoundsException.class, () -> {
+            board.getCell(-1, 0);
+        });
+    }
+
+    @Test
+    void getCell_throwsWhenXTooLarge() {
+        Cell[][] grid = new Cell[2][2];
+        grid[0][0] = new FloorCell(new Position(0, 0));
+        grid[0][1] = new FloorCell(new Position(1, 0));
+        grid[1][0] = new FloorCell(new Position(0, 1));
+        grid[1][1] = new FloorCell(new Position(1, 1));
+
+        Board board = new Board(grid);
+
+        assertThrows(IndexOutOfBoundsException.class, () -> {
+            board.getCell(2, 0);
+        });
+    }
+
+    @Test
+    void getCell_throwsWhenYTooSmall() {
+        Cell[][] grid = new Cell[2][2];
+        grid[0][0] = new FloorCell(new Position(0, 0));
+        grid[0][1] = new FloorCell(new Position(1, 0));
+        grid[1][0] = new FloorCell(new Position(0, 1));
+        grid[1][1] = new FloorCell(new Position(1, 1));
+
+        Board board = new Board(grid);
+
+        assertThrows(IndexOutOfBoundsException.class, () -> {
+            board.getCell(0, -1);
+        });
+    }
+
+    @Test
+    void getCell_throwsWhenYTooLarge() {
+        Cell[][] grid = new Cell[2][2];
+        grid[0][0] = new FloorCell(new Position(0, 0));
+        grid[0][1] = new FloorCell(new Position(1, 0));
+        grid[1][0] = new FloorCell(new Position(0, 1));
+        grid[1][1] = new FloorCell(new Position(1, 1));
+
+        Board board = new Board(grid);
+
+        assertThrows(IndexOutOfBoundsException.class, () -> {
+            board.getCell(0, 2);
+        });
     }
 }
