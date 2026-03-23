@@ -42,13 +42,13 @@ public class BoardTest {
         * isInside_returnsFalseForOutsidePositions DONE 
         *
         * 6 tests here: 
-            * setStartPosition_setsValidPosition
-            * setStartPosition_rejectsNull
-            * setStartPosition_rejectsOutOfBounds
+            * setStartPosition_setsValidPosition DONE
+            * setStartPosition_rejectsNull DONE
+            * setStartPosition_rejectsOutOfBounds DONE
             *
-            * setEndPosition_setsValidPosition
-            * setEndPosition_rejectsNull
-            * setEndPosition_rejectsOutOfBounds
+            * setEndPosition_setsValidPosition DONE
+            * setEndPosition_rejectsNull DONE
+            * setEndPosition_rejectsOutOfBounds DONE
      */
 
     /**
