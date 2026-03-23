@@ -138,4 +138,8 @@ public class DrawQueue {
             }
         }
     }
+
+    public List<RenderItem> getRenderItems() {
+        return new ArrayList<>(queue);
+    }
 }

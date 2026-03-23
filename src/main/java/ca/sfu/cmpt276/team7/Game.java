@@ -601,9 +601,14 @@ public class Game
 
         if (screenState == ScreenState.PAUSE) 
         {
-            if (keyCode == 32 || keyCode == 80) 
-            { // Space or P
-                resumeFromPopup();
+            if (keyCode == 32) 
+            { // Space only
+                if (popupReason != null) 
+                {
+                    resumeFromPopup();
+                } else {
+                    togglePause();
+                }
             }
             return;
         }
