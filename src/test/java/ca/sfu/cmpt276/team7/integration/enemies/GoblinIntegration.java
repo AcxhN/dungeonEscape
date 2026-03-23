@@ -45,27 +45,27 @@ class GoblinIntegrationTest{
 
 	// Verify initial pos
 	player.setPosition(new Position(0, 0));
-	assertTrue(player.getPosition() == new Position(0, 0));
-	assertTrue(goblin.getPosition() == new Position(0, 2));
+	assertTrue(player.getPosition().equals(new Position(0, 0)));
+	assertTrue(goblin.getPosition().equals(new Position(0, 2)));
 
 	// Player moves, goblin chases
 	player.setPosition(new Position(0, 1));
 	game.updateTick();
-	assertTrue(goblin.getPosition() == new Position(0, 1));
+	assertTrue(goblin.getPosition().equals(new Position(0, 1)));
 
 	// Player moves, goblin chases
 	player.setPosition(new Position(0, 2));
 	game.updateTick();
-	assertTrue(goblin.getPosition() == new Position(0, 0));
+	assertTrue(goblin.getPosition().equals(new Position(0, 0)));
 
 	// Player moves, goblin chases
 	player.setPosition(new Position(0, 3));
 	game.updateTick();
-	assertTrue(goblin.getPosition() == new Position(0, 1));
+	assertTrue(goblin.getPosition().equals(new Position(0, 1)));
 
 	// Player moves, goblin chases
 	player.setPosition(new Position(1, 3));
 	game.updateTick();
-	assertTrue(goblin.getPosition() == new Position(0, 2));
+	assertTrue(goblin.getPosition().equals(new Position(0, 2)));
     }
 }
