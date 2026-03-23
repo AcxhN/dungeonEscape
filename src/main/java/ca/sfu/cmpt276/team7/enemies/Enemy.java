@@ -4,6 +4,7 @@ import ca.sfu.cmpt276.team7.board.Board;
 import ca.sfu.cmpt276.team7.cells.BarrierCell;
 import ca.sfu.cmpt276.team7.cells.Cell;
 import ca.sfu.cmpt276.team7.cells.WallCell;
+import ca.sfu.cmpt276.team7.reward.PunishmentCell;
 import ca.sfu.cmpt276.team7.core.GameCharacter;
 import ca.sfu.cmpt276.team7.core.Position;
 
@@ -42,7 +43,8 @@ public abstract class Enemy extends GameCharacter {
      */
     public boolean canMoveto(Cell cell) {
 	if (!(cell instanceof BarrierCell ||
-	      cell instanceof WallCell)) {
+	      cell instanceof WallCell ||
+	      cell instanceof PunishmentCell)) {
 	    return true;
 	}
 	return false;
