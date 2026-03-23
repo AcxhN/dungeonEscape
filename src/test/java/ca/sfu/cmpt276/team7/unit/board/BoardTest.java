@@ -495,4 +495,23 @@ public class BoardTest {
             board.setStartPosition(new Position(2, 0));
         });
     }
+
+    @Test
+    void setEndPosition_setsValidPosition() {
+        // Arrange
+        Cell[][] grid = new Cell[2][2];
+        grid[0][0] = new FloorCell(new Position(0, 0));
+        grid[0][1] = new FloorCell(new Position(1, 0));
+        grid[1][0] = new FloorCell(new Position(0, 1));
+        grid[1][1] = new FloorCell(new Position(1, 1));
+
+        Board board = new Board(grid);
+        Position end = new Position(1, 1);
+
+        // Act
+        board.setEndPosition(end);
+
+        // Assert
+        assertEquals(end, board.getEndPosition());
+    }
 }
