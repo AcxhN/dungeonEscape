@@ -37,16 +37,17 @@ public class BoardTest {
      * setCell_rejectsNullCell
      * setCell_throwsWhenOutOfBounds
      *
-     * isInside_returnsTrueForValidPositions
-     * isInside_returnsFalseForOutsidePositions
-     *
-     * setStartPosition_setsValidPosition
-     * setStartPosition_rejectsNull
-     * setStartPosition_rejectsOutOfBounds
-     *
-     * setEndPosition_setsValidPosition
-     * setEndPosition_rejectsNull
-     * setEndPosition_rejectsOutOfBounds
+     * Position related logic: 
+        * isInside_returnsTrueForValidPositions
+        * isInside_returnsFalseForOutsidePositions
+        *
+        * setStartPosition_setsValidPosition
+        * setStartPosition_rejectsNull
+        * setStartPosition_rejectsOutOfBounds
+        *
+        * setEndPosition_setsValidPosition
+        * setEndPosition_rejectsNull
+        * setEndPosition_rejectsOutOfBounds
      */
 
     /**
@@ -365,5 +366,65 @@ public class BoardTest {
         assertThrows(IndexOutOfBoundsException.class, () -> {
             board.setCell(2, 0, newCell);
         });
+    }
+
+    /*
+    test isInside(...): (this will teach boundary value testing directly)
+
+        public boolean isInside(Position position) {
+            if (position.getX() < 0 ||
+                position.getY() < 0 ||
+                position.getX() >= width ||
+                position.getY() >= height) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+
+        i.e. for a board of width and height 2 the valid x and y calues are 0, 1
+             so (0,0), (1, 1) is inside, (-1, 0), (2, 0), (0, -1) are outside
+             this is the edge testing mentioned in lectures
+    
+    have to be aware, the Position constructor does this:
+        if (x < 0 || y < 0) {
+            throw new IllegalArgumentException(...)
+        }
+    so we cannot create: 
+        new Position(-1, 0);
+        new Position(0, -1);
+    meaning we can't directly test the negative coordiante branches of isInside using Position because Position itself rejects negative inputs first 
+    but we can still test the branches that are reachable through valid Position objects like the corners 
+     */
+    @Test // valid positions return true 
+    void isInside_returnsTrueForValidPositions() {
+        // Arrange
+        Cell[][] grid = new Cell[2][2];
+        grid[0][0] = new FloorCell(new Position(0, 0));
+        grid[0][1] = new FloorCell(new Position(1, 0));
+        grid[1][0] = new FloorCell(new Position(0, 1));
+        grid[1][1] = new FloorCell(new Position(1, 1));
+
+        Board board = new Board(grid);
+
+        // Act + Assert
+        assertTrue(board.isInside(new Position(0, 0)));
+        assertTrue(board.isInside(new Position(1, 1)));
+    }
+
+    @Test // too large coordinates return false 
+    void isInside_returnsFalseForOutsidePositions() {
+        // Arrange
+        Cell[][] grid = new Cell[2][2];
+        grid[0][0] = new FloorCell(new Position(0, 0));
+        grid[0][1] = new FloorCell(new Position(1, 0));
+        grid[1][0] = new FloorCell(new Position(0, 1));
+        grid[1][1] = new FloorCell(new Position(1, 1));
+
+        Board board = new Board(grid);
+
+        // Act + Assert
+        assertFalse(board.isInside(new Position(2, 0)));
+        assertFalse(board.isInside(new Position(0, 2)));
     }
 }
