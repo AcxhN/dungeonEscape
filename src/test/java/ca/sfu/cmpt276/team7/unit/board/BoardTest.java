@@ -31,8 +31,8 @@ public class BoardTest {
         * constructor_rejectsNullCell DONE 
      *
      * board behaviour: 
-     * getCell_returnsCellInBounds
-     * getCell_throwsWhenOutOfBounds
+     * getCell_returnsCellInBounds DONE
+     * getCell_throwsWhenOutOfBounds (when X too small or large, when y too small or large, 4 tests total)
      *
      * setCell_replacesCellInBounds
      * setCell_rejectsNullCell
