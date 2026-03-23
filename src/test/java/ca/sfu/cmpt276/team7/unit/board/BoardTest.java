@@ -23,12 +23,14 @@ public class BoardTest {
     /*
      * Planned tests:
      *
-     * constructor_setsWidthAndHeight
-     * constructor_rejectsNullGrid
-     * constructor_rejectsEmptyGrid
-     * constructor_rejectsNonRectangularGrid
-     * constructor_rejectsNullCell
+     * constructor validations:
+        * constructor_setsWidthAndHeight DONE 
+        * constructor_rejectsNullGrid DONE 
+        * constructor_rejectsEmptyGrid DONE 
+        * constructor_rejectsNonRectangularGrid DONE 
+        * constructor_rejectsNullCell DONE 
      *
+     * board behaviour: 
      * getCell_returnsCellInBounds
      * getCell_throwsWhenOutOfBounds
      *
@@ -179,5 +181,50 @@ public class BoardTest {
         assertThrows(IllegalArgumentException.class, () -> {
             new Board(grid);
         });
+    }
+
+    /*
+    make a valid board
+    ask for a cell at a valid coordinate 
+    verify the object is correct 
+
+        public Cell getCell(int x, int y) {
+        ensureInBounds(x, y);
+        return grid[y][x];
+        }
+    so if (x,y) is valid then it should reutrn the cell stored at that spot 
+    this test checks if the board stores cells correctly and if getCell(x,y) uses the coordinates correctly 
+
+    How do we know if we get back the exact same cell object that we put into the grid??
+    we use 
+        assertSame(expected, actual)
+    instead of
+        asserEquals
+    because Cell does not define a custom equals() method, and in this case we don't want the same value, but the same object reference 
+    assertEquals = same value
+    assertSame = same object in memory 
+     */
+    @Test
+    void getCell_returnsCellInBounds() {
+        // Arrange
+        Cell[][] grid = new Cell[2][2];
+
+        FloorCell topLeft = new FloorCell(new Position(0, 0));
+        FloorCell topRight = new FloorCell(new Position(1, 0));
+        FloorCell bottomLeft = new FloorCell(new Position(0, 1));
+        FloorCell bottomRight = new FloorCell(new Position(1, 1));
+
+        grid[0][0] = topLeft;
+        grid[0][1] = topRight;
+        grid[1][0] = bottomLeft;
+        grid[1][1] = bottomRight;
+
+        Board board = new Board(grid);
+
+        // Act
+        Cell result = board.getCell(1, 0);
+
+        // Assert
+        assertSame(topRight, result);
     }
 }
