@@ -3,6 +3,7 @@ package ca.sfu.cmpt276.team7;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.function.LongSupplier;
 
 import ca.sfu.cmpt276.team7.board.Board;
 import ca.sfu.cmpt276.team7.cells.Cell;
@@ -118,25 +119,59 @@ public class Game
     private final List<Position> initialKeyPos;
     private final List<Position> initialTrapPos;
 
-/**
- * Constructs a new game controller with the given board, player, enemies,
- * and initial reward/trap metadata
- *
- * <p>This constructor initializes runtime counters, stores the original
- * positions of enemies, keys, and traps for later reset, and precomputes
- * the legal positions where temporary bonus rewards may spawn</p>
- *
- * @param board dungeon board used for gameplay
- * @param player player controlled during the game
- * @param enemies enemy instances active on the board
- * @param totalRegularRewards total number of regular rewards placed initially
- * @param totalBonusRewards total number of bonus rewards spawned so far at startup
- * @param keyPositions initial regular reward positions used for reset
- * @param trapPositions initial trap positions used for reset
- */
+    /** Time source used for elapsed-time calculations. */
+    private final LongSupplier clock;
+
+    /**
+     * Constructs a new game controller with the given board, player, enemies,
+     * and initial reward/trap metadata
+     *
+     * <p>This constructor initializes runtime counters, stores the original
+     * positions of enemies, keys, and traps for later reset, and precomputes
+     * the legal positions where temporary bonus rewards may spawn</p>
+     *
+     * @param board dungeon board used for gameplay
+     * @param player player controlled during the game
+     * @param enemies enemy instances active on the board
+     * @param totalRegularRewards total number of regular rewards placed initially
+     * @param totalBonusRewards total number of bonus rewards spawned so far at startup
+     * @param keyPositions initial regular reward positions used for reset
+     * @param trapPositions initial trap positions used for reset
+     */
     public Game(Board board, Player player, List<Enemy> enemies, int totalRegularRewards, int totalBonusRewards,
-                List<Position> keyPositions, List<Position> trapPositions)
+                List<Position> keyPositions, List<Position> trapPositions) {
+        this(board, player, enemies, totalRegularRewards, totalBonusRewards,
+             keyPositions, trapPositions, System::currentTimeMillis);
+    }
+
+    /**
+     * Constructs a new game controller with the given board, player, enemies,
+     * initial reward/trap metadata, and time source.
+     *
+     * <p>This constructor initializes runtime counters, stores the original
+     * positions of enemies, keys, and traps for later reset, and precomputes
+     * the legal positions where temporary bonus rewards may spawn.</p>
+     *
+     * <p>The supplied {@code clock} is used for elapsed-time calculations,
+     * which allows tests to control the flow of time deterministically.</p>
+     *
+     * @param board dungeon board used for gameplay
+     * @param player player controlled during the game
+     * @param enemies enemy instances active on the board
+     * @param totalRegularRewards total number of regular rewards placed initially
+     * @param totalBonusRewards total number of bonus rewards spawned so far at startup
+     * @param keyPositions initial regular reward positions used for reset
+     * @param trapPositions initial trap positions used for reset
+     * @param clock time source used for elapsed-time calculations
+     * @throws IllegalArgumentException if {@code clock} is {@code null}
+     */
+    public Game(Board board, Player player, List<Enemy> enemies, int totalRegularRewards, int totalBonusRewards,
+                List<Position> keyPositions, List<Position> trapPositions, LongSupplier clock)
     {
+        if (clock == null) {
+            throw new IllegalArgumentException("clock cannot be null");
+        }
+
         this.board = board;
         this.player = player;
         this.enemies = enemies;
@@ -150,6 +185,7 @@ public class Game
         this.popupReason = null;
         this.bonusRewards = new ArrayList<>();
         this.random = new Random();
+        this.clock = clock;
 
         this.initialKeyPos = new ArrayList<>(keyPositions);
         this.initialTrapPos = new ArrayList<>(trapPositions);
@@ -172,7 +208,7 @@ public class Game
      */
     public void startGame()
     {
-        startTime = System.currentTimeMillis();
+        startTime = clock.getAsLong();
         totalTime = 0;
 
         pendingMove = null;
@@ -704,7 +740,7 @@ public class Game
     {
         pendingMove = null;
         popupReason = reason;
-        totalTime += System.currentTimeMillis() - startTime;
+        totalTime += clock.getAsLong() - startTime;
         screenState = ScreenState.PAUSE;
     }
 
@@ -718,7 +754,7 @@ public class Game
     {
         pendingMove = null;
         popupReason = null;
-        startTime = System.currentTimeMillis();
+        startTime = clock.getAsLong();
         screenState = ScreenState.PLAYING;
     }
 
@@ -726,7 +762,7 @@ public class Game
      * Checks whether player has met win condition
      * 
      * <p>Player wins when all keys have been collected and player
-     * is standing on exit cell
+     * is standing on exit cell</p>
      * 
      * @return {@code true} if conditions are met
      */
@@ -791,40 +827,44 @@ public class Game
         if(screenState == ScreenState.PLAYING)
         {
             pendingMove = null;
-            totalTime += System.currentTimeMillis() - startTime;
+            totalTime += clock.getAsLong() - startTime;
             screenState = ScreenState.PAUSE;
         }
         else if(screenState == ScreenState.PAUSE)
         {
             pendingMove = null;
-            startTime = System.currentTimeMillis();
+            startTime = clock.getAsLong();
             screenState = ScreenState.PLAYING;
         }
     }
 
     /**
-     * Finalizes the current run and switches the game to the end screen
+     * Finalizes the current run and switches the game to the end screen.
      *
-     * <p>This stores the final elapsed play time so that {@link #getSeconds()}
-     * returns a stable frozen result while the end screen is displayed</p>
+     * <p>This stores the final elapsed play time using the configured time source
+     * so that {@link #getSeconds()} returns a stable frozen result while the end
+     * screen is displayed.</p>
      */
     private void endGame()
     {
         pendingMove = null;
-        totalTime += System.currentTimeMillis() - startTime;
+        totalTime += clock.getAsLong() - startTime;
         screenState = ScreenState.END;
     }
 
     /**
-     * Returns number of seconds game has been running, excludes
-     * time when paused
+     * Returns number of seconds game has been running, excluding
+     * time when paused.
+     *
+     * <p>The elapsed time is calculated using the configured time source.</p>
+     *
      * @return seconds game has been running
      */
     public int getSeconds()
     {
         if(screenState == ScreenState.PLAYING)
         {
-            return (int) ((totalTime + System.currentTimeMillis() - startTime) / 1000);
+            return (int) ((totalTime + clock.getAsLong() - startTime) / 1000);
         }
         return (int) (totalTime / 1000);
     }
