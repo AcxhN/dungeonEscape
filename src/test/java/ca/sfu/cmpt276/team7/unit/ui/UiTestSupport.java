@@ -2,6 +2,7 @@ package ca.sfu.cmpt276.team7.unit.ui;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.LongSupplier;
 
 import ca.sfu.cmpt276.team7.board.Board;
 import ca.sfu.cmpt276.team7.cells.Cell;
@@ -11,8 +12,8 @@ import ca.sfu.cmpt276.team7.core.Position;
 import ca.sfu.cmpt276.team7.ui.RenderItem;
 import ca.sfu.cmpt276.team7.ui.RenderKind;
 
-public class RenderTestSupport {
-    private RenderTestSupport() {};
+public class UiTestSupport {
+    private UiTestSupport() {};
 
     public static Board makeSimpleBoard(int width, int height) {
         Cell[][] grid = new Cell[height][width];
@@ -50,5 +51,18 @@ public class RenderTestSupport {
         }
 
         return texts;
+    }
+
+    public static class FakeClock implements LongSupplier {
+        private long nowMs = 0L;
+
+        @Override
+        public long getAsLong() {
+            return nowMs;
+        }
+
+        public void advanceMs(long ms) {
+            nowMs += ms;
+        }
     }
 }

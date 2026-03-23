@@ -32,7 +32,7 @@ import ca.sfu.cmpt276.team7.ui.RenderItem;
 public class PopupRenderTest {
     @Test
     void keyPopup_isRenderedAndBlocksMovementUntilResume() {
-        Board board = RenderTestSupport.makeSimpleBoard(10, 10);
+        Board board = UiTestSupport.makeSimpleBoard(11, 10);
 
         Position keyPos = new Position(1, 1);
         board.setCell(keyPos.getX(), keyPos.getY(), new RewardCell(keyPos, new RegularReward(10)));
@@ -52,7 +52,7 @@ public class PopupRenderTest {
         panel.setSize(panel.getPreferredSize());
 
         List<RenderItem> items = panel.buildRenderItemsForTest();
-        List<String> texts = RenderTestSupport.getOnlyTexts(items);
+        List<String> texts = UiTestSupport.getOnlyTexts(items);
 
         assertTrue(texts.contains("* After some 'convincing', the gnome gives up his key."));
         assertTrue(texts.contains("Press space to continue..."));
@@ -76,7 +76,7 @@ public class PopupRenderTest {
 
     @Test
     void chestPopup_isRenderedAndBlocksMovementUntilResume() {
-        Board board = RenderTestSupport.makeSimpleBoard(10, 10);
+        Board board = UiTestSupport.makeSimpleBoard(11, 10);
 
         Position chestPos = new Position(1, 1);
         board.setCell(chestPos.getX(), chestPos.getY(), new RewardCell(chestPos, new BonusReward(25, 20)));
@@ -97,7 +97,7 @@ public class PopupRenderTest {
         panel.setSize(panel.getPreferredSize());
 
         List<RenderItem> items = panel.buildRenderItemsForTest();
-        List<String> texts = RenderTestSupport.getOnlyTexts(items);
+        List<String> texts = UiTestSupport.getOnlyTexts(items);
 
         assertTrue(texts.contains("* You found a treasure chest!"));
         assertTrue(texts.contains("Press space to continue..."));
@@ -121,7 +121,7 @@ public class PopupRenderTest {
 
     @Test
     void ogrePopup_isRenderedAndBlocksMovementUntilResume() {
-        Board board = RenderTestSupport.makeSimpleBoard(10, 10);
+        Board board = UiTestSupport.makeSimpleBoard(11, 10);
         Player player = new Player(board, board.getStartPosition());
 
         List<Enemy> enemies = new ArrayList<>();
@@ -143,7 +143,7 @@ public class PopupRenderTest {
         panel.setSize(panel.getPreferredSize());
 
         List<RenderItem> items = panel.buildRenderItemsForTest();
-        List<String> texts = RenderTestSupport.getOnlyTexts(items);
+        List<String> texts = UiTestSupport.getOnlyTexts(items);
 
         assertTrue(texts.contains("* An ogre emerges from the darkness."));
         assertTrue(texts.contains("Press space to continue..."));
@@ -167,7 +167,7 @@ public class PopupRenderTest {
 
     @Test
     void popup_resumeControl() {
-        Board board = RenderTestSupport.makeSimpleBoard(10, 10);
+        Board board = UiTestSupport.makeSimpleBoard(11, 10);
 
         Position keyPos = new Position(1, 1);
         board.setCell(keyPos.getX(), keyPos.getY(), new RewardCell(keyPos, new RegularReward(10)));

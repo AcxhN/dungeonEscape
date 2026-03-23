@@ -25,7 +25,7 @@ import ca.sfu.cmpt276.team7.ui.RenderItem;
 import ca.sfu.cmpt276.team7.ui.RenderKind;
 import ca.sfu.cmpt276.team7.ui.SheetId;
 
-import ca.sfu.cmpt276.team7.unit.ui.RenderTestSupport;
+import ca.sfu.cmpt276.team7.unit.ui.UiTestSupport;
 
 /**
  * Screen State Visibility
@@ -36,7 +36,7 @@ import ca.sfu.cmpt276.team7.unit.ui.RenderTestSupport;
 public class ScreenRenderTest {
     @Test
     void startScreen_rendersTitleAndStartPrompt() {
-        Board board = RenderTestSupport.makeSimpleBoard(10, 10);
+        Board board = UiTestSupport.makeSimpleBoard(11, 10);
         Player player = new Player(board, board.getStartPosition());
         Game game = new Game(board, player, new ArrayList<>(), 0, 0, List.of(), List.of());
 
@@ -44,7 +44,7 @@ public class ScreenRenderTest {
         panel.setSize(panel.getPreferredSize());
 
         List<RenderItem> items = panel.buildRenderItemsForTest();
-        List<String> texts = RenderTestSupport.getOnlyTexts(items);
+        List<String> texts = UiTestSupport.getOnlyTexts(items);
 
         assertTrue(texts.contains("Dungeon Crawl"));
         assertTrue(texts.contains("Press Space to Start"));
@@ -77,7 +77,7 @@ public class ScreenRenderTest {
 
     @Test
     void playingScreen_rendersBoardCharactersAndHud() {
-        Board board = RenderTestSupport.makeSimpleBoard(10, 10);
+        Board board = UiTestSupport.makeSimpleBoard(11, 10);
         Player player = new Player(board, board.getStartPosition());
 
         List<Enemy> enemies = new ArrayList<>();
@@ -91,7 +91,7 @@ public class ScreenRenderTest {
         panel.setSize(panel.getPreferredSize());
 
         List<RenderItem> items = panel.buildRenderItemsForTest();
-        List<String> texts = RenderTestSupport.getOnlyTexts(items);
+        List<String> texts = UiTestSupport.getOnlyTexts(items);
 
         assertTrue(containsSprite(items, playerSprite));
         assertTrue(containsSprite(items, goblinSprite));
@@ -103,7 +103,7 @@ public class ScreenRenderTest {
 
     @Test
     void pauseScreen_rendersPauseOverlayWhenNoPopup() {
-        Board board = RenderTestSupport.makeSimpleBoard(10, 10);
+        Board board = UiTestSupport.makeSimpleBoard(11, 10);
         Player player = new Player(board, board.getStartPosition());
         Game game = new Game(board, player, new ArrayList<>(), 0, 0, List.of(), List.of());
 
@@ -114,7 +114,7 @@ public class ScreenRenderTest {
         panel.setSize(panel.getPreferredSize());
 
         List<RenderItem> items = panel.buildRenderItemsForTest();
-        List<String> texts = RenderTestSupport.getOnlyTexts(items);
+        List<String> texts = UiTestSupport.getOnlyTexts(items);
 
         assertTrue(texts.contains("Game Paused"));
         assertTrue(texts.contains("Press space to continue"));
@@ -127,7 +127,7 @@ public class ScreenRenderTest {
 
     @Test
     void endScreen_rendersReplayPrompt() {
-        Board board = RenderTestSupport.makeSimpleBoard(10, 10);
+        Board board = UiTestSupport.makeSimpleBoard(11, 10);
         Player player = new Player(board, board.getStartPosition());
         Game game = new Game(board, player, new ArrayList<>(), 0, 0, List.of(), List.of());
 
@@ -141,7 +141,7 @@ public class ScreenRenderTest {
         panel.setSize(panel.getPreferredSize());
 
         List<RenderItem> items = panel.buildRenderItemsForTest();
-        List<String> texts = RenderTestSupport.getOnlyTexts(items);
+        List<String> texts = UiTestSupport.getOnlyTexts(items);
 
         assertTrue(texts.contains("Press Space to Play Again"));
     }
@@ -172,7 +172,7 @@ public class ScreenRenderTest {
     }
 
     private List<String> renderEndScreenTexts(EndReason reason) {
-        Board board = RenderTestSupport.makeSimpleBoard(10, 10);
+        Board board = UiTestSupport.makeSimpleBoard(11, 10);
         Player player = new Player(board, board.getStartPosition());
 
         List<Enemy> enemies = new ArrayList<>();
@@ -184,7 +184,7 @@ public class ScreenRenderTest {
         panel.setSize(panel.getPreferredSize());
 
         List<RenderItem> items = panel.buildRenderItemsForTest();
-        return RenderTestSupport.getOnlyTexts(items);
+        return UiTestSupport.getOnlyTexts(items);
     }
 
     @Test
