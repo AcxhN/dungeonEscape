@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 import ca.sfu.cmpt276.team7.Game;
+import ca.sfu.cmpt276.team7.EndReason;
+import ca.sfu.cmpt276.team7.ScreenState;
 import ca.sfu.cmpt276.team7.board.Board;
 import ca.sfu.cmpt276.team7.cells.Cell;
 import ca.sfu.cmpt276.team7.cells.FloorCell;
@@ -162,7 +164,25 @@ public class ScreenRenderTest {
     }
 
     @Test
-    void endScreen_rendersReplayPrompt() {}
+    void endScreen_rendersReplayPrompt() {
+        Board board = makeSimpleBoard(10, 10);
+        Player player = new Player(board, board.getStartPosition());
+        Game game = new Game(board, player, new ArrayList<>(), 0, 0, List.of(), List.of());
+
+        game.startGame();
+        player.setScore(-1);
+        game.checkLoss();
+
+        assertEquals(ScreenState.END, game.getScreenState());
+
+        GamePanel panel = new GamePanel(game, board);
+        panel.setSize(panel.getPreferredSize());
+
+        List<RenderItem> items = panel.bulidRenderItemsForTest();
+        List<String> texts = getOnlyTexts(items);
+
+        assertTrue(texts.contains("Press Space to Play Again"));
+    }
 
     @Test
     void endScreen_showsCorrectMessageForEachEndReason() {}
