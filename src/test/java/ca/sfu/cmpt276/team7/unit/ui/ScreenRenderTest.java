@@ -25,6 +25,8 @@ import ca.sfu.cmpt276.team7.ui.RenderItem;
 import ca.sfu.cmpt276.team7.ui.RenderKind;
 import ca.sfu.cmpt276.team7.ui.SheetId;
 
+import ca.sfu.cmpt276.team7.unit.ui.RenderTestSupport;
+
 /**
  * Screen State Visibility
  * Pause Overlay Visibility
@@ -32,48 +34,9 @@ import ca.sfu.cmpt276.team7.ui.SheetId;
  * Defeat Message Selection
  */
 public class ScreenRenderTest {
-
-    private Board makeSimpleBoard(int width, int height) {
-        Cell[][] grid = new Cell[height][width];
-
-        Position start = new Position(0, 1);
-        Position end = new Position(width - 1, height - 1);
-
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                Position pos = new Position(x, y);
-
-                if ((x == 0 || x == width - 1 || y == 0 || y == height - 1)
-                    && !pos.equals(start) && !pos.equals(end)) {
-                    grid[y][x] = new WallCell(new Position(x, y));
-                } else {
-                    grid[y][x] = new FloorCell(new Position(x, y));
-                }
-            }
-        }
-
-        Board board = new Board(grid);
-        board.setStartPosition(new Position(0, 0));
-        board.setEndPosition(new Position(width - 1, height - 1));
-
-        return board;
-    }
-
-    private List<String> getOnlyTexts(List<RenderItem> items) {
-        List<String> texts = new ArrayList<>();
-
-        for (RenderItem item : items) {
-            if (item.getKind() == RenderKind.TEXT) {
-                texts.add(item.getText());
-            }
-        }
-
-        return texts;
-    }
-
     @Test
     void startScreen_rendersTitleAndStartPrompt() {
-        Board board = makeSimpleBoard(10, 10);
+        Board board = RenderTestSupport.makeSimpleBoard(10, 10);
         Player player = new Player(board, board.getStartPosition());
         Game game = new Game(board, player, new ArrayList<>(), 0, 0, List.of(), List.of());
 
@@ -81,7 +44,7 @@ public class ScreenRenderTest {
         panel.setSize(panel.getPreferredSize());
 
         List<RenderItem> items = panel.bulidRenderItemsForTest();
-        List<String> texts = getOnlyTexts(items);
+        List<String> texts = RenderTestSupport.getOnlyTexts(items);
 
         assertTrue(texts.contains("Dungeon Crawl"));
         assertTrue(texts.contains("Press Space to Start"));
@@ -114,7 +77,7 @@ public class ScreenRenderTest {
 
     @Test
     void playingScreen_rendersBoardCharactersAndHud() {
-        Board board = makeSimpleBoard(10, 10);
+        Board board = RenderTestSupport.makeSimpleBoard(10, 10);
         Player player = new Player(board, board.getStartPosition());
 
         List<Enemy> enemies = new ArrayList<>();
@@ -128,7 +91,7 @@ public class ScreenRenderTest {
         panel.setSize(panel.getPreferredSize());
 
         List<RenderItem> items = panel.bulidRenderItemsForTest();
-        List<String> texts = getOnlyTexts(items);
+        List<String> texts = RenderTestSupport.getOnlyTexts(items);
 
         assertTrue(containsSprite(items, playerSprite));
         assertTrue(containsSprite(items, goblinSprite));
@@ -140,7 +103,7 @@ public class ScreenRenderTest {
 
     @Test
     void pauseScreen_rendersPauseOverlayWhenNoPopup() {
-        Board board = makeSimpleBoard(10, 10);
+        Board board = RenderTestSupport.makeSimpleBoard(10, 10);
         Player player = new Player(board, board.getStartPosition());
         Game game = new Game(board, player, new ArrayList<>(), 0, 0, List.of(), List.of());
 
@@ -151,7 +114,7 @@ public class ScreenRenderTest {
         panel.setSize(panel.getPreferredSize());
 
         List<RenderItem> items = panel.bulidRenderItemsForTest();
-        List<String> texts = getOnlyTexts(items);
+        List<String> texts = RenderTestSupport.getOnlyTexts(items);
 
         assertTrue(texts.contains("Game Paused"));
         assertTrue(texts.contains("Press space to continue"));
@@ -164,7 +127,7 @@ public class ScreenRenderTest {
 
     @Test
     void endScreen_rendersReplayPrompt() {
-        Board board = makeSimpleBoard(10, 10);
+        Board board = RenderTestSupport.makeSimpleBoard(10, 10);
         Player player = new Player(board, board.getStartPosition());
         Game game = new Game(board, player, new ArrayList<>(), 0, 0, List.of(), List.of());
 
@@ -178,7 +141,7 @@ public class ScreenRenderTest {
         panel.setSize(panel.getPreferredSize());
 
         List<RenderItem> items = panel.bulidRenderItemsForTest();
-        List<String> texts = getOnlyTexts(items);
+        List<String> texts = RenderTestSupport.getOnlyTexts(items);
 
         assertTrue(texts.contains("Press Space to Play Again"));
     }
@@ -209,7 +172,7 @@ public class ScreenRenderTest {
     }
 
     private List<String> renderEndScreenTexts(EndReason reason) {
-        Board board = makeSimpleBoard(10, 10);
+        Board board = RenderTestSupport.makeSimpleBoard(10, 10);
         Player player = new Player(board, board.getStartPosition());
 
         List<Enemy> enemies = new ArrayList<>();
@@ -221,7 +184,7 @@ public class ScreenRenderTest {
         panel.setSize(panel.getPreferredSize());
 
         List<RenderItem> items = panel.bulidRenderItemsForTest();
-        return getOnlyTexts(items);
+        return RenderTestSupport.getOnlyTexts(items);
     }
 
     @Test
