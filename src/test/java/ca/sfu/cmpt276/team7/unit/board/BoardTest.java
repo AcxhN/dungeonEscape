@@ -328,4 +328,22 @@ public class BoardTest {
         // Assert
         assertSame(newCell, board.getCell(0, 0));
     }
+
+    @Test
+    void setCell_rejectsNullCell() {
+        // Arrange
+        Cell[][] grid = new Cell[2][2];
+
+        grid[0][0] = new FloorCell(new Position(0, 0));
+        grid[0][1] = new FloorCell(new Position(1, 0));
+        grid[1][0] = new FloorCell(new Position(0, 1));
+        grid[1][1] = new FloorCell(new Position(1, 1));
+
+        Board board = new Board(grid);
+
+        // Act + Assert
+        assertThrows(IllegalArgumentException.class, () -> {
+            board.setCell(0, 0, null);
+        });
+    }
 }
