@@ -3,7 +3,7 @@ package ca.sfu.cmpt276.team7.unit.ui;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 import ca.sfu.cmpt276.team7.Game;
@@ -138,7 +138,28 @@ public class ScreenRenderTest {
     }
 
     @Test
-    void pauseScreen_rendersPauseOverlayWhenNoPopup() {}
+    void pauseScreen_rendersPauseOverlayWhenNoPopup() {
+        Board board = makeSimpleBoard(10, 10);
+        Player player = new Player(board, board.getStartPosition());
+        Game game = new Game(board, player, new ArrayList<>(), 0, 0, List.of(), List.of());
+
+        game.startGame();
+        game.togglePause();
+
+        GamePanel panel = new GamePanel(game, board);
+        panel.setSize(panel.getPreferredSize());
+
+        List<RenderItem> items = panel.bulidRenderItemsForTest();
+        List<String> texts = getOnlyTexts(items);
+
+        assertTrue(texts.contains("Game Paused"));
+        assertTrue(texts.contains("Press space to continue"));
+
+        assertFalse(texts.contains("Press space to continue..."));
+        assertFalse(texts.contains("* You found a treasure chest!"));
+        assertFalse(texts.contains("* An ogre emerges from the darkness."));
+        assertFalse(texts.contains("* After some 'convincing', the gnome gives up his key."));
+    }
 
     @Test
     void endScreen_rendersReplayPrompt() {}
