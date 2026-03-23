@@ -887,4 +887,9 @@ public class GamePanel extends JPanel {
         buildDrawQueue(game, board);
         drawQueue.renderAll(g);
     }
+
+    public List<RenderItem> bulidRenderItemsForTest() {
+        buildDrawQueue(game, board);
+        return drawQueue.getRenderItems();
+    }
 }
