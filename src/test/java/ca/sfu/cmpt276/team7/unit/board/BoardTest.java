@@ -41,13 +41,14 @@ public class BoardTest {
         * isInside_returnsTrueForValidPositions DONE 
         * isInside_returnsFalseForOutsidePositions DONE 
         *
-        * setStartPosition_setsValidPosition
-        * setStartPosition_rejectsNull
-        * setStartPosition_rejectsOutOfBounds
-        *
-        * setEndPosition_setsValidPosition
-        * setEndPosition_rejectsNull
-        * setEndPosition_rejectsOutOfBounds
+        * 6 tests here: 
+            * setStartPosition_setsValidPosition
+            * setStartPosition_rejectsNull
+            * setStartPosition_rejectsOutOfBounds
+            *
+            * setEndPosition_setsValidPosition
+            * setEndPosition_rejectsNull
+            * setEndPosition_rejectsOutOfBounds
      */
 
     /**
@@ -426,5 +427,38 @@ public class BoardTest {
         // Act + Assert
         assertFalse(board.isInside(new Position(2, 0)));
         assertFalse(board.isInside(new Position(0, 2)));
+    }
+
+    /*
+    testing setStartPosition(...) and setEndPosition(...)
+        public void setStartPosition(Position startPosition) {
+            if (startPosition == null) throw new IllegalArgumentException(...);
+            ensureInBounds(startPosition.getX(), startPosition.getY());
+            this.startPosition = startPosition;
+        }
+    setEndPosition works the same 
+
+    So we need 3 tests for each one:
+        1. valid position gets stored
+        2. null is rejected
+        3. out of bounds is rejected 
+     */
+    @Test
+    void setStartPosition_setsValidPosition() {
+        // Arrange
+        Cell[][] grid = new Cell[2][2];
+        grid[0][0] = new FloorCell(new Position(0, 0));
+        grid[0][1] = new FloorCell(new Position(1, 0));
+        grid[1][0] = new FloorCell(new Position(0, 1));
+        grid[1][1] = new FloorCell(new Position(1, 1));
+
+        Board board = new Board(grid);
+        Position start = new Position(1, 0);
+
+        // Act
+        board.setStartPosition(start);
+
+        // Assert
+        assertEquals(start, board.getStartPosition());
     }
 }
