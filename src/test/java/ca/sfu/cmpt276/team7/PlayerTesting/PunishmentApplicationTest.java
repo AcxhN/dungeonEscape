@@ -15,8 +15,25 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.List;
 
 /**
- * Tests that stepping on a punishment reduces score
- * and removes the punishment from the board.
+ * Integration test verifying correct punishment behavior when the player
+ * steps onto a PunishmentCell containing a TrapPunishment.
+ *
+ * <p>This test ensures that:
+ * <ul>
+ *     <li>The player's score decreases by the punishment value.</li>
+ *     <li>The punishment tile is removed and replaced with a FloorCell.</li>
+ *     <li>No popup is triggered as a result of punishment activation.</li>
+ *     <li>Movement and punishment logic behave consistently in isolation
+ *         (no enemies, no rewards, no traps list required).</li>
+ * </ul>
+ *
+ * <p>Scenario:
+ * <ol>
+ *     <li>Player starts at (2,2).</li>
+ *     <li>A TrapPunishment worth 10 points is placed at (2,1).</li>
+ *     <li>Player moves north onto the punishment.</li>
+ *     <li>Score decreases, punishment disappears, and no popup appears.</li>
+ * </ol>
  */
 public class PunishmentApplicationTest {
 
@@ -29,7 +46,18 @@ public class PunishmentApplicationTest {
         }
         return new Board(grid);
     }
-
+/**
+     * Tests that stepping on a punishment correctly reduces the player's score
+     * and removes the punishment from the board.
+     *
+     * <p>Validates:
+     * <ul>
+     *     <li>Score decreases by the punishment's value.</li>
+     *     <li>The PunishmentCell is replaced with a FloorCell after activation.</li>
+     *     <li>No popup is triggered by punishment effects.</li>
+     * </ul>
+     *
+*/
     @Test
     void testPunishmentReducesScoreAndDisappears() {
         Board board = makeEmptyBoard(5, 5);
