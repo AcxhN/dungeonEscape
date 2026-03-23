@@ -43,7 +43,7 @@ public class ScreenRenderTest {
         GamePanel panel = new GamePanel(game, board);
         panel.setSize(panel.getPreferredSize());
 
-        List<RenderItem> items = panel.bulidRenderItemsForTest();
+        List<RenderItem> items = panel.buildRenderItemsForTest();
         List<String> texts = RenderTestSupport.getOnlyTexts(items);
 
         assertTrue(texts.contains("Dungeon Crawl"));
@@ -90,7 +90,7 @@ public class ScreenRenderTest {
         GamePanel panel = new GamePanel(game, board);
         panel.setSize(panel.getPreferredSize());
 
-        List<RenderItem> items = panel.bulidRenderItemsForTest();
+        List<RenderItem> items = panel.buildRenderItemsForTest();
         List<String> texts = RenderTestSupport.getOnlyTexts(items);
 
         assertTrue(containsSprite(items, playerSprite));
@@ -113,7 +113,7 @@ public class ScreenRenderTest {
         GamePanel panel = new GamePanel(game, board);
         panel.setSize(panel.getPreferredSize());
 
-        List<RenderItem> items = panel.bulidRenderItemsForTest();
+        List<RenderItem> items = panel.buildRenderItemsForTest();
         List<String> texts = RenderTestSupport.getOnlyTexts(items);
 
         assertTrue(texts.contains("Game Paused"));
@@ -140,7 +140,7 @@ public class ScreenRenderTest {
         GamePanel panel = new GamePanel(game, board);
         panel.setSize(panel.getPreferredSize());
 
-        List<RenderItem> items = panel.bulidRenderItemsForTest();
+        List<RenderItem> items = panel.buildRenderItemsForTest();
         List<String> texts = RenderTestSupport.getOnlyTexts(items);
 
         assertTrue(texts.contains("Press Space to Play Again"));
@@ -183,7 +183,7 @@ public class ScreenRenderTest {
         GamePanel panel = new GamePanel(game, board);
         panel.setSize(panel.getPreferredSize());
 
-        List<RenderItem> items = panel.bulidRenderItemsForTest();
+        List<RenderItem> items = panel.buildRenderItemsForTest();
         return RenderTestSupport.getOnlyTexts(items);
     }
 

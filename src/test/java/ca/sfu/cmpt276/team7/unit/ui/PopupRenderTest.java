@@ -51,7 +51,7 @@ public class PopupRenderTest {
         GamePanel panel = new GamePanel(game, board);
         panel.setSize(panel.getPreferredSize());
 
-        List<RenderItem> items = panel.bulidRenderItemsForTest();
+        List<RenderItem> items = panel.buildRenderItemsForTest();
         List<String> texts = RenderTestSupport.getOnlyTexts(items);
 
         assertTrue(texts.contains("* After some 'convincing', the gnome gives up his key."));
@@ -96,7 +96,7 @@ public class PopupRenderTest {
         GamePanel panel = new GamePanel(game, board);
         panel.setSize(panel.getPreferredSize());
 
-        List<RenderItem> items = panel.bulidRenderItemsForTest();
+        List<RenderItem> items = panel.buildRenderItemsForTest();
         List<String> texts = RenderTestSupport.getOnlyTexts(items);
 
         assertTrue(texts.contains("* You found a treasure chest!"));
@@ -142,7 +142,7 @@ public class PopupRenderTest {
         GamePanel panel = new GamePanel(game, board);
         panel.setSize(panel.getPreferredSize());
 
-        List<RenderItem> items = panel.bulidRenderItemsForTest();
+        List<RenderItem> items = panel.buildRenderItemsForTest();
         List<String> texts = RenderTestSupport.getOnlyTexts(items);
 
         assertTrue(texts.contains("* An ogre emerges from the darkness."));
@@ -166,5 +166,37 @@ public class PopupRenderTest {
     }
 
     @Test
-    void popup_resumeControl() {}
+    void popup_resumeControl() {
+        Board board = RenderTestSupport.makeSimpleBoard(10, 10);
+
+        Position keyPos = new Position(1, 1);
+        board.setCell(keyPos.getX(), keyPos.getY(), new RewardCell(keyPos, new RegularReward(10)));
+
+        Player player = new Player(board, board.getStartPosition());
+        Game game = new Game(board, player, new ArrayList<>(), 1, 0, List.of(keyPos), List.of());
+
+        game.startGame();
+        game.handleInput(KeyEvent.VK_RIGHT);
+        game.updateTick();
+
+        assertEquals(ScreenState.PAUSE, game.getScreenState());
+        assertEquals(PopupReason.KEY_COLLECTED, game.getPopupReason());
+        assertEquals(new Position(1, 1), player.getPosition());
+
+        game.handleInput(KeyEvent.VK_RIGHT);
+
+        assertEquals(ScreenState.PAUSE, game.getScreenState());
+        assertEquals(PopupReason.KEY_COLLECTED, game.getPopupReason());
+        assertEquals(new Position(1, 1), player.getPosition());
+
+        game.handleInput(KeyEvent.VK_SPACE);
+        assertEquals(ScreenState.PLAYING, game.getScreenState());
+
+        assertNull(game.getPopupReason());
+
+        game.handleInput(KeyEvent.VK_RIGHT);
+        game.updateTick();
+
+        assertEquals(new Position(2, 1), player.getPosition());
+    }
 }
