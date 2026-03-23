@@ -11,7 +11,19 @@ import ca.sfu.cmpt276.team7.Game;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-
+/**
+ * Unit tests for verifying the Remaining Keys State rule.
+ *
+ * <p>This rule ensures that the game correctly tracks how many regular
+ * rewards (keys) the player has collected. The game should increment
+ * the collected key count when the player steps on a {@link RewardCell}
+ * containing a {@link RegularReward}, and the total should match the
+ * number of keys placed on the board.</p>
+ *
+ * <p>This test constructs a minimal board, places two keys, simulates
+ * player movement using {@link Game#handleInput(int)}, and verifies that
+ * the game state updates as expected after each collection.</p>
+ */
 public class RemainingKeysStateTest {
 
     private Board makeEmptyBoard(int w, int h) {
@@ -23,7 +35,21 @@ public class RemainingKeysStateTest {
         }
         return new Board(grid);
     }
-
+/**
+     * Tests that the game correctly updates the number of collected keys.
+     *
+     * <p>The test places two regular rewards on the board, moves the player
+     * onto each reward tile, and verifies that:</p>
+     *
+     * <ul>
+     *     <li>The collected key count increases after each pickup.</li>
+     *     <li>The total number of keys remains constant.</li>
+     *     <liThe game resumes properly after the key-collection popup.</li>
+     * </ul>
+     *
+     * <p>This ensures that the Remaining Keys State rule behaves correctly
+     * throughout normal gameplay.</p>
+*/
     @Test
     void testRemainingKeysUpdateCorrectly() {
         Board board = makeEmptyBoard(5, 5);
