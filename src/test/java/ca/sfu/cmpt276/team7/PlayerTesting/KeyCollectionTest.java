@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
  *     <li>The player's position updates correctly.</li>
  * </ul>
  */
-public class KeyCollection {
+public class KeyCollectionTest {
 
     /**
      * Creates a rectangular board filled with {@link FloorCell} instances.
