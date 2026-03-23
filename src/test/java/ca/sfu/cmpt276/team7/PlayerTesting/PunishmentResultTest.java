@@ -15,10 +15,25 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
-
 /**
- * Tests that stepping on a punishment that reduces score below zero
- * ends the game with LOSE_BY_TRAP.
+ * Integration test verifying the game-over logic when the player steps onto
+ * a PunishmentCell that reduces their score below zero.
+ *
+ * <p>This test ensures that:
+ * <ul>
+ *     <li>A TrapPunishment with a sufficiently large penalty correctly drops the player's score below zero.</li>
+ *     <li>The game transitions immediately into the END screen state.</li>
+ *     <li>The end reason is reported as LOSE_BY_TRAP, matching trap‑based defeat conditions.</li>
+ *     <li>No other game elements (enemies, rewards, traps list) interfere with the punishment logic.</li>
+ * </ul>
+ *
+ * <p>Scenario:
+ * <ol>
+ *     <li>Player starts at (2,2) with score 0.</li>
+ *     <li>A TrapPunishment worth 999 points is placed at (2,1).</li>
+ *     <li>Player moves north onto the punishment.</li>
+ *     <li>Score becomes negative, triggering immediate game over.</li>
+ * </ol>
  */
 public class PunishmentResultTest {
 
@@ -31,7 +46,16 @@ public class PunishmentResultTest {
         }
         return new Board(grid);
     }
-
+/**
+     * Tests that stepping on a punishment with a value large enough to drop
+     * the player's score below zero results in an immediate game over.
+     *
+     * <p>Validates:
+     * <ul>
+     *     <li>The game enters the END state after the punishment is applied.</li>
+     *     <li>The end reason is LOSE_BY_TRAP, indicating trap‑based defeat.</li>
+     * </ul>
+*/
     @Test
     void testPunishmentCausesGameOverWhenScoreBelowZero() {
         Board board = makeEmptyBoard(5, 5);
