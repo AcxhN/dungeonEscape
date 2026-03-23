@@ -296,4 +296,36 @@ public class BoardTest {
             board.getCell(0, 2);
         });
     }
+
+    /*
+        public void setCell(int x, int y, Cell cell) {
+        ensureInBounds(x, y);
+        if (cell == null) throw new IllegalArgumentException("cell cannot be null");
+        grid[y][x] = cell;
+        }
+    so there are 3 behaviours to test:
+        1. valid case -> replaces cell 
+        2. null cell -> throws IllegalArgumentException
+        3. out of bounds -> throws IndexOutofBoundsException 
+     */
+    @Test
+    void setCell_replacesCellInBounds() {
+        // Arrange
+        Cell[][] grid = new Cell[2][2];
+
+        grid[0][0] = new FloorCell(new Position(0, 0));
+        grid[0][1] = new FloorCell(new Position(1, 0));
+        grid[1][0] = new FloorCell(new Position(0, 1));
+        grid[1][1] = new FloorCell(new Position(1, 1));
+
+        Board board = new Board(grid);
+
+        FloorCell newCell = new FloorCell(new Position(0, 0));
+
+        // Act
+        board.setCell(0, 0, newCell);
+
+        // Assert
+        assertSame(newCell, board.getCell(0, 0));
+    }
 }
