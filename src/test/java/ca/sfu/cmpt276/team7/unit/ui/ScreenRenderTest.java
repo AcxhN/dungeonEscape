@@ -33,31 +33,6 @@ import ca.sfu.cmpt276.team7.ui.SheetId;
  */
 public class ScreenRenderTest {
 
-    record SpriteSpec(SheetId sheetId, int srcX, int srcY) {}
-
-    private final int gameSrcSize = 64;
-    private final int screenSrcSize = 200;
-    private final int srcPadding = 5;
-
-    private int srcSize(int order, int srcSize) {
-        return ((srcSize + (srcPadding * 2)) * order) + srcPadding;
-    }
-
-    private final SpriteSpec playerSprite = new SpriteSpec(SheetId.GAME_ATLAS, srcSize(7, gameSrcSize), srcPadding);
-    private final SpriteSpec goblinSprite = new SpriteSpec(SheetId.GAME_ATLAS, srcSize(6, gameSrcSize), srcPadding);
-    private final SpriteSpec ogerSprite = new SpriteSpec(SheetId.GAME_ATLAS, srcSize(5, gameSrcSize), srcPadding);
-
-    private boolean containsSprite(List<RenderItem> items, SpriteSpec sprite) {
-        for (RenderItem item : items) {
-            if (item.getKind() == RenderKind.SPRITE && item.getSheetId() == sprite.sheetId()
-                && item.getSrcX() == sprite.srcX() && item.getSrcY() == sprite.srcY()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-
     private Board makeSimpleBoard(int width, int height) {
         Cell[][] grid = new Cell[height][width];
 
@@ -96,7 +71,6 @@ public class ScreenRenderTest {
         return texts;
     }
 
-
     @Test
     void startScreen_rendersTitleAndStartPrompt() {
         Board board = makeSimpleBoard(10, 10);
@@ -111,6 +85,31 @@ public class ScreenRenderTest {
 
         assertTrue(texts.contains("Dungeon Crawl"));
         assertTrue(texts.contains("Press Space to Start"));
+    }
+
+
+    record SpriteSpec(SheetId sheetId, int srcX, int srcY) {}
+
+    private final int gameSrcSize = 64;
+    private final int screenSrcSize = 200;
+    private final int srcPadding = 5;
+
+    private int srcSize(int order, int srcSize) {
+        return ((srcSize + (srcPadding * 2)) * order) + srcPadding;
+    }
+
+    private final SpriteSpec playerSprite = new SpriteSpec(SheetId.GAME_ATLAS, srcSize(7, gameSrcSize), srcPadding);
+    private final SpriteSpec goblinSprite = new SpriteSpec(SheetId.GAME_ATLAS, srcSize(6, gameSrcSize), srcPadding);
+    private final SpriteSpec ogerSprite = new SpriteSpec(SheetId.GAME_ATLAS, srcSize(5, gameSrcSize), srcPadding);
+
+    private boolean containsSprite(List<RenderItem> items, SpriteSpec sprite) {
+        for (RenderItem item : items) {
+            if (item.getKind() == RenderKind.SPRITE && item.getSheetId() == sprite.sheetId()
+                && item.getSrcX() == sprite.srcX() && item.getSrcY() == sprite.srcY()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Test
@@ -184,6 +183,76 @@ public class ScreenRenderTest {
         assertTrue(texts.contains("Press Space to Play Again"));
     }
 
+
+    private void forceEndReason(Game game, Board board, Player player, List<Enemy> enemies, EndReason reason) {
+        game.startGame();
+
+        switch (reason) {
+            case WIN:
+                player.setPosition(board.getEndPosition());
+                game.updateTick();
+                break;
+            case LOSE_BY_TRAP:
+                player.setScore(-1);
+                game.checkLoss();
+                break;
+            case LOSE_BY_GOBLIN:
+                enemies.add(new Goblin(board, player.getPosition()));
+                game.checkLoss();
+                break;
+            case LOSE_BY_OGRE:
+                player.setScore(20);
+                enemies.add(new Ogre(board, player.getPosition()));
+                game.updateTick();
+                break;
+        }
+    }
+
+    private List<String> renderEndScreenTexts(EndReason reason) {
+        Board board = makeSimpleBoard(10, 10);
+        Player player = new Player(board, board.getStartPosition());
+
+        List<Enemy> enemies = new ArrayList<>();
+        Game game = new Game(board, player, enemies, 0, 0, List.of(), List.of());
+
+        forceEndReason(game, board, player, enemies, reason);
+
+        GamePanel panel = new GamePanel(game, board);
+        panel.setSize(panel.getPreferredSize());
+
+        List<RenderItem> items = panel.bulidRenderItemsForTest();
+        return getOnlyTexts(items);
+    }
+
     @Test
-    void endScreen_showsCorrectMessageForEachEndReason() {}
+    void endScreen_showsWinMessage() {
+        List<String> texts = renderEndScreenTexts(EndReason.WIN);
+
+        assertTrue(texts.contains("YOU WIN"));
+        assertTrue(texts.contains("You braved the terrors of the dungeon and emerged a rich man"));
+    }
+
+    @Test
+    void endScreen_showsTrapLossMessage() {
+        List<String> texts = renderEndScreenTexts(EndReason.LOSE_BY_TRAP);
+
+        assertTrue(texts.contains("GAME OVER"));
+        assertTrue(texts.contains("Lost your footing near a pit of spikes!"));
+    }
+
+    @Test
+    void endScreen_showsOgreLossMessage() {
+        List<String> texts = renderEndScreenTexts(EndReason.LOSE_BY_OGRE);
+
+        assertTrue(texts.contains("GAME OVER"));
+        assertTrue(texts.contains("Stuck, mashed, and boiled into a stew!"));
+    }
+
+    @Test
+    void endScreen_showsGoblinLossMessage() {
+        List<String> texts = renderEndScreenTexts(EndReason.LOSE_BY_GOBLIN);
+
+        assertTrue(texts.contains("GAME OVER"));
+        assertTrue(texts.contains("Caught by a goblin!"));
+    }
 }
