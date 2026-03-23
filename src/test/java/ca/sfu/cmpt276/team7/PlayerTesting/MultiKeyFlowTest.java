@@ -13,7 +13,27 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
-
+/**
+ * Integration test verifying correct behavior when the player collects
+ * multiple key-type RegularRewards in sequence.
+ *
+ * <p>This test ensures that:
+ * <ul>
+ *     <li>Each key (represented as a RegularReward with value 0) is collected properly.</li>
+ *     <li>The game increments the regular reward counter after each collection.</li>
+ *     <li>A popup is triggered after each key, requiring explicit resume via SPACE.</li>
+ *     <li>Collected key cells are converted back into FloorCell instances.</li>
+ *     <li>Movement and reward logic remain consistent across consecutive pickups.</li>
+ * </ul>
+ * 
+ * The scenario:
+ * <ol>
+ *     <li>Player starts at (2,2).</li>
+ *     <li>Two keys are placed at (3,2) and (4,2).</li>
+ *     <li>Player moves right twice, collecting both keys.</li>
+ *     <li>After each collection, the popup is resumed using SPACE.</li>
+ * </ol>
+ */
 public class MultiKeyFlowTest {
 
     private Board makeBoard() {
@@ -25,7 +45,18 @@ public class MultiKeyFlowTest {
         }
         return new Board(grid);
     }
-
+/**
+     * Tests the full flow of collecting two consecutive key rewards.
+     *
+     * <p>Steps validated:
+     * <ol>
+     *     <li>Player moves right and collects the first key.</li>
+     *     <li>Popup appears and is resumed with SPACE.</li>
+     *     <li>Player moves right again and collects the second key.</li>
+     *     <li>Both key cells are confirmed to be replaced with FloorCell.</li>
+     *     <li>The game's collected regular reward counter reaches 2.</li>
+     * </ol>
+*/
     @Test
     void testMultiKeyCollectionFlow() {
         Board board = makeBoard();
