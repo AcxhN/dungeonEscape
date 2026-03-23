@@ -346,4 +346,24 @@ public class BoardTest {
             board.setCell(0, 0, null);
         });
     }
+
+    @Test
+    void setCell_throwsOutOfBounds() {
+        // Arrange
+        Cell[][] grid = new Cell[2][2];
+
+        grid[0][0] = new FloorCell(new Position(0, 0));
+        grid[0][1] = new FloorCell(new Position(1, 0));
+        grid[1][0] = new FloorCell(new Position(0, 1));
+        grid[1][1] = new FloorCell(new Position(1, 1));
+
+        Board board = new Board(grid);
+
+        FloorCell newCell = new FloorCell(new Position(0, 0));
+
+        // Act + Assert
+        assertThrows(IndexOutOfBoundsException.class, () -> {
+            board.setCell(2, 0, newCell);
+        });
+    }
 }
