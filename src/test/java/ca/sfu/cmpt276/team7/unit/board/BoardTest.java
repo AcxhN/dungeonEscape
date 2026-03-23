@@ -33,13 +33,13 @@ public class BoardTest {
      * getCell_returnsCellInBounds DONE
      * getCell_throwsWhenOutOfBounds (when X too small or large, when y too small or large, 4 tests total) DONE 
      *
-     * setCell_replacesCellInBounds
-     * setCell_rejectsNullCell
-     * setCell_throwsWhenOutOfBounds
+     * setCell_replacesCellInBounds DONE 
+     * setCell_rejectsNullCell DONE 
+     * setCell_throwsWhenOutOfBounds DONE 
      *
      * Position related logic: 
-        * isInside_returnsTrueForValidPositions
-        * isInside_returnsFalseForOutsidePositions
+        * isInside_returnsTrueForValidPositions DONE 
+        * isInside_returnsFalseForOutsidePositions DONE 
         *
         * setStartPosition_setsValidPosition
         * setStartPosition_rejectsNull
