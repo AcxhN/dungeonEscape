@@ -182,4 +182,6 @@ public class Player extends GameCharacter {
     public void setScore(int score) {
 	this.totalScore = score;
     }
+    
 }
+
