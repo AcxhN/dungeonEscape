@@ -42,7 +42,7 @@ public class BoardLoaderTest {
      *
      * load_rejectsNullPath
      * load_rejectsEmptyMap
-     * load_rejectsNonRectangularMap
+     * load_rejectsNonRectangularMap DONE 
      * load_rejectsUnknownSymbol
      * load_rejectsMissingStart
      * load_rejectsMissingExit
@@ -115,5 +115,16 @@ public class BoardLoaderTest {
         assertTrue(board.getCell(1, 1).isWalkable());
         assertTrue(board.getCell(2, 1).isWalkable());
         assertTrue(board.getCell(3, 2).isWalkable());
+    }
+
+    @Test
+    void load_rejectsNonRectangularMap() {
+        // Arrange
+        Path mapPath = Path.of("src/test/resources/maps/nonRectangleMap.txt");
+
+        // Act + Assert
+        assertThrows(IllegalArgumentException.class, () -> {
+            BoardLoader.load(mapPath);
+        });
     }
 }
