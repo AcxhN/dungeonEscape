@@ -55,36 +55,6 @@ public class ScreenRenderTest {
         assertTrue(texts.contains("Press Space to Start"));
     }
 
-
-    record SpriteSpec(SheetId sheetId, int srcX, int srcY) {}
-
-    private final int gameSrcSize = 64;
-    private final int screenSrcSize = 200;
-    private final int srcPadding = 5;
-
-    private int srcSize(int order, int srcSize) {
-        return ((srcSize + (srcPadding * 2)) * order) + srcPadding;
-    }
-
-    private final SpriteSpec playerSprite = new SpriteSpec(SheetId.GAME_ATLAS, srcSize(7, gameSrcSize), srcPadding);
-    private final SpriteSpec goblinSprite = new SpriteSpec(SheetId.GAME_ATLAS, srcSize(6, gameSrcSize), srcPadding);
-    private final SpriteSpec ogerSprite = new SpriteSpec(SheetId.GAME_ATLAS, srcSize(5, gameSrcSize), srcPadding);
-
-    private final SpriteSpec barrierSprite = new SpriteSpec(SheetId.GAME_ATLAS, srcSize(1, gameSrcSize), srcPadding);
-    private final SpriteSpec keySprite = new SpriteSpec(SheetId.GAME_ATLAS, srcSize(3, gameSrcSize), srcPadding);
-    private final SpriteSpec chestSprite = new SpriteSpec(SheetId.GAME_ATLAS, srcSize(4, gameSrcSize), srcPadding);
-    private final SpriteSpec trapSprite = new SpriteSpec(SheetId.GAME_ATLAS, srcSize(2, gameSrcSize), srcPadding);
-
-    private boolean containsSprite(List<RenderItem> items, SpriteSpec sprite) {
-        for (RenderItem item : items) {
-            if (item.getKind() == RenderKind.SPRITE && item.getSheetId() == sprite.sheetId()
-                && item.getSrcX() == sprite.srcX() && item.getSrcY() == sprite.srcY()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     @Test
     void playingScreen_rendersBoardCharactersAndHud() {
         Board board = UiTestSupport.makeSimpleBoard(11, 10);
@@ -103,9 +73,9 @@ public class ScreenRenderTest {
         List<RenderItem> items = panel.buildRenderItemsForTest();
         List<String> texts = UiTestSupport.getOnlyTexts(items);
 
-        assertTrue(containsSprite(items, playerSprite));
-        assertTrue(containsSprite(items, goblinSprite));
-        assertTrue(containsSprite(items, ogerSprite));
+        assertTrue(UiTestSupport.containsSprite(items, UiTestSupport.playerSprite));
+        assertTrue(UiTestSupport.containsSprite(items, UiTestSupport.goblinSprite));
+        assertTrue(UiTestSupport.containsSprite(items, UiTestSupport.ogerSprite));
         assertTrue(texts.contains("0:00"));
         assertTrue(texts.contains("0 / 0"));
         assertTrue(texts.contains("0"));
@@ -127,7 +97,7 @@ public class ScreenRenderTest {
 
         List<RenderItem> items = panel.buildRenderItemsForTest();
 
-        assertTrue(containsSprite(items, barrierSprite));
+        assertTrue(UiTestSupport.containsSpriteAt(items, UiTestSupport.barrierSprite, 2, 2));
     }
 
     @Test
@@ -146,7 +116,7 @@ public class ScreenRenderTest {
 
         List<RenderItem> items = panel.buildRenderItemsForTest();
 
-        assertTrue(containsSprite(items, keySprite));
+        assertTrue(UiTestSupport.containsSpriteAt(items, UiTestSupport.keySprite, 1, 1));
     }
 
     @Test
@@ -165,7 +135,7 @@ public class ScreenRenderTest {
 
         List<RenderItem> items = panel.buildRenderItemsForTest();
 
-        assertTrue(containsSprite(items, chestSprite));
+        assertTrue(UiTestSupport.containsSpriteAt(items, UiTestSupport.chestSprite, 1, 1));
     }
 
     @Test
@@ -184,7 +154,7 @@ public class ScreenRenderTest {
 
         List<RenderItem> items = panel.buildRenderItemsForTest();
 
-        assertTrue(containsSprite(items, trapSprite));
+        assertTrue(UiTestSupport.containsSpriteAt(items, UiTestSupport.trapSprite, 1, 1));
     }
 
     @Test

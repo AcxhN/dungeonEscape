@@ -12,12 +12,13 @@ import ca.sfu.cmpt276.team7.board.Board;
 import ca.sfu.cmpt276.team7.core.Position;
 import ca.sfu.cmpt276.team7.reward.Player;
 import ca.sfu.cmpt276.team7.ui.GamePanel;
+import ca.sfu.cmpt276.team7.ui.RenderItem;
 
 /**
  * Small Map Padding Display Rule
  * Large Map Viewport Display Rule
  */
-public class ViewportRender {
+public class ViewportRenderTest {
     @Test
     void smallMap_addsPaddingWallsAndUsesMinimumViewport() {
         Board board = UiTestSupport.makeSimpleBoard(5, 5);
@@ -32,7 +33,7 @@ public class ViewportRender {
         panel.buildRenderItemsForTest();
 
         assertEquals(11, panel.getRenderXForTest());
-        assertEquals(8, panel.getRenderYForTest());
+        assertEquals(9, panel.getRenderYForTest());
 
         assertTrue(panel.getXOffsetForTest() > 0);
         assertTrue(panel.getYOffsetForTest() > 0);
@@ -41,6 +42,27 @@ public class ViewportRender {
         assertEquals(0, panel.getViewStartYForTest());
         assertEquals(board.getWidth(), panel.getViewEndXForTest());
         assertEquals(board.getHeight(), panel.getViewEndYForTest());
+    }
+
+    @Test
+    void smallMap_rendersTopAndBottomOffsetWalls() {
+        Board board = UiTestSupport.makeSimpleBoard(5, 5);
+        Player player = new Player(board, board.getStartPosition());
+        Game game = new Game(board, player, new ArrayList<>(), 0, 0, List.of(), List.of());
+
+        game.startGame();
+
+        GamePanel panel = new GamePanel(game, board);
+        panel.setSize(panel.getPreferredSize());
+
+        List<RenderItem> items = panel.buildRenderItemsForTest();
+
+        // top padding row
+        assertTrue(UiTestSupport.containsSpriteAt(items, UiTestSupport.wallSprite, 0, 0));
+
+        // bottom padding row
+        int bottomY = (panel.getRenderYForTest() - 1);
+        assertTrue(UiTestSupport.containsSpriteAt(items, UiTestSupport.wallSprite, 0, bottomY));
     }
 
     @Test
@@ -58,9 +80,12 @@ public class ViewportRender {
 
         panel.buildRenderItemsForTest();
 
+        assertEquals(21, panel.getViewEndXForTest() - panel.getViewStartXForTest());
+        assertEquals(11, panel.getViewEndYForTest() - panel.getViewStartYForTest());
+
         assertEquals(5, panel.getViewStartXForTest());
         assertEquals(10, panel.getViewStartYForTest());
-        assertEquals(25, panel.getViewEndXForTest());
-        assertEquals(20, panel.getViewEndYForTest());
+        assertEquals(26, panel.getViewEndXForTest());
+        assertEquals(21, panel.getViewEndYForTest());
     }
 }

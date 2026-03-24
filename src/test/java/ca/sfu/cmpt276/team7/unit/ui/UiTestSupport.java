@@ -11,6 +11,7 @@ import ca.sfu.cmpt276.team7.cells.WallCell;
 import ca.sfu.cmpt276.team7.core.Position;
 import ca.sfu.cmpt276.team7.ui.RenderItem;
 import ca.sfu.cmpt276.team7.ui.RenderKind;
+import ca.sfu.cmpt276.team7.ui.SheetId;
 
 public class UiTestSupport {
     private UiTestSupport() {};
@@ -64,5 +65,52 @@ public class UiTestSupport {
         public void advanceMs(long ms) {
             nowMs += ms;
         }
+    }
+
+
+    public static record SpriteSpec(SheetId sheetId, int srcX, int srcY) {}
+
+    private static final int cellWidth = 50;
+    private static final int cellHeight = 50;
+
+    private static final int gameSrcSize = 64;
+    private static final int screenSrcSize = 200;
+    private static final int srcPadding = 5;
+
+    private static int srcSize(int order, int srcSize) {
+        return ((srcSize + (srcPadding * 2)) * order) + srcPadding;
+    }
+
+    public static final SpriteSpec playerSprite = new SpriteSpec(SheetId.GAME_ATLAS, srcSize(7, gameSrcSize), srcPadding);
+    public static final SpriteSpec goblinSprite = new SpriteSpec(SheetId.GAME_ATLAS, srcSize(6, gameSrcSize), srcPadding);
+    public static final SpriteSpec ogerSprite = new SpriteSpec(SheetId.GAME_ATLAS, srcSize(5, gameSrcSize), srcPadding);
+
+    public static final SpriteSpec wallSprite = new SpriteSpec(SheetId.GAME_ATLAS, srcSize(1, gameSrcSize), srcPadding);
+    public static final SpriteSpec barrierSprite = new SpriteSpec(SheetId.GAME_ATLAS, srcSize(1, gameSrcSize), srcPadding);
+    public static final SpriteSpec keySprite = new SpriteSpec(SheetId.GAME_ATLAS, srcSize(3, gameSrcSize), srcPadding);
+    public static final SpriteSpec chestSprite = new SpriteSpec(SheetId.GAME_ATLAS, srcSize(4, gameSrcSize), srcPadding);
+    public static final SpriteSpec trapSprite = new SpriteSpec(SheetId.GAME_ATLAS, srcSize(2, gameSrcSize), srcPadding);
+
+    public static boolean containsSprite(List<RenderItem> items, SpriteSpec sprite) {
+        for (RenderItem item : items) {
+            if (item.getKind() == RenderKind.SPRITE && item.getSheetId() == sprite.sheetId()
+                && item.getSrcX() == sprite.srcX() && item.getSrcY() == sprite.srcY()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean containsSpriteAt(List<RenderItem> items, SpriteSpec sprite, int x, int y) {
+        int expectedX = x * cellWidth;
+        int expectedY = y * cellHeight;
+        for (RenderItem item : items) {
+            if (item.getKind() == RenderKind.SPRITE && item.getSheetId() == sprite.sheetId()
+                && item.getSrcX() == sprite.srcX() && item.getSrcY() == sprite.srcY()
+                && item.getX() == expectedX && item.getY() == expectedY) {
+                return true;
+            }
+        }
+        return false;
     }
 }
