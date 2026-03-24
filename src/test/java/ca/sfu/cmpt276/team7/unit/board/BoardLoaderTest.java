@@ -150,4 +150,15 @@ public class BoardLoaderTest {
             BoardLoader.load(mapPath);
         });
     }
+
+    @Test
+    void load_rejectsMissingExit() {
+        // Arrange
+        Path mapPath = Path.of("src/test/resources/maps/missingExitMap.txt");
+
+        // Act + Assert
+        assertThrows(IllegalArgumentException.class, () -> {
+            BoardLoader.load(mapPath);
+        });
+    }
 }
