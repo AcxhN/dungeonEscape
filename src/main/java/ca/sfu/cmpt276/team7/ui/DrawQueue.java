@@ -138,4 +138,16 @@ public class DrawQueue {
             }
         }
     }
+
+    /**
+     * Returns a snapshot of the currently queued render items.
+     * <p>
+     * The returned list is a copy of the queue contents, so modifying the list
+     * does not affect the internal draw queue.
+     *
+     * @return a list containing the render items currently queued for rendering
+     */
+    public List<RenderItem> getRenderItems() {
+        return new ArrayList<>(queue);
+    }
 }
