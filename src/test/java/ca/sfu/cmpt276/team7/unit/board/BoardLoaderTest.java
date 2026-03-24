@@ -27,7 +27,7 @@ public class BoardLoaderTest {
      * Planned tests:
      *
      * load_validMap_returnsBoardWithExpectedDimensions DONE 
-     * load_validMap_setsStartAndExitPositions
+     * load_validMap_setsStartAndExitPositions DONE 
      * load_validMap_recordsGoblinSpawnPositions
      * load_validMap_recordsOgreSpawnPositions
      * load_validMap_recordsKeyPositions
@@ -81,4 +81,6 @@ public class BoardLoaderTest {
         assertEquals(new Position(1, 1), board.getStartPosition());
         assertEquals(new Position(3, 2), board.getEndPosition());
     }
+
+    
 }
