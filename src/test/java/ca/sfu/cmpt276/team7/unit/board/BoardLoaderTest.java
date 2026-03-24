@@ -60,7 +60,7 @@ public class BoardLoaderTest {
     @Test
     void load_validMap_returnsBoardWithExpectedDimensions() throws IOException {
         // Arrange
-        Path mapPath = Path.of("src/test/resources/maps/map1.txt"); // map 1 is a simple valid map 
+        Path mapPath = Path.of("src/test/resources/maps/simpleValidMap.txt"); // map 1 is a simple valid map 
 
         // Act
         BoardLoader.Result result = BoardLoader.load(mapPath);
@@ -74,7 +74,7 @@ public class BoardLoaderTest {
     @Test
     void load_validMap_setsStartAndExitPositions() throws IOException {
         // Arrange
-        Path mapPath = Path.of("src/test/resources/maps/map1.txt"); // map 1 is a simple valid map 
+        Path mapPath = Path.of("src/test/resources/maps/simpleValidMap.txt"); // map 1 is a simple valid map 
 
         // Act
         BoardLoader.Result result = BoardLoader.load(mapPath);
@@ -88,7 +88,7 @@ public class BoardLoaderTest {
     @Test
     void load_validMap_parsesWallAndFloorCells() throws IOException {
         // Arrange
-        Path mapPath = Path.of("src/test/resources/maps/map1.txt");
+        Path mapPath = Path.of("src/test/resources/maps/simpleValidMap.txt"); // map 1 is a simple valid map 
 
         // Act
         BoardLoader.Result result = BoardLoader.load(mapPath);
@@ -104,7 +104,7 @@ public class BoardLoaderTest {
     @Test
     void load_validMap_appliesWalkabilityRules() throws IOException {
         // Arrange
-        Path mapPath = Path.of("src/test/resources/maps/map1.txt");
+        Path mapPath = Path.of("src/test/resources/maps/simpleValidMap.txt"); 
 
         // Act
         BoardLoader.Result result = BoardLoader.load(mapPath);
