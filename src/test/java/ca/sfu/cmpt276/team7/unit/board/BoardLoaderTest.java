@@ -127,4 +127,15 @@ public class BoardLoaderTest {
             BoardLoader.load(mapPath);
         });
     }
+
+    @Test
+    void load_rejectsUnknownSymbol() {
+        // Arrange
+        Path mapPath = Path.of("src/test/resources/maps/invalidSymbolMap.txt");
+
+        // Act + Assert
+        assertThrows(IllegalArgumentException.class, () -> {
+            BoardLoader.load(mapPath);
+        });
+    }
 }
