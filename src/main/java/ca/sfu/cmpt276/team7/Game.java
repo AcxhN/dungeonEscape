@@ -121,25 +121,59 @@ public class Game
     private final List<Position> initialKeyPos;
     private final List<Position> initialTrapPos;
 
-/**
- * Constructs a new game controller with the given board, player, enemies,
- * and initial reward/trap metadata
- *
- * <p>This constructor initializes runtime counters, stores the original
- * positions of enemies, keys, and traps for later reset, and precomputes
- * the legal positions where temporary bonus rewards may spawn</p>
- *
- * @param board dungeon board used for gameplay
- * @param player player controlled during the game
- * @param enemies enemy instances active on the board
- * @param totalRegularRewards total number of regular rewards placed initially
- * @param totalBonusRewards total number of bonus rewards spawned so far at startup
- * @param keyPositions initial regular reward positions used for reset
- * @param trapPositions initial trap positions used for reset
- */
+    /** Time source used for elapsed-time calculations. */
+    private final LongSupplier clock;
+
+    /**
+     * Constructs a new game controller with the given board, player, enemies,
+     * and initial reward/trap metadata
+     *
+     * <p>This constructor initializes runtime counters, stores the original
+     * positions of enemies, keys, and traps for later reset, and precomputes
+     * the legal positions where temporary bonus rewards may spawn</p>
+     *
+     * @param board dungeon board used for gameplay
+     * @param player player controlled during the game
+     * @param enemies enemy instances active on the board
+     * @param totalRegularRewards total number of regular rewards placed initially
+     * @param totalBonusRewards total number of bonus rewards spawned so far at startup
+     * @param keyPositions initial regular reward positions used for reset
+     * @param trapPositions initial trap positions used for reset
+     */
     public Game(Board board, Player player, List<Enemy> enemies, int totalRegularRewards, int totalBonusRewards,
-                List<Position> keyPositions, List<Position> trapPositions)
+                List<Position> keyPositions, List<Position> trapPositions) {
+        this(board, player, enemies, totalRegularRewards, totalBonusRewards,
+             keyPositions, trapPositions, System::currentTimeMillis);
+    }
+
+    /**
+     * Constructs a new game controller with the given board, player, enemies,
+     * initial reward/trap metadata, and time source.
+     *
+     * <p>This constructor initializes runtime counters, stores the original
+     * positions of enemies, keys, and traps for later reset, and precomputes
+     * the legal positions where temporary bonus rewards may spawn.</p>
+     *
+     * <p>The supplied {@code clock} is used for elapsed-time calculations,
+     * which allows tests to control the flow of time deterministically.</p>
+     *
+     * @param board dungeon board used for gameplay
+     * @param player player controlled during the game
+     * @param enemies enemy instances active on the board
+     * @param totalRegularRewards total number of regular rewards placed initially
+     * @param totalBonusRewards total number of bonus rewards spawned so far at startup
+     * @param keyPositions initial regular reward positions used for reset
+     * @param trapPositions initial trap positions used for reset
+     * @param clock time source used for elapsed-time calculations
+     * @throws IllegalArgumentException if {@code clock} is {@code null}
+     */
+    public Game(Board board, Player player, List<Enemy> enemies, int totalRegularRewards, int totalBonusRewards,
+                List<Position> keyPositions, List<Position> trapPositions, LongSupplier clock)
     {
+        if (clock == null) {
+            throw new IllegalArgumentException("clock cannot be null");
+        }
+
         this.board = board;
         this.player = player;
         this.enemies = enemies;
@@ -153,6 +187,7 @@ public class Game
         this.popupReason = null;
         this.bonusRewards = new ArrayList<>();
         this.random = new Random();
+        this.clock = clock;
 
         this.initialKeyPos = new ArrayList<>(keyPositions);
         this.initialTrapPos = new ArrayList<>(trapPositions);
@@ -175,7 +210,7 @@ public class Game
      */
     public void startGame()
     {
-        startTime = System.currentTimeMillis();
+        startTime = clock.getAsLong();
         totalTime = 0;
 
         pendingMove = null;
@@ -259,13 +294,14 @@ public class Game
      * <ol>
      *  <li>decrements the ogre-hit cooldown if active</li>
      *  <li>increments {@link #timeElapsed}</li>
+     *  <li>applies any pending player movement and processes any collected reward</li>
+     *  <li>checks immediate ogre and loss conditions after player movement</li>
      *  <li>updates any active player bonus effect</li>
      *  <li>updates enemy movement</li>
-     *  <li>checks win condition</li>
-     *  <li>checks ogre collision handling</li>
-     *  <li>checks remaining loss conditions</li>
+     *  <li>checks ogre, loss, and win conditions after enemy movement</li>
      *  <li>updates active temporary bonus reward lifetimes</li>
      *  <li>attempts to spawn a new bonus reward when the spawn interval is reached</li>
+     *  <li>pauses for a reward popup if one was triggered this tick</li>
      * </ol>
      *
      * <p>If the game is not currently in {@link ScreenState#PLAYING},
@@ -581,8 +617,13 @@ public class Game
      *  <li>resume from a pause or popup state</li>
      *  <li>restart after the game ends</li>
      *  <li>toggle pause while playing</li>
-     *  <li>move the player, process collected rewards, and then evaluate win/loss events</li>
+     *  <li>queue the player's next movement direction while playing</li>
      * </ul>
+     *
+     * <p>During {@link ScreenState#PLAYING}, movement input does not move the player
+     * immediately. It stores the requested direction in {@code pendingMove}, and the
+     * actual movement and any related reward, popup, or win/loss processing are
+     * handled on the next call to {@link #updateTick()}.</p>
      *
      * <p>Supported movement key codes:
      * <ul>
@@ -592,12 +633,8 @@ public class Game
      *  <li>68 (D) or 39 (→) - move EAST</li>
      * </ul>
      *
-     * <p>Reward collection effects are applied immediately. If the move does not
-     * end the game and does not trigger an ogre collision, a reward popup may be shown.</p>
-     *
-     * <p>Key code 80 (P) toggles pause while playing, and can also resume
-     * from the pause screen. Space is used for start, resume, and restart
-     * depending on the current screen state.</p>
+     * <p>Key code 80 (P) toggles pause while playing. Space is used for start,
+     * resume, and restart depending on the current screen state.</p>
      *
      * @param keyCode integer key code from a keyboard event
      */
@@ -614,9 +651,14 @@ public class Game
 
         if (screenState == ScreenState.PAUSE) 
         {
-            if (keyCode == 32 || keyCode == 80) 
-            { // Space or P
-                resumeFromPopup();
+            if (keyCode == 32) 
+            { // Space only
+                if (popupReason != null) 
+                {
+                    resumeFromPopup();
+                } else {
+                    togglePause();
+                }
             }
             return;
         }
@@ -710,7 +752,7 @@ public class Game
     {
         pendingMove = null;
         popupReason = reason;
-        totalTime += System.currentTimeMillis() - startTime;
+        totalTime += clock.getAsLong() - startTime;
         screenState = ScreenState.PAUSE;
     }
 
@@ -724,7 +766,7 @@ public class Game
     {
         pendingMove = null;
         popupReason = null;
-        startTime = System.currentTimeMillis();
+        startTime = clock.getAsLong();
         screenState = ScreenState.PLAYING;
     }
 
@@ -732,7 +774,7 @@ public class Game
      * Checks whether player has met win condition
      * 
      * <p>Player wins when all keys have been collected and player
-     * is standing on exit cell
+     * is standing on exit cell</p>
      * 
      * @return {@code true} if conditions are met
      */
@@ -797,40 +839,44 @@ public class Game
         if(screenState == ScreenState.PLAYING)
         {
             pendingMove = null;
-            totalTime += System.currentTimeMillis() - startTime;
+            totalTime += clock.getAsLong() - startTime;
             screenState = ScreenState.PAUSE;
         }
         else if(screenState == ScreenState.PAUSE)
         {
             pendingMove = null;
-            startTime = System.currentTimeMillis();
+            startTime = clock.getAsLong();
             screenState = ScreenState.PLAYING;
         }
     }
 
     /**
-     * Finalizes the current run and switches the game to the end screen
+     * Finalizes the current run and switches the game to the end screen.
      *
-     * <p>This stores the final elapsed play time so that {@link #getSeconds()}
-     * returns a stable frozen result while the end screen is displayed</p>
+     * <p>This stores the final elapsed play time using the configured time source
+     * so that {@link #getSeconds()} returns a stable frozen result while the end
+     * screen is displayed.</p>
      */
     private void endGame()
     {
         pendingMove = null;
-        totalTime += System.currentTimeMillis() - startTime;
+        totalTime += clock.getAsLong() - startTime;
         screenState = ScreenState.END;
     }
 
     /**
-     * Returns number of seconds game has been running, excludes
-     * time when paused
+     * Returns number of seconds game has been running, excluding
+     * time when paused.
+     *
+     * <p>The elapsed time is calculated using the configured time source.</p>
+     *
      * @return seconds game has been running
      */
     public int getSeconds()
     {
         if(screenState == ScreenState.PLAYING)
         {
-            return (int) ((totalTime + System.currentTimeMillis() - startTime) / 1000);
+            return (int) ((totalTime + clock.getAsLong() - startTime) / 1000);
         }
         return (int) (totalTime / 1000);
     }
@@ -886,6 +932,8 @@ public class Game
 
     /**
      * Returns the currently tracked active temporary bonus reward spawns.
+     *
+     * <p>The returned list is the internal tracking list used by this game.</p>
      *
      * @return active bonus reward spawn trackers
      */
