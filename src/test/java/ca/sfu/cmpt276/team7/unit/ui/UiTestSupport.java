@@ -26,6 +26,8 @@ public class UiTestSupport {
             for (int x = 0; x < width; x++) {
                 Position pos = new Position(x, y);
 
+                // Build a simple test map with walls on the border,
+                // while keeping the start and exit-related positions open.
                 if ((x == 0 || x == width - 1 || y == 0 || y == height - 1)
                     && !pos.equals(start) && !pos.equals(end)) {
                     grid[y][x] = new WallCell(new Position(x, y));
@@ -36,6 +38,9 @@ public class UiTestSupport {
         }
 
         Board board = new Board(grid);
+        
+        // Place the start near the left edge and the end near the lower-right side
+        // so tests can use a predictable, mostly enclosed layout.
         board.setStartPosition(new Position(0, 1));
         board.setEndPosition(new Position(width - 1, height - 2));
 
@@ -45,6 +50,8 @@ public class UiTestSupport {
     public static List<String> getOnlyTexts(List<RenderItem> items) {
         List<String> texts = new ArrayList<>();
 
+        // Extract only text render items so tests can assert displayed messages
+        // without checking unrelated sprites.
         for (RenderItem item : items) {
             if (item.getKind() == RenderKind.TEXT) {
                 texts.add(item.getText());
@@ -63,6 +70,7 @@ public class UiTestSupport {
         }
 
         public void advanceMs(long ms) {
+            // Manually advance time to make time-based UI behavior deterministic in tests.
             nowMs += ms;
         }
     }
@@ -78,6 +86,8 @@ public class UiTestSupport {
     private static final int srcPadding = 5;
 
     private static int srcSize(int order, int srcSize) {
+        // Convert sprite order in the atlas into the actual source coordinate,
+        // accounting for padding between sprite images.
         return ((srcSize + (srcPadding * 2)) * order) + srcPadding;
     }
 
@@ -92,6 +102,7 @@ public class UiTestSupport {
     public static final SpriteSpec trapSprite = new SpriteSpec(SheetId.GAME_ATLAS, srcSize(2, gameSrcSize), srcPadding);
 
     public static boolean containsSprite(List<RenderItem> items, SpriteSpec sprite) {
+        // Check whether the expected sprite appears anywhere in the rendered output.
         for (RenderItem item : items) {
             if (item.getKind() == RenderKind.SPRITE && item.getSheetId() == sprite.sheetId()
                 && item.getSrcX() == sprite.srcX() && item.getSrcY() == sprite.srcY()) {
@@ -104,6 +115,8 @@ public class UiTestSupport {
     public static boolean containsSpriteAt(List<RenderItem> items, SpriteSpec sprite, int x, int y) {
         int expectedX = x * cellWidth;
         int expectedY = y * cellHeight;
+
+        // Check whether the expected sprite is rendered at the specified grid cell.
         for (RenderItem item : items) {
             if (item.getKind() == RenderKind.SPRITE && item.getSheetId() == sprite.sheetId()
                 && item.getSrcX() == sprite.srcX() && item.getSrcY() == sprite.srcY()
