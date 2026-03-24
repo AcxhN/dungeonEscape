@@ -37,13 +37,14 @@ public class BoardLoaderTest {
      *
      * load_validMap_parsesWallBarrierAndFloorCells DONE 
      * load_validMap_parsesWallAndFloorCells() DONE 
+     * load_validMap_appliesWalkabilityRules DONE 
      * load_markerTilesBecomeFloorCells
      * load_walkabilityRulesMatchCellTypes
      *
      * load_rejectsNullPath
      * load_rejectsEmptyMap
      * load_rejectsNonRectangularMap DONE 
-     * load_rejectsUnknownSymbol
+     * load_rejectsUnknownSymbol DONE 
      * load_rejectsMissingStart
      * load_rejectsMissingExit
      *
