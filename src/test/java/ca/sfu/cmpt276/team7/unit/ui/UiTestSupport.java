@@ -68,7 +68,7 @@ public class UiTestSupport {
     }
 
 
-    public static record SpriteSpec(SheetId sheetId, int srcX, int srcY) {}
+    private static record SpriteSpec(SheetId sheetId, int srcX, int srcY) {}
 
     private static final int cellWidth = 50;
     private static final int cellHeight = 50;
