@@ -184,7 +184,7 @@ class GoblinTest {
 		// This is messy, but it reduces the use of other classes in unit tests
 		Board board = new Board(new Cell[][] {{ new WallCell(new Position(0, 0)), new WallCell(new Position(1, 0)), new WallCell(new Position(2, 0)), new FloorCell(new Position(3, 0)) },
 										  { new FloorCell(new Position(0, 1)), new FloorCell(new Position(1, 1)), new FloorCell(new Position(2, 1)), new FloorCell(new Position(3, 1)) },
-										  { new WallCell(new Position(0, 2)), new WallCell(new Position(1, 2)), new WallCell(new Position(2, 2)), new WallCell(new Position(3, 2)) },
+										  { new FloorCell(new Position(0, 2)), new FloorCell(new Position(1, 2)), new FloorCell(new Position(2, 2)), new FloorCell(new Position(3, 2)) },
 		});
 
 		// Goal position to move towards
