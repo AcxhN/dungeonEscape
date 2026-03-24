@@ -323,7 +323,7 @@ public class coreGameTests
         game.startGame();
         game.handleInput(80); //P
         Thread.sleep(500);
-        game.handleInput(80); //P
+        game.handleInput(32); //P
         assertTrue(game.getSeconds() < 1, "Game time continued to elapse after pause");
     }
 
@@ -443,7 +443,7 @@ public class coreGameTests
         game.handleInput(80);
         assertEquals(ScreenState.PAUSE, game.getScreenState(), "Game did not pause after P key was pressed");
 
-        game.handleInput(80);
+        game.handleInput(32);
         assertEquals(ScreenState.PLAYING, game.getScreenState(), "Game did not un-pause after P key");
 
         game.updateTick();
