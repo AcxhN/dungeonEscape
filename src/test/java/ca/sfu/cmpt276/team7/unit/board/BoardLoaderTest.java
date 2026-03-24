@@ -2,6 +2,8 @@ package ca.sfu.cmpt276.team7.unit.board;
 
 import ca.sfu.cmpt276.team7.board.Board;
 import ca.sfu.cmpt276.team7.board.BoardLoader;
+import ca.sfu.cmpt276.team7.cells.FloorCell;
+import ca.sfu.cmpt276.team7.cells.WallCell;
 import ca.sfu.cmpt276.team7.core.Position;
 
 import org.junit.jupiter.api.Test;
@@ -57,7 +59,7 @@ public class BoardLoaderTest {
     @Test
     void load_validMap_returnsBoardWithExpectedDimensions() throws IOException {
         // Arrange
-        Path mapPath = Path.of("src/test/resources/maps/map1.txt");
+        Path mapPath = Path.of("src/test/resources/maps/map1.txt"); // map 1 is a simple valid map 
 
         // Act
         BoardLoader.Result result = BoardLoader.load(mapPath);
@@ -71,7 +73,7 @@ public class BoardLoaderTest {
     @Test
     void load_validMap_setsStartAndExitPositions() throws IOException {
         // Arrange
-        Path mapPath = Path.of("src/test/resources/maps/map1.txt");
+        Path mapPath = Path.of("src/test/resources/maps/map1.txt"); // map 1 is a simple valid map 
 
         // Act
         BoardLoader.Result result = BoardLoader.load(mapPath);
@@ -82,5 +84,19 @@ public class BoardLoaderTest {
         assertEquals(new Position(3, 2), board.getEndPosition());
     }
 
-    
+    @Test
+    void load_validMap_parsesWallAndFloorCells() throws IOException {
+        // Arrange
+        Path mapPath = Path.of("src/test/resources/maps/map1.txt");
+
+        // Act
+        BoardLoader.Result result = BoardLoader.load(mapPath);
+        Board board = result.getBoard();
+
+        // Assert
+        assertTrue(board.getCell(0, 0) instanceof WallCell);
+        assertTrue(board.getCell(1, 1) instanceof FloorCell);
+        assertTrue(board.getCell(2, 1) instanceof FloorCell);
+        assertTrue(board.getCell(3, 2) instanceof FloorCell);
+    }
 }
