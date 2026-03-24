@@ -216,4 +216,11 @@ public class BoardLoaderTest {
         assertTrue(board.getCell(1, 1).isWalkable());
         assertTrue(board.getCell(3, 1).isWalkable());
     }
+
+    @Test
+    void load_rejectsNullPath() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            BoardLoader.load(null);
+        });
+    }
 }
