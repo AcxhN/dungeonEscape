@@ -24,7 +24,7 @@ class GoblinIntegrationTest{
 	// Make board
 	Board board = new Board(new Cell[][] {
 		{ new FloorCell(new Position(0, 0)), new FloorCell(new Position(1, 0)) , new FloorCell(new Position(2, 0))}, 
-		{ new FloorCell(new Position(0, 1)), new WallCell(new Position(1, 1)) , new FloorCell(new Position(2, 0))},
+		{ new FloorCell(new Position(0, 1)), new WallCell(new Position(1, 1)) , new FloorCell(new Position(2, 1))},
 		{ new FloorCell(new Position(0, 2)), new FloorCell(new Position(1, 2)) , new FloorCell(new Position(2, 2))},
 
 	    });
@@ -49,23 +49,23 @@ class GoblinIntegrationTest{
 	assertTrue(goblin.getPosition().equals(new Position(0, 2)));
 
 	// Player moves, goblin chases
-	player.setPosition(new Position(0, 1));
+	player.setPosition(new Position(1, 0));
 	game.updateTick();
 	assertTrue(goblin.getPosition().equals(new Position(0, 1)));
 
 	// Player moves, goblin chases
-	player.setPosition(new Position(0, 2));
+	player.setPosition(new Position(2, 0));
 	game.updateTick();
 	assertTrue(goblin.getPosition().equals(new Position(0, 0)));
 
 	// Player moves, goblin chases
-	player.setPosition(new Position(0, 3));
+	player.setPosition(new Position(2, 1));
 	game.updateTick();
-	assertTrue(goblin.getPosition().equals(new Position(0, 1)));
+	assertTrue(goblin.getPosition().equals(new Position(1, 0)));
 
 	// Player moves, goblin chases
-	player.setPosition(new Position(1, 3));
+	player.setPosition(new Position(2, 2));
 	game.updateTick();
-	assertTrue(goblin.getPosition().equals(new Position(0, 2)));
+	assertTrue(goblin.getPosition().equals(new Position(2, 0)));
     }
 }
