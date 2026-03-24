@@ -223,4 +223,15 @@ public class BoardLoaderTest {
             BoardLoader.load(null);
         });
     }
+
+    @Test
+    void load_rejectsEmptyMap() {
+        // Arrange
+        Path mapPath = Path.of("src/test/resources/maps/emptyMap.txt");
+
+        // Act + Assert
+        assertThrows(IllegalArgumentException.class, () -> {
+            BoardLoader.load(mapPath);
+        });
+    }
 }
