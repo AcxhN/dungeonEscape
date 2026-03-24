@@ -6,6 +6,7 @@ import ca.sfu.cmpt276.team7.board.Board;
 import java.util.PriorityQueue;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Set;
 
 /**
  * The goblin pathfinds towards the player
@@ -25,7 +26,8 @@ public class Goblin extends Enemy {
 	/**
 	 * Moves the goblin 1 tile towards the player
 	 */
-	public void updateMovement(Position player_position) {
+	@Override
+	public void updateMovement(Position player_position, Set<Position> occupied_positions) {
 		// A* pathing algorithm
 		Map<Position, Integer> costSoFar = new HashMap<Position, Integer>();
 		Map<Position, Position> parent = new HashMap<Position, Position>();
@@ -66,7 +68,7 @@ public class Goblin extends Enemy {
 
 				Position neighbour = new Position(nx, ny);
 
-				if (canMoveto(board.getCell(nx, ny))) { // check if valid
+				if (canMoveto(board.getCell(nx, ny)) && !occupied_positions.contains(new Position(nx, ny))) { // check if valid
 					// If this neighbour was already discovered, only update it if this path is cheaper
 					if (costSoFar.containsKey(neighbour)) {
 						if (costSoFar.get(neighbour) > costSoFar.get(next_pos) + 1) {
