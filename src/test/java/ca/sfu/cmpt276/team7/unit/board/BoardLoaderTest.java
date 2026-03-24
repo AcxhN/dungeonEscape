@@ -99,4 +99,20 @@ public class BoardLoaderTest {
         assertTrue(board.getCell(2, 1) instanceof FloorCell);
         assertTrue(board.getCell(3, 2) instanceof FloorCell);
     }
+
+    @Test
+    void load_validMap_appliesWalkabilityRules() throws IOException {
+        // Arrange
+        Path mapPath = Path.of("src/test/resources/maps/map1.txt");
+
+        // Act
+        BoardLoader.Result result = BoardLoader.load(mapPath);
+        Board board = result.getBoard();
+
+        // Assert
+        assertFalse(board.getCell(0, 0).isWalkable());
+        assertTrue(board.getCell(1, 1).isWalkable());
+        assertTrue(board.getCell(2, 1).isWalkable());
+        assertTrue(board.getCell(3, 2).isWalkable());
+    }
 }
