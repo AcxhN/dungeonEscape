@@ -14,7 +14,6 @@ import ca.sfu.cmpt276.team7.cells.Cell;
 import ca.sfu.cmpt276.team7.cells.FloorCell;
 import ca.sfu.cmpt276.team7.cells.WallCell;
 import ca.sfu.cmpt276.team7.core.Position;
-import ca.sfu.cmpt276.team7.core.Position;
 import ca.sfu.cmpt276.team7.core.Direction;
 import ca.sfu.cmpt276.team7.enemies.Enemy;
 import ca.sfu.cmpt276.team7.enemies.Goblin;
