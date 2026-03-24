@@ -35,6 +35,7 @@ public class BoardInitializationIntegrationTest {
         * Board 
      * So these are intgreation tests because they test the whole flow working together 
      */
+
     @Test
     void validMap_initializationFlow_buildsBoardAndMetadata() throws IOException {
         // Arrange
@@ -60,5 +61,16 @@ public class BoardInitializationIntegrationTest {
         assertEquals(new Position(3, 2), result.getTrapPositions().get(0));
         assertEquals(new Position(4, 1), result.getGoblinSpawns().get(0));
         assertEquals(new Position(4, 2), result.getOgreSpawns().get(0));
+    }
+
+    @Test
+    void invalidMap_initializationFlow_throwsAndStopsInitialization() {
+        // Arrange
+        Path mapPath = Path.of("src/test/resources/maps/invalidSymbolMap.txt");
+
+        // Act + Assert
+        assertThrows(IllegalArgumentException.class, () -> {
+            BoardLoader.load(mapPath);
+        });
     }
 }
