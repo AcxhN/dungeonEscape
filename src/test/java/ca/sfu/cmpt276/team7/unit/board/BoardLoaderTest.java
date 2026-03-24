@@ -45,8 +45,8 @@ public class BoardLoaderTest {
      * load_rejectsEmptyMap
      * load_rejectsNonRectangularMap DONE 
      * load_rejectsUnknownSymbol DONE 
-     * load_rejectsMissingStart
-     * load_rejectsMissingExit
+     * load_rejectsMissingStart DONE 
+     * load_rejectsMissingExit DONE 
      *
      * Possible rule to confirm with team:
      * - outer wall rule
