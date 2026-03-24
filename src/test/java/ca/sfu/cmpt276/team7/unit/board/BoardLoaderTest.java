@@ -161,4 +161,24 @@ public class BoardLoaderTest {
             BoardLoader.load(mapPath);
         });
     }
+
+    @Test
+    void load_validMap_recordsEntityMarkerPositions() throws IOException {
+        // Arrange
+        Path mapPath = Path.of("src/test/resources/maps/validWithEntitiesMap.txt");
+
+        // Act
+        BoardLoader.Result result = BoardLoader.load(mapPath);
+
+        // Assert
+        assertEquals(1, result.getKeyPositions().size());
+        assertEquals(1, result.getTrapPositions().size());
+        assertEquals(1, result.getGoblinSpawns().size());
+        assertEquals(1, result.getOgreSpawns().size());
+
+        assertEquals(new Position(3, 1), result.getKeyPositions().get(0));
+        assertEquals(new Position(3, 2), result.getTrapPositions().get(0));
+        assertEquals(new Position(4, 1), result.getGoblinSpawns().get(0));
+        assertEquals(new Position(4, 2), result.getOgreSpawns().get(0));
+    }
 }
