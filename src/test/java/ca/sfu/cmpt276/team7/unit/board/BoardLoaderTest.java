@@ -181,4 +181,20 @@ public class BoardLoaderTest {
         assertEquals(new Position(4, 1), result.getGoblinSpawns().get(0));
         assertEquals(new Position(4, 2), result.getOgreSpawns().get(0));
     }
+
+    @Test
+    void load_markerTilesBecomeFloorCells() throws IOException {
+        // Arrange
+        Path mapPath = Path.of("src/test/resources/maps/validWithEntitiesMap.txt");
+
+        // Act
+        BoardLoader.Result result = BoardLoader.load(mapPath);
+        Board board = result.getBoard();
+
+        // Assert
+        assertTrue(board.getCell(3, 1) instanceof FloorCell);
+        assertTrue(board.getCell(3, 2) instanceof FloorCell);
+        assertTrue(board.getCell(4, 1) instanceof FloorCell);
+        assertTrue(board.getCell(4, 2) instanceof FloorCell);
+    }
 }
