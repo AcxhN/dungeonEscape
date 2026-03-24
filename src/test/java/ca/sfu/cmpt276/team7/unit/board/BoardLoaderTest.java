@@ -44,7 +44,7 @@ public class BoardLoaderTest {
      * load_walkabilityRulesMatchCellTypes (barrier cell seperate test)
      *
      * load_rejectsNullPath DONE
-     * load_rejectsEmptyMap NOT DONE
+     * load_rejectsEmptyMap DONE
      * load_rejectsNonRectangularMap DONE
      * load_rejectsUnknownSymbol DONE
      * load_rejectsMissingStart DONE
