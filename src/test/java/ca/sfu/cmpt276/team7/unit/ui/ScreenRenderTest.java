@@ -1,36 +1,36 @@
 package ca.sfu.cmpt276.team7.unit.ui;
 
+import java.awt.Graphics2D;
+import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
-import ca.sfu.cmpt276.team7.Game;
 import ca.sfu.cmpt276.team7.EndReason;
+import ca.sfu.cmpt276.team7.Game;
+import ca.sfu.cmpt276.team7.PopupReason;
 import ca.sfu.cmpt276.team7.ScreenState;
 import ca.sfu.cmpt276.team7.board.Board;
-import ca.sfu.cmpt276.team7.cells.Cell;
-import ca.sfu.cmpt276.team7.cells.FloorCell;
-import ca.sfu.cmpt276.team7.cells.WallCell;
 import ca.sfu.cmpt276.team7.cells.BarrierCell;
-import ca.sfu.cmpt276.team7.core.Position;
 import ca.sfu.cmpt276.team7.core.Direction;
+import ca.sfu.cmpt276.team7.core.Position;
 import ca.sfu.cmpt276.team7.enemies.Enemy;
 import ca.sfu.cmpt276.team7.enemies.Goblin;
 import ca.sfu.cmpt276.team7.enemies.Ogre;
+import ca.sfu.cmpt276.team7.reward.BonusReward;
 import ca.sfu.cmpt276.team7.reward.Player;
 import ca.sfu.cmpt276.team7.reward.PunishmentCell;
-import ca.sfu.cmpt276.team7.reward.RewardCell;
 import ca.sfu.cmpt276.team7.reward.RegularReward;
-import ca.sfu.cmpt276.team7.reward.BonusReward;
+import ca.sfu.cmpt276.team7.reward.RewardCell;
 import ca.sfu.cmpt276.team7.reward.TrapPunishment;
 import ca.sfu.cmpt276.team7.ui.GamePanel;
 import ca.sfu.cmpt276.team7.ui.RenderItem;
-import ca.sfu.cmpt276.team7.ui.RenderKind;
-import ca.sfu.cmpt276.team7.ui.SheetId;
-
-import ca.sfu.cmpt276.team7.unit.ui.UiTestSupport;
 
 /**
  * Screen State Visibility
@@ -75,7 +75,7 @@ public class ScreenRenderTest {
 
         assertTrue(UiTestSupport.containsSprite(items, UiTestSupport.playerSprite));
         assertTrue(UiTestSupport.containsSprite(items, UiTestSupport.goblinSprite));
-        assertTrue(UiTestSupport.containsSprite(items, UiTestSupport.ogerSprite));
+        assertTrue(UiTestSupport.containsSprite(items, UiTestSupport.ogreSprite));
         assertTrue(texts.contains("0:00"));
         assertTrue(texts.contains("0 / 0"));
         assertTrue(texts.contains("0"));
@@ -273,5 +273,49 @@ public class ScreenRenderTest {
 
         assertTrue(texts.contains("GAME OVER"));
         assertTrue(texts.contains("Caught by a goblin!"));
+    }
+
+    @Test
+    void paintComponent_rendersPlayingScreenWithoutThrowing() {
+        Board board = UiTestSupport.makeSimpleBoard(11, 10);
+        Player player = new Player(board, board.getStartPosition());
+        Game game = new Game(board, player, new ArrayList<>(), 0, 0, List.of(), List.of());
+        game.startGame();
+
+        GamePanel panel = new GamePanel(game, board);
+        panel.setSize(panel.getPreferredSize());
+
+        BufferedImage image = new BufferedImage(panel.getPreferredSize().width,
+                panel.getPreferredSize().height, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = image.createGraphics();
+
+        assertDoesNotThrow(() -> panel.paint(g));
+    }
+
+    @Test
+    void paintComponent_rendersPopupScreenWithoutThrowing() {
+        Board board = UiTestSupport.makeSimpleBoard(11, 10);
+
+        Position keyPos = new Position(1, 1);
+        board.setCell(keyPos.getX(), keyPos.getY(), new RewardCell(keyPos, new RegularReward(10)));
+
+        Player player = new Player(board, board.getStartPosition());
+        Game game = new Game(board, player, new ArrayList<>(), 1, 0, List.of(keyPos), List.of());
+
+        game.startGame();
+        game.handleInput(KeyEvent.VK_RIGHT);
+        game.updateTick();
+
+        assertEquals(ScreenState.PAUSE, game.getScreenState());
+        assertEquals(PopupReason.KEY_COLLECTED, game.getPopupReason());
+
+        GamePanel panel = new GamePanel(game, board);
+        panel.setSize(panel.getPreferredSize());
+
+        BufferedImage image = new BufferedImage(panel.getPreferredSize().width,
+                panel.getPreferredSize().height, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = image.createGraphics();
+
+        assertDoesNotThrow(() -> panel.paint(g));
     }
 }

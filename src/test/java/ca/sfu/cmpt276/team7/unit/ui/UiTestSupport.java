@@ -83,7 +83,7 @@ public class UiTestSupport {
 
     public static final SpriteSpec playerSprite = new SpriteSpec(SheetId.GAME_ATLAS, srcSize(7, gameSrcSize), srcPadding);
     public static final SpriteSpec goblinSprite = new SpriteSpec(SheetId.GAME_ATLAS, srcSize(6, gameSrcSize), srcPadding);
-    public static final SpriteSpec ogerSprite = new SpriteSpec(SheetId.GAME_ATLAS, srcSize(5, gameSrcSize), srcPadding);
+    public static final SpriteSpec ogreSprite = new SpriteSpec(SheetId.GAME_ATLAS, srcSize(5, gameSrcSize), srcPadding);
 
     public static final SpriteSpec wallSprite = new SpriteSpec(SheetId.GAME_ATLAS, srcSize(1, gameSrcSize), srcPadding);
     public static final SpriteSpec barrierSprite = new SpriteSpec(SheetId.GAME_ATLAS, srcSize(1, gameSrcSize), srcPadding);
