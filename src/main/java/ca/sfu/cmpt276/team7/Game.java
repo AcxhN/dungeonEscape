@@ -3,7 +3,10 @@ package ca.sfu.cmpt276.team7;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.HashSet;
+import java.util.function.LongSupplier;
 import ca.sfu.cmpt276.team7.board.Board;
 import ca.sfu.cmpt276.team7.cells.Cell;
 import ca.sfu.cmpt276.team7.cells.FloorCell;
@@ -314,10 +317,20 @@ public class Game
 
         player.tickBonus();
 
-        for(Enemy enemy : enemies)
-        {
-            enemy.updateMovement(player.getPosition());
-        }
+		// Setup list of enemy positions
+		Set<Position> enemy_positions = enemies.stream()
+				.map(Enemy::getPosition)
+				.collect(Collectors.toSet());
+
+		for (Enemy enemy : enemies) {
+			// Remove the current enemies position (enemies can move into their own tiles)
+			enemy_positions.remove(enemy.getPosition());
+			// Update movement
+			enemy.updateMovement(player.getPosition(), enemy_positions);
+			// Add the new position back into the set
+			enemy_positions.add(enemy.getPosition());
+
+		}
 
         if (isTouchingOgre() && ogreHitCooldown == 0) {
             handleOgreHit();

@@ -1,5 +1,7 @@
 package ca.sfu.cmpt276.team7.enemies;
 
+import java.util.Set;
+
 import ca.sfu.cmpt276.team7.board.Board;
 import ca.sfu.cmpt276.team7.cells.BarrierCell;
 import ca.sfu.cmpt276.team7.cells.Cell;
@@ -20,8 +22,9 @@ public abstract class Enemy extends GameCharacter {
      * updateMovement() updates the position of the enemy by a single tick.
      * @param player_position current player position, which may be used
      *        by subclasses to decide movement
+     * @param occupied_positions A set of dynamically updated positions that the enemy should avoid
      */
-    abstract public void updateMovement(Position player_position);
+    abstract public void updateMovement(Position player_position, Set<Position> occupied_positions);
     /**
      * The Enemy constructor takes a pointer to the board.
      * 
