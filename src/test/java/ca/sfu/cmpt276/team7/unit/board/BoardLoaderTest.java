@@ -28,25 +28,26 @@ public class BoardLoaderTest {
     /*
      * Planned tests:
      *
-     * load_validMap_returnsBoardWithExpectedDimensions DONE 
-     * load_validMap_setsStartAndExitPositions DONE 
-     * load_validMap_recordsGoblinSpawnPositions
-     * load_validMap_recordsOgreSpawnPositions
-     * load_validMap_recordsKeyPositions
-     * load_validMap_recordsTrapPositions
+     * load_validMap_returnsBoardWithExpectedDimensions DONE
+     * load_validMap_setsStartAndExitPositions DONE
+     * load_validMap_recordsEntityMarkerPositions DONE
+     *   - recordsGoblinSpawnPositions COVERED BY recordsEntityMarkerPositions
+     *   - recordsOgreSpawnPositions COVERED BY recordsEntityMarkerPositions
+     *   - recordsKeyPositions COVERED BY recordsEntityMarkerPositions
+     *   - recordsTrapPositions COVERED BY recordsEntityMarkerPositions
      *
-     * load_validMap_parsesWallBarrierAndFloorCells DONE 
-     * load_validMap_parsesWallAndFloorCells() DONE 
-     * load_validMap_appliesWalkabilityRules DONE 
-     * load_markerTilesBecomeFloorCells
-     * load_walkabilityRulesMatchCellTypes
+     * load_validMap_parsesWallBarrierAndFloorCells NOT FULLY DONE
+     * load_validMap_parsesWallAndFloorCells DONE
+     * load_validMap_appliesWalkabilityRules DONE
+     * load_markerTilesBecomeFloorCells DONE
+     * load_walkabilityRulesMatchCellTypes PARTIALLY DONE, barrier case missing
      *
-     * load_rejectsNullPath
-     * load_rejectsEmptyMap
-     * load_rejectsNonRectangularMap DONE 
-     * load_rejectsUnknownSymbol DONE 
-     * load_rejectsMissingStart DONE 
-     * load_rejectsMissingExit DONE 
+     * load_rejectsNullPath NOT DONE
+     * load_rejectsEmptyMap NOT DONE
+     * load_rejectsNonRectangularMap DONE
+     * load_rejectsUnknownSymbol DONE
+     * load_rejectsMissingStart DONE
+     * load_rejectsMissingExit DONE
      *
      * Possible rule to confirm with team:
      * - outer wall rule
@@ -197,4 +198,6 @@ public class BoardLoaderTest {
         assertTrue(board.getCell(4, 1) instanceof FloorCell);
         assertTrue(board.getCell(4, 2) instanceof FloorCell);
     }
+
+
 }
