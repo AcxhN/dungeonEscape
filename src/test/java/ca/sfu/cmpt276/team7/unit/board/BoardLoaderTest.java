@@ -43,7 +43,7 @@ public class BoardLoaderTest {
      * load_markerTilesBecomeFloorCells DONE
      * load_walkabilityRulesMatchCellTypes (barrier cell seperate test)
      *
-     * load_rejectsNullPath NOT DONE
+     * load_rejectsNullPath DONE
      * load_rejectsEmptyMap NOT DONE
      * load_rejectsNonRectangularMap DONE
      * load_rejectsUnknownSymbol DONE
