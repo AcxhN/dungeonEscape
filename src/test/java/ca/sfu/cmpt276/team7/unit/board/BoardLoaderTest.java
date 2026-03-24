@@ -25,7 +25,7 @@ public class BoardLoaderTest {
     /*
      * Planned tests:
      *
-     * load_validMap_returnsBoardWithExpectedDimensions
+     * load_validMap_returnsBoardWithExpectedDimensions DONE 
      * load_validMap_setsStartAndExitPositions
      * load_validMap_recordsGoblinSpawnPositions
      * load_validMap_recordsOgreSpawnPositions
