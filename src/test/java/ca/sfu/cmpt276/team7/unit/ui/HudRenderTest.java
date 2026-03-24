@@ -33,6 +33,7 @@ public class HudRenderTest {
         List<RenderItem> items = panel.buildRenderItemsForTest();
         List<String> texts = UiTestSupport.getOnlyTexts(items);
 
+        // Verify that the HUD displays the player's current score.
         assertTrue(texts.contains("55"));
     }
 
@@ -53,6 +54,7 @@ public class HudRenderTest {
         List<RenderItem> items = panel.buildRenderItemsForTest();
         List<String> texts = UiTestSupport.getOnlyTexts(items);
 
+        // Verify that the HUD shows elapsed time in mm:ss format.
         assertTrue(texts.contains("1:03"));
     }
 }

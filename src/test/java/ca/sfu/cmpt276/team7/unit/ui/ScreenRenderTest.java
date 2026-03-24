@@ -51,6 +51,7 @@ public class ScreenRenderTest {
         List<RenderItem> items = panel.buildRenderItemsForTest();
         List<String> texts = UiTestSupport.getOnlyTexts(items);
 
+        // Verify that the start screen shows the game title and start prompt.
         assertTrue(texts.contains("Dungeon Crawl"));
         assertTrue(texts.contains("Press Space to Start"));
     }
@@ -73,6 +74,7 @@ public class ScreenRenderTest {
         List<RenderItem> items = panel.buildRenderItemsForTest();
         List<String> texts = UiTestSupport.getOnlyTexts(items);
 
+        // Check that the playing screen renders the player, enemies, and HUD values.
         assertTrue(UiTestSupport.containsSprite(items, UiTestSupport.playerSprite));
         assertTrue(UiTestSupport.containsSprite(items, UiTestSupport.goblinSprite));
         assertTrue(UiTestSupport.containsSprite(items, UiTestSupport.ogreSprite));
@@ -97,6 +99,7 @@ public class ScreenRenderTest {
 
         List<RenderItem> items = panel.buildRenderItemsForTest();
 
+        // Verify that a barrier cell is rendered at the expected board position.
         assertTrue(UiTestSupport.containsSpriteAt(items, UiTestSupport.barrierSprite, 2, 2));
     }
 
@@ -116,6 +119,7 @@ public class ScreenRenderTest {
 
         List<RenderItem> items = panel.buildRenderItemsForTest();
 
+        // Verify that a regular reward is rendered as a key sprite.
         assertTrue(UiTestSupport.containsSpriteAt(items, UiTestSupport.keySprite, 1, 1));
     }
 
@@ -135,6 +139,7 @@ public class ScreenRenderTest {
 
         List<RenderItem> items = panel.buildRenderItemsForTest();
 
+        // Verify that a bonus reward is rendered as a chest sprite.
         assertTrue(UiTestSupport.containsSpriteAt(items, UiTestSupport.chestSprite, 1, 1));
     }
 
@@ -154,6 +159,7 @@ public class ScreenRenderTest {
 
         List<RenderItem> items = panel.buildRenderItemsForTest();
 
+        // Verify that a punishment cell is rendered as a trap sprite.
         assertTrue(UiTestSupport.containsSpriteAt(items, UiTestSupport.trapSprite, 1, 1));
     }
 
@@ -172,9 +178,11 @@ public class ScreenRenderTest {
         List<RenderItem> items = panel.buildRenderItemsForTest();
         List<String> texts = UiTestSupport.getOnlyTexts(items);
 
+        // Check that the normal pause overlay is shown when no popup is active.
         assertTrue(texts.contains("Game Paused"));
         assertTrue(texts.contains("Press space to continue"));
 
+        // Ensure that popup-specific messages are not shown on a regular pause screen.
         assertFalse(texts.contains("Press space to continue..."));
         assertFalse(texts.contains("* You found a treasure chest!"));
         assertFalse(texts.contains("* An ogre emerges from the darkness."));
@@ -191,6 +199,7 @@ public class ScreenRenderTest {
         player.setScore(-1);
         game.checkLoss();
 
+        // Verify that the game enters the end screen before checking replay UI.
         assertEquals(ScreenState.END, game.getScreenState());
 
         GamePanel panel = new GamePanel(game, board);
@@ -199,13 +208,14 @@ public class ScreenRenderTest {
         List<RenderItem> items = panel.buildRenderItemsForTest();
         List<String> texts = UiTestSupport.getOnlyTexts(items);
 
+        // Verify that the end screen displays the replay prompt.
         assertTrue(texts.contains("Press Space to Play Again"));
     }
-
 
     private void forceEndReason(Game game, Board board, Player player, List<Enemy> enemies, EndReason reason) {
         game.startGame();
 
+        // Drive the game into a specific ending so the rendered end-screen message can be tested.
         switch (reason) {
             case WIN:
                 player.setPosition(board.getEndPosition());
@@ -234,6 +244,7 @@ public class ScreenRenderTest {
         List<Enemy> enemies = new ArrayList<>();
         Game game = new Game(board, player, enemies, 0, 0, List.of(), List.of());
 
+        // Render the end screen after forcing the requested game outcome.
         forceEndReason(game, board, player, enemies, reason);
 
         GamePanel panel = new GamePanel(game, board);
@@ -247,6 +258,7 @@ public class ScreenRenderTest {
     void endScreen_showsWinMessage() {
         List<String> texts = renderEndScreenTexts(EndReason.WIN);
 
+        // Verify that the win screen shows the expected title and message.
         assertTrue(texts.contains("YOU WIN"));
         assertTrue(texts.contains("You braved the terrors of the dungeon and emerged a rich man"));
     }
@@ -255,6 +267,7 @@ public class ScreenRenderTest {
     void endScreen_showsTrapLossMessage() {
         List<String> texts = renderEndScreenTexts(EndReason.LOSE_BY_TRAP);
 
+        // Verify that the trap defeat screen shows the correct loss message.
         assertTrue(texts.contains("GAME OVER"));
         assertTrue(texts.contains("Lost your footing near a pit of spikes!"));
     }
@@ -263,6 +276,7 @@ public class ScreenRenderTest {
     void endScreen_showsOgreLossMessage() {
         List<String> texts = renderEndScreenTexts(EndReason.LOSE_BY_OGRE);
 
+        // Verify that the ogre defeat screen shows the correct loss message.
         assertTrue(texts.contains("GAME OVER"));
         assertTrue(texts.contains("Stuck, mashed, and boiled into a stew!"));
     }
@@ -271,6 +285,7 @@ public class ScreenRenderTest {
     void endScreen_showsGoblinLossMessage() {
         List<String> texts = renderEndScreenTexts(EndReason.LOSE_BY_GOBLIN);
 
+        // Verify that the goblin defeat screen shows the correct loss message.
         assertTrue(texts.contains("GAME OVER"));
         assertTrue(texts.contains("Caught by a goblin!"));
     }
@@ -289,6 +304,7 @@ public class ScreenRenderTest {
                 panel.getPreferredSize().height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = image.createGraphics();
 
+        // Ensure that painting the normal playing screen does not throw an exception.
         assertDoesNotThrow(() -> panel.paint(g));
     }
 
@@ -306,6 +322,7 @@ public class ScreenRenderTest {
         game.handleInput(KeyEvent.VK_RIGHT);
         game.updateTick();
 
+        // Verify that the game is showing the key popup before painting.
         assertEquals(ScreenState.PAUSE, game.getScreenState());
         assertEquals(PopupReason.KEY_COLLECTED, game.getPopupReason());
 
@@ -316,6 +333,7 @@ public class ScreenRenderTest {
                 panel.getPreferredSize().height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = image.createGraphics();
 
+        // Ensure that painting the popup screen does not throw an exception.
         assertDoesNotThrow(() -> panel.paint(g));
     }
 }

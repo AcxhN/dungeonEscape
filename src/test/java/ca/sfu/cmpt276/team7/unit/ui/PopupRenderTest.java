@@ -44,6 +44,7 @@ public class PopupRenderTest {
         game.handleInput(KeyEvent.VK_RIGHT);
         game.updateTick();
 
+        // Verify that collecting the key pauses the game and shows the key popup.
         assertEquals(ScreenState.PAUSE, game.getScreenState());
         assertEquals(PopupReason.KEY_COLLECTED, game.getPopupReason());
         assertEquals(new Position(1, 1), player.getPosition());
@@ -54,23 +55,27 @@ public class PopupRenderTest {
         List<RenderItem> items = panel.buildRenderItemsForTest();
         List<String> texts = UiTestSupport.getOnlyTexts(items);
 
+        // Check that the popup text and resume instruction are rendered.
         assertTrue(texts.contains("* After some 'convincing', the gnome gives up his key."));
         assertTrue(texts.contains("Press space to continue..."));
 
         game.handleInput(KeyEvent.VK_RIGHT);
         game.updateTick();
 
+        // Ensure that movement is blocked while the popup is active.
         assertEquals(new Position(1, 1), player.getPosition());
         assertEquals(ScreenState.PAUSE, game.getScreenState());
 
         game.handleInput(KeyEvent.VK_SPACE);
 
+        // Verify that pressing space closes the popup and resumes gameplay.
         assertEquals(ScreenState.PLAYING, game.getScreenState());
         assertNull(game.getPopupReason());
 
         game.handleInput(KeyEvent.VK_RIGHT);
         game.updateTick();
 
+        // Confirm that movement works again after resuming.
         assertEquals(new Position(2, 1), player.getPosition());
     }
 
@@ -88,6 +93,7 @@ public class PopupRenderTest {
         game.handleInput(KeyEvent.VK_RIGHT);
         game.updateTick();
 
+        // Verify that collecting the chest pauses the game and opens the bonus popup.
         assertEquals(ScreenState.PAUSE, game.getScreenState());
         assertEquals(PopupReason.BONUS_COLLECTED, game.getPopupReason());
         assertEquals(new Position(1, 1), player.getPosition());
@@ -99,23 +105,27 @@ public class PopupRenderTest {
         List<RenderItem> items = panel.buildRenderItemsForTest();
         List<String> texts = UiTestSupport.getOnlyTexts(items);
 
+        // Check that the chest popup text and resume instruction are displayed.
         assertTrue(texts.contains("* You found a treasure chest!"));
         assertTrue(texts.contains("Press space to continue..."));
 
         game.handleInput(KeyEvent.VK_RIGHT);
         game.updateTick();
 
+        // Ensure that movement is blocked while the chest popup is active.
         assertEquals(new Position(1, 1), player.getPosition());
         assertEquals(ScreenState.PAUSE, game.getScreenState());
 
         game.handleInput(KeyEvent.VK_SPACE);
 
+        // Verify that pressing space dismisses the popup and resumes play.
         assertEquals(ScreenState.PLAYING, game.getScreenState());
         assertNull(game.getPopupReason());
 
         game.handleInput(KeyEvent.VK_RIGHT);
         game.updateTick();
 
+        // Confirm that the player can move again after the popup closes.
         assertEquals(new Position(2, 1), player.getPosition());
     }
 
@@ -135,6 +145,7 @@ public class PopupRenderTest {
         game.handleInput(KeyEvent.VK_RIGHT);
         game.updateTick();
 
+        // Verify that hitting the ogre pauses the game and shows the ogre popup.
         assertEquals(ScreenState.PAUSE, game.getScreenState());
         assertEquals(PopupReason.OGRE_HIT, game.getPopupReason());
         assertEquals(new Position(1, 1), player.getPosition());
@@ -145,23 +156,27 @@ public class PopupRenderTest {
         List<RenderItem> items = panel.buildRenderItemsForTest();
         List<String> texts = UiTestSupport.getOnlyTexts(items);
 
+        // Check that the ogre popup message and resume instruction are rendered.
         assertTrue(texts.contains("* An ogre emerges from the darkness."));
         assertTrue(texts.contains("Press space to continue..."));
 
         game.handleInput(KeyEvent.VK_RIGHT);
         game.updateTick();
 
+        // Ensure that movement is blocked while the ogre popup is active.
         assertEquals(new Position(1, 1), player.getPosition());
         assertEquals(ScreenState.PAUSE, game.getScreenState());
 
         game.handleInput(KeyEvent.VK_SPACE);
 
+        // Verify that pressing space closes the popup and returns to playing state.
         assertEquals(ScreenState.PLAYING, game.getScreenState());
         assertNull(game.getPopupReason());
 
         game.handleInput(KeyEvent.VK_RIGHT);
         game.updateTick();
 
+        // Confirm that movement resumes normally after the popup is dismissed.
         assertEquals(new Position(2, 1), player.getPosition());
     }
 
@@ -179,24 +194,28 @@ public class PopupRenderTest {
         game.handleInput(KeyEvent.VK_RIGHT);
         game.updateTick();
 
+        // Verify that the key popup is active after the reward is collected.
         assertEquals(ScreenState.PAUSE, game.getScreenState());
         assertEquals(PopupReason.KEY_COLLECTED, game.getPopupReason());
         assertEquals(new Position(1, 1), player.getPosition());
 
         game.handleInput(KeyEvent.VK_RIGHT);
 
+        // Ensure that non-resume input does not close the popup or move the player.
         assertEquals(ScreenState.PAUSE, game.getScreenState());
         assertEquals(PopupReason.KEY_COLLECTED, game.getPopupReason());
         assertEquals(new Position(1, 1), player.getPosition());
 
         game.handleInput(KeyEvent.VK_SPACE);
-        assertEquals(ScreenState.PLAYING, game.getScreenState());
 
+        // Verify that the resume key returns the game to normal play.
+        assertEquals(ScreenState.PLAYING, game.getScreenState());
         assertNull(game.getPopupReason());
 
         game.handleInput(KeyEvent.VK_RIGHT);
         game.updateTick();
 
+        // Confirm that movement works again after resuming.
         assertEquals(new Position(2, 1), player.getPosition());
     }
 }

@@ -32,12 +32,15 @@ public class ViewportRenderTest {
 
         panel.buildRenderItemsForTest();
 
+        // Verify that small maps use the minimum render area with padding applied.
         assertEquals(11, panel.getRenderXForTest());
         assertEquals(9, panel.getRenderYForTest());
 
+        // Check that the board is centered with positive offsets inside the viewport.
         assertTrue(panel.getXOffsetForTest() > 0);
         assertTrue(panel.getYOffsetForTest() > 0);
 
+        // Ensure that the full board remains visible when the map is smaller than the viewport.
         assertEquals(0, panel.getViewStartXForTest());
         assertEquals(0, panel.getViewStartYForTest());
         assertEquals(board.getWidth(), panel.getViewEndXForTest());
@@ -57,10 +60,10 @@ public class ViewportRenderTest {
 
         List<RenderItem> items = panel.buildRenderItemsForTest();
 
-        // top padding row
+        // Verify that a wall sprite is rendered in the top padding row.
         assertTrue(UiTestSupport.containsSpriteAt(items, UiTestSupport.wallSprite, 0, 0));
 
-        // bottom padding row
+        // Verify that a wall sprite is also rendered in the bottom padding row.
         int bottomY = (panel.getRenderYForTest() - 1);
         assertTrue(UiTestSupport.containsSpriteAt(items, UiTestSupport.wallSprite, 0, bottomY));
     }
@@ -80,9 +83,11 @@ public class ViewportRenderTest {
 
         panel.buildRenderItemsForTest();
 
+        // Verify that large maps use the fixed viewport size instead of showing the whole board.
         assertEquals(21, panel.getViewEndXForTest() - panel.getViewStartXForTest());
         assertEquals(11, panel.getViewEndYForTest() - panel.getViewStartYForTest());
 
+        // Check that the viewport is centered around the player's current position.
         assertEquals(5, panel.getViewStartXForTest());
         assertEquals(10, panel.getViewStartYForTest());
         assertEquals(26, panel.getViewEndXForTest());
