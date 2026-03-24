@@ -9,6 +9,8 @@ import ca.sfu.cmpt276.team7.reward.PunishmentCell;
 import ca.sfu.cmpt276.team7.reward.TrapPunishment;
 import ca.sfu.cmpt276.team7.enemies.Goblin;
 
+import java.util.Set;
+import java.util.HashSet;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
@@ -24,10 +26,11 @@ class GoblinTest {
 
 		});
 		Goblin goblin = new Goblin(board, new Position(1, 1));
+		Set<Position> occupied = new HashSet<>();
 
 		// Goal position to move towards
 		Position goalPosition = new Position(1, 0);
-		goblin.updateMovement(goalPosition);
+		goblin.updateMovement(goalPosition, occupied);
 		// Goblin should move towards the goal position
 		assertTrue(goblin.getPosition().equals(goalPosition));
 	}
@@ -43,17 +46,18 @@ class GoblinTest {
 				  new FloorCell(new Position(4, 0)), new FloorCell(new Position(5, 0))},
 		});
 		Goblin goblin = new Goblin(board, new Position(0, 0));
+		Set<Position> occupied = new HashSet<>();
 		for (int i = 1; i < 6; i++) {
 			// Goal position to move towards
 			Position goalPosition = new Position(i, 0);
-			goblin.updateMovement(goalPosition);
+			goblin.updateMovement(goalPosition, occupied);
 			// Goblin should move towards the goal position
 			assertTrue(goblin.getPosition().equals(goalPosition));
 		}
 		for (int i = 4; i >= 0; i--) {
 			// Goal position to move towards
 			Position goalPosition = new Position(i, 0);
-			goblin.updateMovement(goalPosition);
+			goblin.updateMovement(goalPosition, occupied);
 			// Goblin should move towards the goal position
 			assertTrue(goblin.getPosition().equals(goalPosition));
 		}
@@ -69,10 +73,11 @@ class GoblinTest {
 
 		});
 		Goblin goblin = new Goblin(board, new Position(3, 0));
+		Set<Position> occupied = new HashSet<>();
 
 		// Goal position to move towards
 		Position goalPosition = new Position(1, 0);
-		goblin.updateMovement(goalPosition);
+		goblin.updateMovement(goalPosition, occupied);
 		// Goblin should NOT move towards the goal, as it is unreachable
 		assertTrue(goblin.getPosition().equals(new Position(3, 0)));
 	}
@@ -102,13 +107,14 @@ class GoblinTest {
 		Board board = new Board(cellGrid);
 
 		Goblin goblin = new Goblin(board, new Position(3, 0));
+		Set<Position> occupied = new HashSet<>();
 
 		// Goal position to move towards
 		Position goalPosition = new Position(0, 1);
 
 		// Give goblin enough movements to path through
 		for (int i = 0; i < 8; i++) {
-			goblin.updateMovement(goalPosition);
+			goblin.updateMovement(goalPosition, occupied);
 		}
 		// Cells should remain completely untouched
 		for (int y = 0; y < 3; y++) {
@@ -127,10 +133,11 @@ class GoblinTest {
 		Board board = new Board(new Cell[][] {
 				{ new FloorCell(new Position(0, 0)), new WallCell(new Position(1, 0)), new FloorCell(new Position(2, 0))}});
 		Goblin goblin = new Goblin(board, new Position(2, 0));
+		Set<Position> occupied = new HashSet<>();
 
 		// Goal position to move towards
 		Position goalPosition = new Position(0, 0);
-		goblin.updateMovement(goalPosition);
+		goblin.updateMovement(goalPosition, occupied);
 		// Goblin should NOT move towards the goal position
 		assertTrue(goblin.getPosition().equals(new Position(2, 0)));
 	}
@@ -145,7 +152,9 @@ class GoblinTest {
 
 		// Goal position to move towards
 		Position goalPosition = new Position(0, 0);
-		goblin.updateMovement(goalPosition);
+		Set<Position> occupied = new HashSet<>();
+
+		goblin.updateMovement(goalPosition, occupied);
 		// Goblin should NOT move towards the goal position
 		assertTrue(goblin.getPosition().equals(new Position(2, 0)));
 	}
