@@ -13,12 +13,18 @@ import ca.sfu.cmpt276.team7.board.Board;
 import ca.sfu.cmpt276.team7.cells.Cell;
 import ca.sfu.cmpt276.team7.cells.FloorCell;
 import ca.sfu.cmpt276.team7.cells.WallCell;
+import ca.sfu.cmpt276.team7.cells.BarrierCell;
 import ca.sfu.cmpt276.team7.core.Position;
 import ca.sfu.cmpt276.team7.core.Direction;
 import ca.sfu.cmpt276.team7.enemies.Enemy;
 import ca.sfu.cmpt276.team7.enemies.Goblin;
 import ca.sfu.cmpt276.team7.enemies.Ogre;
 import ca.sfu.cmpt276.team7.reward.Player;
+import ca.sfu.cmpt276.team7.reward.PunishmentCell;
+import ca.sfu.cmpt276.team7.reward.RewardCell;
+import ca.sfu.cmpt276.team7.reward.RegularReward;
+import ca.sfu.cmpt276.team7.reward.BonusReward;
+import ca.sfu.cmpt276.team7.reward.TrapPunishment;
 import ca.sfu.cmpt276.team7.ui.GamePanel;
 import ca.sfu.cmpt276.team7.ui.RenderItem;
 import ca.sfu.cmpt276.team7.ui.RenderKind;
@@ -64,6 +70,11 @@ public class ScreenRenderTest {
     private final SpriteSpec goblinSprite = new SpriteSpec(SheetId.GAME_ATLAS, srcSize(6, gameSrcSize), srcPadding);
     private final SpriteSpec ogerSprite = new SpriteSpec(SheetId.GAME_ATLAS, srcSize(5, gameSrcSize), srcPadding);
 
+    private final SpriteSpec barrierSprite = new SpriteSpec(SheetId.GAME_ATLAS, srcSize(1, gameSrcSize), srcPadding);
+    private final SpriteSpec keySprite = new SpriteSpec(SheetId.GAME_ATLAS, srcSize(3, gameSrcSize), srcPadding);
+    private final SpriteSpec chestSprite = new SpriteSpec(SheetId.GAME_ATLAS, srcSize(4, gameSrcSize), srcPadding);
+    private final SpriteSpec trapSprite = new SpriteSpec(SheetId.GAME_ATLAS, srcSize(2, gameSrcSize), srcPadding);
+
     private boolean containsSprite(List<RenderItem> items, SpriteSpec sprite) {
         for (RenderItem item : items) {
             if (item.getKind() == RenderKind.SPRITE && item.getSheetId() == sprite.sheetId()
@@ -98,6 +109,82 @@ public class ScreenRenderTest {
         assertTrue(texts.contains("0:00"));
         assertTrue(texts.contains("0 / 0"));
         assertTrue(texts.contains("0"));
+    }
+
+    @Test
+    void playingScreen_rendersBarrierCell() {
+        Board board = UiTestSupport.makeSimpleBoard(11, 10);
+
+        Position barrierPos = new Position(2, 2);
+        board.setCell(barrierPos.getX(), barrierPos.getY(), new BarrierCell(barrierPos));
+
+        Player player = new Player(board, board.getStartPosition());
+        Game game = new Game(board, player, new ArrayList<>(), 0, 0, List.of(), List.of());
+        game.startGame();
+
+        GamePanel panel = new GamePanel(game, board);
+        panel.setSize(panel.getPreferredSize());
+
+        List<RenderItem> items = panel.buildRenderItemsForTest();
+
+        assertTrue(containsSprite(items, barrierSprite));
+    }
+
+    @Test
+    void playingScreen_rendersRegularReward() {
+        Board board = UiTestSupport.makeSimpleBoard(11, 10);
+
+        Position keyPos = new Position(1, 1);
+        board.setCell(keyPos.getX(), keyPos.getY(), new RewardCell(keyPos, new RegularReward(10)));
+
+        Player player = new Player(board, board.getStartPosition());
+        Game game = new Game(board, player, new ArrayList<>(), 1, 0, List.of(keyPos), List.of());
+        game.startGame();
+
+        GamePanel panel = new GamePanel(game, board);
+        panel.setSize(panel.getPreferredSize());
+
+        List<RenderItem> items = panel.buildRenderItemsForTest();
+
+        assertTrue(containsSprite(items, keySprite));
+    }
+
+    @Test
+    void playingScreen_rendersBonusReward() {
+        Board board = UiTestSupport.makeSimpleBoard(11, 10);
+
+        Position chestPos = new Position(1, 1);
+        board.setCell(chestPos.getX(), chestPos.getY(), new RewardCell(chestPos, new BonusReward(25, 20)));
+
+        Player player = new Player(board, board.getStartPosition());
+        Game game = new Game(board, player, new ArrayList<>(), 0, 1, List.of(), List.of());
+        game.startGame();
+
+        GamePanel panel = new GamePanel(game, board);
+        panel.setSize(panel.getPreferredSize());
+
+        List<RenderItem> items = panel.buildRenderItemsForTest();
+
+        assertTrue(containsSprite(items, chestSprite));
+    }
+
+    @Test
+    void playingScreen_rendersPunishment() {
+        Board board = UiTestSupport.makeSimpleBoard(11, 10);
+
+        Position trapPos = new Position(1, 1);
+        board.setCell(trapPos.getX(), trapPos.getY(), new PunishmentCell(trapPos, new TrapPunishment(5)));
+
+        Player player = new Player(board, board.getStartPosition());
+        Game game = new Game(board, player, new ArrayList<>(), 0, 0, List.of(), List.of(trapPos));
+        game.startGame();
+
+        GamePanel panel = new GamePanel(game, board);
+        panel.setSize(panel.getPreferredSize());
+
+        List<RenderItem> items = panel.buildRenderItemsForTest();
+
+        assertTrue(containsSprite(items, trapSprite));
     }
 
     @Test
