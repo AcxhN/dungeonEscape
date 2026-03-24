@@ -139,4 +139,15 @@ public class BoardLoaderTest {
             BoardLoader.load(mapPath);
         });
     }
+
+    @Test
+    void load_rejectsMissingStart() {
+        // Arrange
+        Path mapPath = Path.of("src/test/resources/maps/missingStartMap.txt");
+
+        // Act + Assert
+        assertThrows(IllegalArgumentException.class, () -> {
+            BoardLoader.load(mapPath);
+        });
+    }
 }
