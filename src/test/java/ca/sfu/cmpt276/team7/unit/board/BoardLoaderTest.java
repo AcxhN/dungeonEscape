@@ -1,5 +1,15 @@
 package ca.sfu.cmpt276.team7.unit.board;
 
+import ca.sfu.cmpt276.team7.board.Board;
+import ca.sfu.cmpt276.team7.board.BoardLoader;
+
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.nio.file.Path;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Unit tests for BoardLoader
  *
@@ -42,4 +52,18 @@ public class BoardLoaderTest {
      * 1) actual loader validation rules, or
      * 2) just properties of chosen valid maps
      */
+
+    @Test
+    void load_validMap_returnsBoardWithExpectedDimensions() throws IOException {
+        // Arrange
+        Path mapPath = Path.of("src/test/resources/maps/map1.txt");
+
+        // Act
+        BoardLoader.Result result = BoardLoader.load(mapPath);
+        Board board = result.getBoard();
+
+        // Assert
+        assertEquals(5, board.getWidth());
+        assertEquals(4, board.getHeight());
+    }
 }
