@@ -2,6 +2,7 @@ package ca.sfu.cmpt276.team7.unit.board;
 
 import ca.sfu.cmpt276.team7.board.Board;
 import ca.sfu.cmpt276.team7.board.BoardLoader;
+import ca.sfu.cmpt276.team7.core.Position;
 
 import org.junit.jupiter.api.Test;
 
@@ -65,5 +66,19 @@ public class BoardLoaderTest {
         // Assert
         assertEquals(5, board.getWidth());
         assertEquals(4, board.getHeight());
+    }
+
+    @Test
+    void load_validMap_setsStartAndExitPositions() throws IOException {
+        // Arrange
+        Path mapPath = Path.of("src/test/resources/maps/map1.txt");
+
+        // Act
+        BoardLoader.Result result = BoardLoader.load(mapPath);
+        Board board = result.getBoard();
+
+        // Assert
+        assertEquals(new Position(1, 1), board.getStartPosition());
+        assertEquals(new Position(3, 2), board.getEndPosition());
     }
 }
