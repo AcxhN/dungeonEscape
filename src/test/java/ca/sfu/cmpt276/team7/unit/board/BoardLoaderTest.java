@@ -37,11 +37,11 @@ public class BoardLoaderTest {
      *   - recordsKeyPositions COVERED BY recordsEntityMarkerPositions
      *   - recordsTrapPositions COVERED BY recordsEntityMarkerPositions
      *
-     * load_validMap_parsesWallBarrierAndFloorCells NOT FULLY DONE
+     * load_validMap_parsesWallBarrierAndFloorCells (barrier cell seperate test)
      * load_validMap_parsesWallAndFloorCells DONE
      * load_validMap_appliesWalkabilityRules DONE
      * load_markerTilesBecomeFloorCells DONE
-     * load_walkabilityRulesMatchCellTypes PARTIALLY DONE, barrier case missing
+     * load_walkabilityRulesMatchCellTypes (barrier cell seperate test)
      *
      * load_rejectsNullPath NOT DONE
      * load_rejectsEmptyMap NOT DONE
