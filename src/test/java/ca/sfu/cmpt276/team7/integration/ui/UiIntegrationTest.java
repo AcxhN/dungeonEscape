@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import ca.sfu.cmpt276.team7.Game;
 import ca.sfu.cmpt276.team7.PopupReason;
+import ca.sfu.cmpt276.team7.EndReason;
 import ca.sfu.cmpt276.team7.ScreenState;
 import ca.sfu.cmpt276.team7.board.Board;
 import ca.sfu.cmpt276.team7.core.Position;
@@ -98,6 +99,38 @@ public class UiIntegrationTest {
 
     @Test
     void endScreen_replayFlow_returnsToPlayingUi() {
+        Board board = UiTestSupport.makeSimpleBoard(11, 10);
+        Player player = new Player(board, board.getStartPosition());
+        Game game = new Game(board, player, new ArrayList<>(), 0, 0, List.of(), List.of());
+
+        game.startGame();
+        player.setScore(-1);
+        game.checkLoss();
+
+        assertEquals(ScreenState.END, game.getScreenState());
+        assertEquals(EndReason.LOSE_BY_TRAP, game.getEndReason());
+
+        GamePanel panel = new GamePanel(game, board);
+        panel.setSize(panel.getPreferredSize());
+
+        List<RenderItem> endItems = panel.buildRenderItemsForTest();
+        List<String> endTexts = UiTestSupport.getOnlyTexts(endItems);
+
+        assertTrue(endTexts.contains("Press Space to Play Again"));
         
+        game.handleInput(KeyEvent.VK_SPACE);
+
+        assertEquals(ScreenState.PLAYING, game.getScreenState());
+        assertNull(game.getEndReason());
+        assertNull(game.getPopupReason());
+        assertEquals(board.getStartPosition(), player.getPosition());
+        assertEquals(0, player.getTotalScore());
+
+        List<RenderItem> replayItems = panel.buildRenderItemsForTest();
+        List<String> replayTexts = UiTestSupport.getOnlyTexts(replayItems);
+
+        assertFalse(replayTexts.contains("Press Space to Play Again"));
+        assertTrue(replayTexts.contains("0:00"));
+        assertTrue(replayTexts.contains("0 / 0"));
     }
 }
