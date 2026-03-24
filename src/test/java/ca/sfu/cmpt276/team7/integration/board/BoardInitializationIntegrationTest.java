@@ -12,40 +12,48 @@ import java.nio.file.Path;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Integration tests for board/map initialization flow
+ * Integration tests for the full board initialization flow
  *
- * Planned coverage:
- * - Valid map -> initialization succeeds
- * - Invalid map -> initialization fails
- * - BoardLoader interacting with filesystem test resources
+ * Unlike unit tests, these tests check multiple components working together,
+ * including reading map files, loading them, and building the board + ...
+ *
+ * This makes sure the whole pipeline works, not just individual pieces
  */
 public class BoardInitializationIntegrationTest {
+
     /*
      * Planned tests:
      *
      * validMap_initializationFlow_buildsBoardAndMetadata
      * invalidMap_initializationFlow_throwsAndStopsInitialization
-     * 
+     *
      * BoardTest was isolated in memory
      * BoardLoaderTest focused on one class
-     * These two planned tests are broader and test the interaction between:
-        * filesystem test resource 
-        * Path 
-        * BoardLoader
-        * Board 
-     * So these are intgreation tests because they test the whole flow working together 
+     *
+     * These tests are broader and cover interaction between:
+     * - filesystem test resources (map files)
+     * - Path
+     * - BoardLoader
+     * - Board
+     *
+     * So these are true integration tests since they test the full flow
      */
 
+    /**
+     * Tests that a valid map file goes through the full initialization flow
+     * and correctly builds both the Board and all associated metadata
+     *
+     * This includes:
+     * - start and end positions
+     * - entity marker positions (keys, traps, enemies)
+     */
     @Test
     void validMap_initializationFlow_buildsBoardAndMetadata() throws IOException {
-        // Arrange
         Path mapPath = Path.of("src/test/resources/maps/validWithEntitiesMap.txt");
 
-        // Act
         BoardLoader.Result result = BoardLoader.load(mapPath);
         Board board = result.getBoard();
 
-        // Assert
         assertNotNull(result);
         assertNotNull(board);
 
@@ -63,12 +71,17 @@ public class BoardInitializationIntegrationTest {
         assertEquals(new Position(4, 2), result.getOgreSpawns().get(0));
     }
 
+    /**
+     * Tests that an invalid map file causes the initialization flow to fail,
+     * and that no board is created
+     *
+     * In this case, the map contains an invalid symbol, so we expect
+     * BoardLoader to throw an IllegalArgumentException
+     */
     @Test
     void invalidMap_initializationFlow_throwsAndStopsInitialization() {
-        // Arrange
         Path mapPath = Path.of("src/test/resources/maps/invalidSymbolMap.txt");
 
-        // Act + Assert
         assertThrows(IllegalArgumentException.class, () -> {
             BoardLoader.load(mapPath);
         });
