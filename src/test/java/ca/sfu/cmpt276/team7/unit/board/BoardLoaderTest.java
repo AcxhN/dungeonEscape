@@ -36,6 +36,7 @@ public class BoardLoaderTest {
      * load_validMap_recordsTrapPositions
      *
      * load_validMap_parsesWallBarrierAndFloorCells DONE 
+     * load_validMap_parsesWallAndFloorCells() DONE 
      * load_markerTilesBecomeFloorCells
      * load_walkabilityRulesMatchCellTypes
      *
