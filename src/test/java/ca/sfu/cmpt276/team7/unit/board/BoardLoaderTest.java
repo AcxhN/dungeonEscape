@@ -17,15 +17,13 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for BoardLoader
  *
- * Planned coverage:
- * - Valid map parsing
- * - Rectangular map validation
- * - Invalid symbol validation
- * - Required start/exit validation
- * - Entity placement from map file
- * - Structural cell type and walkability rules
+ * These tests make sure that maps are loaded correctly from files,
+ * including structure, special tiles, and error handling
+ *
+ * We also check that invalid maps are rejected properly
  */
 public class BoardLoaderTest {
+
     /*
      * Planned tests:
      *
@@ -49,130 +47,132 @@ public class BoardLoaderTest {
      * load_rejectsUnknownSymbol DONE
      * load_rejectsMissingStart DONE
      * load_rejectsMissingExit DONE
-     *
-     * Possible rule to confirm with team:
-     * - outer wall rule
-     * - start/exit boundary position rule
-     *
-     * These two are not currently enforced by BoardLoader code,
-     * so we need to decide whether they are:
-     * 1) actual loader validation rules, or
-     * 2) just properties of chosen valid maps
      */
 
+    /**
+     * Tests that a valid map file loads successfully and
+     * produces a board with the correct width and height
+     */
     @Test
     void load_validMap_returnsBoardWithExpectedDimensions() throws IOException {
-        // Arrange
-        Path mapPath = Path.of("src/test/resources/maps/simpleValidMap.txt"); // map 1 is a simple valid map 
+        Path mapPath = Path.of("src/test/resources/maps/simpleValidMap.txt");
 
-        // Act
         BoardLoader.Result result = BoardLoader.load(mapPath);
         Board board = result.getBoard();
 
-        // Assert
         assertEquals(5, board.getWidth());
         assertEquals(4, board.getHeight());
     }
 
+    /**
+     * Tests that the start and exit positions are correctly
+     * identified and stored in the board
+     */
     @Test
     void load_validMap_setsStartAndExitPositions() throws IOException {
-        // Arrange
-        Path mapPath = Path.of("src/test/resources/maps/simpleValidMap.txt"); // map 1 is a simple valid map 
+        Path mapPath = Path.of("src/test/resources/maps/simpleValidMap.txt");
 
-        // Act
         BoardLoader.Result result = BoardLoader.load(mapPath);
         Board board = result.getBoard();
 
-        // Assert
         assertEquals(new Position(1, 1), board.getStartPosition());
         assertEquals(new Position(3, 2), board.getEndPosition());
     }
 
+    /**
+     * Tests that wall and floor cells are parsed correctly
+     * from the map file
+     */
     @Test
     void load_validMap_parsesWallAndFloorCells() throws IOException {
-        // Arrange
-        Path mapPath = Path.of("src/test/resources/maps/simpleValidMap.txt"); // map 1 is a simple valid map 
+        Path mapPath = Path.of("src/test/resources/maps/simpleValidMap.txt");
 
-        // Act
         BoardLoader.Result result = BoardLoader.load(mapPath);
         Board board = result.getBoard();
 
-        // Assert
         assertTrue(board.getCell(0, 0) instanceof WallCell);
         assertTrue(board.getCell(1, 1) instanceof FloorCell);
         assertTrue(board.getCell(2, 1) instanceof FloorCell);
         assertTrue(board.getCell(3, 2) instanceof FloorCell);
     }
 
+    /**
+     * Tests that walkability rules are applied correctly:
+     * walls should not be walkable, floors should be
+     */
     @Test
     void load_validMap_appliesWalkabilityRules() throws IOException {
-        // Arrange
-        Path mapPath = Path.of("src/test/resources/maps/simpleValidMap.txt"); 
+        Path mapPath = Path.of("src/test/resources/maps/simpleValidMap.txt");
 
-        // Act
         BoardLoader.Result result = BoardLoader.load(mapPath);
         Board board = result.getBoard();
 
-        // Assert
         assertFalse(board.getCell(0, 0).isWalkable());
         assertTrue(board.getCell(1, 1).isWalkable());
         assertTrue(board.getCell(2, 1).isWalkable());
         assertTrue(board.getCell(3, 2).isWalkable());
     }
 
+    /**
+     * Tests that a non-rectangular map (rows of different lengths)
+     * is rejected by the loader
+     */
     @Test
     void load_rejectsNonRectangularMap() {
-        // Arrange
         Path mapPath = Path.of("src/test/resources/maps/nonRectangleMap.txt");
 
-        // Act + Assert
         assertThrows(IllegalArgumentException.class, () -> {
             BoardLoader.load(mapPath);
         });
     }
 
+    /**
+     * Tests that maps containing unknown/invalid symbols
+     * are rejected
+     */
     @Test
     void load_rejectsUnknownSymbol() {
-        // Arrange
         Path mapPath = Path.of("src/test/resources/maps/invalidSymbolMap.txt");
 
-        // Act + Assert
         assertThrows(IllegalArgumentException.class, () -> {
             BoardLoader.load(mapPath);
         });
     }
 
+    /**
+     * Tests that a map without a start position is rejected
+     */
     @Test
     void load_rejectsMissingStart() {
-        // Arrange
         Path mapPath = Path.of("src/test/resources/maps/missingStartMap.txt");
 
-        // Act + Assert
         assertThrows(IllegalArgumentException.class, () -> {
             BoardLoader.load(mapPath);
         });
     }
 
+    /**
+     * Tests that a map without an exit position is rejected
+     */
     @Test
     void load_rejectsMissingExit() {
-        // Arrange
         Path mapPath = Path.of("src/test/resources/maps/missingExitMap.txt");
 
-        // Act + Assert
         assertThrows(IllegalArgumentException.class, () -> {
             BoardLoader.load(mapPath);
         });
     }
 
+    /**
+     * Tests that entity markers (keys, traps, goblins, ogres)
+     * are correctly recorded from the map
+     */
     @Test
     void load_validMap_recordsEntityMarkerPositions() throws IOException {
-        // Arrange
         Path mapPath = Path.of("src/test/resources/maps/validWithEntitiesMap.txt");
 
-        // Act
         BoardLoader.Result result = BoardLoader.load(mapPath);
 
-        // Assert
         assertEquals(1, result.getKeyPositions().size());
         assertEquals(1, result.getTrapPositions().size());
         assertEquals(1, result.getGoblinSpawns().size());
@@ -184,32 +184,34 @@ public class BoardLoaderTest {
         assertEquals(new Position(4, 2), result.getOgreSpawns().get(0));
     }
 
+    /**
+     * Tests that tiles which originally contained entity markers
+     * are converted into normal floor cells after loading
+     */
     @Test
     void load_markerTilesBecomeFloorCells() throws IOException {
-        // Arrange
         Path mapPath = Path.of("src/test/resources/maps/validWithEntitiesMap.txt");
 
-        // Act
         BoardLoader.Result result = BoardLoader.load(mapPath);
         Board board = result.getBoard();
 
-        // Assert
         assertTrue(board.getCell(3, 1) instanceof FloorCell);
         assertTrue(board.getCell(3, 2) instanceof FloorCell);
         assertTrue(board.getCell(4, 1) instanceof FloorCell);
         assertTrue(board.getCell(4, 2) instanceof FloorCell);
     }
 
+    /**
+     * Tests that barrier cells are parsed correctly and that
+     * they are not walkable
+     */
     @Test
     void load_validMap_parsesBarrierCellAndAppliesBarrierWalkability() throws IOException {
-        // Arrange
         Path mapPath = Path.of("src/test/resources/maps/validBarrierMap.txt");
 
-        // Act
         BoardLoader.Result result = BoardLoader.load(mapPath);
         Board board = result.getBoard();
 
-        // Assert
         assertTrue(board.getCell(2, 1) instanceof BarrierCell);
         assertFalse(board.getCell(2, 1).isWalkable());
 
@@ -217,6 +219,9 @@ public class BoardLoaderTest {
         assertTrue(board.getCell(3, 1).isWalkable());
     }
 
+    /**
+     * Tests that passing a null path throws an exception
+     */
     @Test
     void load_rejectsNullPath() {
         assertThrows(IllegalArgumentException.class, () -> {
@@ -224,12 +229,13 @@ public class BoardLoaderTest {
         });
     }
 
+    /**
+     * Tests that an empty map file is rejected
+     */
     @Test
     void load_rejectsEmptyMap() {
-        // Arrange
         Path mapPath = Path.of("src/test/resources/maps/emptyMap.txt");
 
-        // Act + Assert
         assertThrows(IllegalArgumentException.class, () -> {
             BoardLoader.load(mapPath);
         });

@@ -13,9 +13,9 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * <p>This test class checks the main responsibilities of Board, including:
  * creating a valid board, rejecting invalid board data, getting and setting cells,
- * checking whether positions are inside the board, and validating start/end positions.
+ * checking whether positions are inside the board, and validating start/end positions
  *
- * <p>The goal is to test Board in isolation and make sure its rules are enforced properly.
+ * <p>The goal is to test Board in isolation and make sure its rules are enforced properly
  */
 public class BoardTest {
     /*
@@ -51,10 +51,10 @@ public class BoardTest {
 
     /**
      * Tests that the Board constructor correctly stores width and height
-     * based on the size of the input grid.
+     * based on the size of the input grid
      *
      * <p>In this test, a 2x3 grid is created. That means the board should
-     * have height 2 and width 3.
+     * have height 2 and width 3
      */
     @Test // tells JUnit this is a test method 
     void constructor_setsWidthAndHeight() { // trying to follow naming concention: method_beingTested_expectedBehaviour 
@@ -113,7 +113,7 @@ public class BoardTest {
     */
 
     /**
-     * Tests that the Board constructor rejects a null grid.
+     * Tests that the Board constructor rejects a null grid
      *
      * <p>A Board cannot be created from null, so this should throw
      * an {@link IllegalArgumentException}.
@@ -126,7 +126,7 @@ public class BoardTest {
     }
 
     /**
-     * Tests that the Board constructor rejects an empty grid.
+     * Tests that the Board constructor rejects an empty grid
      *
      * <p>A grid with length 0 is not a valid board, so the constructor
      * should throw an {@link IllegalArgumentException}.
@@ -141,10 +141,10 @@ public class BoardTest {
     }
 
     /**
-     * Tests that the Board constructor rejects a non-rectangular grid.
+     * Tests that the Board constructor rejects a non-rectangular grid
      *
      * <p>This means different rows have different lengths, which would
-     * make the board shape inconsistent.
+     * make the board shape inconsistent
      */
     @Test
     void constructor_rejectsNonRectangularGrid() {
@@ -175,10 +175,10 @@ public class BoardTest {
      */
 
     /**
-     * Tests that the Board constructor rejects grids containing null cells.
+     * Tests that the Board constructor rejects grids containing null cells
      *
-     * <p>Every spot in the board must contain a real Cell object.
-     * If even one cell is null, the constructor should reject the grid.
+     * <p>Every spot in the board must contain a real Cell object
+     * If even one cell is null, the constructor should reject the grid
      */
     @Test
     void constructor_rejectsNullCell() {
@@ -219,10 +219,10 @@ public class BoardTest {
      */
 
     /**
-     * Tests that getCell returns the exact cell stored at a valid coordinate.
+     * Tests that getCell returns the exact cell stored at a valid coordinate
      *
      * <p>This checks both that the board stores cells correctly and that
-     * getCell(x, y) looks up the correct location in the grid.
+     * getCell(x, y) looks up the correct location in the grid
      */
     @Test
     void getCell_returnsCellInBounds() {
@@ -258,7 +258,7 @@ public class BoardTest {
     */
 
     /**
-     * Tests that getCell throws an exception when x is smaller than the valid range.
+     * Tests that getCell throws an exception when x is smaller than the valid range
      *
      * <p>Using x = -1 should be outside the board and should throw
      * an {@link IndexOutOfBoundsException}.
@@ -281,7 +281,7 @@ public class BoardTest {
     }
 
     /**
-     * Tests that getCell throws an exception when x is larger than the valid range.
+     * Tests that getCell throws an exception when x is larger than the valid range
      *
      * <p>For a 2-wide board, x = 2 is out of bounds and should throw
      * an {@link IndexOutOfBoundsException}.
@@ -302,7 +302,7 @@ public class BoardTest {
     }
 
     /**
-     * Tests that getCell throws an exception when y is smaller than the valid range.
+     * Tests that getCell throws an exception when y is smaller than the valid range
      *
      * <p>Using y = -1 should be outside the board and should throw
      * an {@link IndexOutOfBoundsException}.
@@ -323,7 +323,7 @@ public class BoardTest {
     }
 
     /**
-     * Tests that getCell throws an exception when y is larger than the valid range.
+     * Tests that getCell throws an exception when y is larger than the valid range
      *
      * <p>For a 2-high board, y = 2 is out of bounds and should throw
      * an {@link IndexOutOfBoundsException}.
@@ -356,10 +356,10 @@ public class BoardTest {
      */
 
     /**
-     * Tests that setCell successfully replaces a cell at a valid coordinate.
+     * Tests that setCell successfully replaces a cell at a valid coordinate
      *
      * <p>After calling setCell, getCell should return the new cell object
-     * at that same location.
+     * at that same location
      */
     @Test
     void setCell_replacesCellInBounds() {
@@ -383,7 +383,7 @@ public class BoardTest {
     }
 
     /**
-     * Tests that setCell rejects a null cell value.
+     * Tests that setCell rejects a null cell value
      *
      * <p>A board location cannot be replaced with null, so this should
      * throw an {@link IllegalArgumentException}.
@@ -408,7 +408,7 @@ public class BoardTest {
 
     /**
      * Tests that setCell throws an exception when the target coordinate
-     * is out of bounds.
+     * is out of bounds
      *
      * <p>Trying to place a cell outside the board should throw
      * an {@link IndexOutOfBoundsException}.
@@ -484,10 +484,10 @@ public class BoardTest {
     }
 
     /**
-     * Tests that isInside returns false for positions outside the board.
+     * Tests that isInside returns false for positions outside the board
      *
      * <p>Since Position does not allow negative values, this test checks
-     * positions that are too large instead.
+     * positions that are too large instead
      */
     @Test // too large coordinates return false 
     void isInside_returnsFalseForOutsidePositions() {
@@ -521,10 +521,10 @@ public class BoardTest {
      */
 
     /**
-     * Tests that setStartPosition stores a valid position successfully.
+     * Tests that setStartPosition stores a valid position successfully
      *
      * <p>After setting the start position, getStartPosition should return
-     * the same position object.
+     * the same position object
      */
     @Test
     void setStartPosition_setsValidPosition() {
@@ -546,10 +546,10 @@ public class BoardTest {
     }
 
     /**
-     * Tests that setStartPosition rejects null.
+     * Tests that setStartPosition rejects null
      *
      * <p>The board should not accept a null start position, so this should
-     * throw an {@link IllegalArgumentException}.
+     * throw an {@link IllegalArgumentException}
      */
     @Test
     void setStartPosition_rejectsNull() {
@@ -569,7 +569,7 @@ public class BoardTest {
     }
 
     /**
-     * Tests that setStartPosition rejects positions outside the board.
+     * Tests that setStartPosition rejects positions outside the board
      *
      * <p>If the given position is out of bounds, the board should throw
      * an {@link IndexOutOfBoundsException}.
@@ -592,10 +592,10 @@ public class BoardTest {
     }
 
     /**
-     * Tests that setEndPosition stores a valid end position successfully.
+     * Tests that setEndPosition stores a valid end position successfully
      *
      * <p>After setting the end position, getEndPosition should return
-     * the same position object.
+     * the same position object
      */
     @Test
     void setEndPosition_setsValidPosition() {
@@ -617,10 +617,10 @@ public class BoardTest {
     }
 
     /**
-     * Tests that setEndPosition rejects null.
+     * Tests that setEndPosition rejects null
      *
      * <p>The board should not accept a null end position, so this should
-     * throw an {@link IllegalArgumentException}.
+     * throw an {@link IllegalArgumentException}
      */
     @Test
     void setEndPosition_rejectsNull() {
@@ -640,7 +640,7 @@ public class BoardTest {
     }
 
     /**
-     * Tests that setEndPosition rejects positions outside the board.
+     * Tests that setEndPosition rejects positions outside the board
      *
      * <p>If the given end position is out of bounds, the board should throw
      * an {@link IndexOutOfBoundsException}.
