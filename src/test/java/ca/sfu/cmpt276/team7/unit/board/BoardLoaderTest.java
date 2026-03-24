@@ -2,6 +2,7 @@ package ca.sfu.cmpt276.team7.unit.board;
 
 import ca.sfu.cmpt276.team7.board.Board;
 import ca.sfu.cmpt276.team7.board.BoardLoader;
+import ca.sfu.cmpt276.team7.cells.BarrierCell;
 import ca.sfu.cmpt276.team7.cells.FloorCell;
 import ca.sfu.cmpt276.team7.cells.WallCell;
 import ca.sfu.cmpt276.team7.core.Position;
@@ -199,5 +200,20 @@ public class BoardLoaderTest {
         assertTrue(board.getCell(4, 2) instanceof FloorCell);
     }
 
+    @Test
+    void load_validMap_parsesBarrierCellAndAppliesBarrierWalkability() throws IOException {
+        // Arrange
+        Path mapPath = Path.of("src/test/resources/maps/validBarrierMap.txt");
 
+        // Act
+        BoardLoader.Result result = BoardLoader.load(mapPath);
+        Board board = result.getBoard();
+
+        // Assert
+        assertTrue(board.getCell(2, 1) instanceof BarrierCell);
+        assertFalse(board.getCell(2, 1).isWalkable());
+
+        assertTrue(board.getCell(1, 1).isWalkable());
+        assertTrue(board.getCell(3, 1).isWalkable());
+    }
 }
