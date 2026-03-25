@@ -40,7 +40,6 @@ TODO put some brackets beside some notable directories with an explanbation or j
 ├── Documents
 │   └── Phase2Report.pdf
 ├── README.md
-├── [Help
 ├── mvn
 ├── pom.xml
 └── src
