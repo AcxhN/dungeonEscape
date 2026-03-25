@@ -69,7 +69,6 @@ mvn clean compile exec:java
 ```
 mvn test
 ```
-Our overall coverage ended up being quite solid, with 93% instruction coverage and 83% branch coverage across the full project. These numbers show that our tests reached most of the meaningful gameplay paths, including UI behavior, enemy logic, board loading, and reward/trap interactions. Since unit test coverage in typical software projects often falls in the 70–90% range, our results sit comfortably within (and in some areas above) that expected window. Overall, the coverage suggests that the codebase is reasonably well tested and that the core mechanics behave consistently under different scenarios.
 
 ## Test Coverage 
 Tools used: jacoco
@@ -80,7 +79,7 @@ mvn verify
 Where to find it:
 ```target/site.jacoco/index.html```
 
-TODO someone start riffing on how good this coverage is pls (objectively)
+Our overall coverage ended up being quite solid, with 93% instruction coverage and 83% branch coverage across the full project. These numbers show that our tests reached most of the meaningful gameplay paths, including UI behavior, enemy logic, board loading, and reward/trap interactions. Since unit test coverage in typical software projects often falls in the 70–90% range, our results sit comfortably within (and in some areas above) that expected window. Overall, the coverage suggests that the codebase is reasonably well tested and that the core mechanics behave consistently under different scenarios.
 ![alt text](image.png)
 
 
