@@ -62,7 +62,7 @@ mvn clean install
 ## How to Run 
 To run the game, use Maven from the project root directory:
 ```bash
-mvn clean compile exec:java -Dexec.mainClass="ca.sfu.cmpt276.team7.Main"
+mvn clean compile exec:java"
 ```
 
 ## How to Test
