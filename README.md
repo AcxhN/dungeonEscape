@@ -8,15 +8,6 @@ The CRAWL! A Super Entertaining 2D Arcade Game is a simple grid‑based adventur
 
 ---
 
-## Features
-
-- Core gameplay features
-- Special mechanics
-- UI features
-- Technical features
-
----
-
 ## Tech Stack / Libraries
 
 - Language: Java
@@ -29,7 +20,6 @@ The CRAWL! A Super Entertaining 2D Arcade Game is a simple grid‑based adventur
 
 ## Project Structure
 
-TODO put some brackets beside some notable directories with an explanbation or just leave as is idk 
 ```
 .
 ├── Design
