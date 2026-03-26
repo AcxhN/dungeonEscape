@@ -1,83 +1,83 @@
-# CRAWL! - A Super Entertaining 2D Arcade Game 
+# Dungeon Escape - 2D Arcade Game
+## Technology Stack
 
-## Game Description
+- **Language:** Java  
+- **GUI Framework:** Swing (planned)  
+- **Modeling Tools:** PlantUML / UML diagramming tools  
+- **Version Control:** Git + GitHub  
+- **Development Environment:** WSL + VS Code / IntelliJ  
 
-The CRAWL! A Super Entertaining 2D Arcade Game is a simple grid‑based adventure where the player moves around the board, collects keys, opens chests, and avoids traps. Keys are required to progress, chests give bonus points, ogres and traps take points away, and goblins immediately end the game. The board is made of different cell types that control movement and interactions, and everything runs on a tick‑based loop that updates player actions and game events. Enjoy!
+## Overview
 
-<video controls src="2026-03-24 17-01-43.mp4" title="Title"></video>
+**Dungeon Escape** is a desktop-based 2D arcade game built in Java.  
+The player controls an adventurer navigating a dungeon maze, collecting keys and optional bonus rewards while avoiding enemies and traps.  
+
+The game is designed around a tick-based movement system, object-oriented architecture, and modular rendering pipeline.
+
+This project emphasizes:
+- Requirements engineering
+- System design using UML
+- Object-oriented design principles
+- Collaborative development using Git workflows
+- Clean architectural separation between game logic and rendering
 
 ---
 
-## Tech Stack / Libraries
+## Gameplay Concept
 
-- Language: Java
-- Frameworks:
-  - JUnit (testing)
-  - Maven (build tool)
-- Libraries (ONLY real external ones, not Java standard library)
+The player starts at a designated entry point on a grid-based dungeon board.
+
+### Objective
+- Collect all required keys (regular rewards)
+- Reach the exit cell
+- Maintain a non-negative score
+
+### Lose Conditions
+- Colliding with a moving enemy
+- Score dropping below zero due to punishments
 
 ---
 
-## Project Structure
+## Core Mechanics
 
-```
-.
-├── Design
-│   ├── CMPT276_Group7TeamContract.pdf
-│   ├── CMPT276_Group7_UML.pdf
-│   ├── Phase 1 Game plan CMPT 276.pdf
-│   └── uimockup.pdf
-├── Documents
-│   └── Phase2Report.pdf
-├── README.md
-├── mvn
-├── pom.xml
-└── src
-    ├── main
-    │   ├── java
-    │   └── resources
-    └── test
-        ├── java
-        └── resources
-```
+### Tick-Based Game Loop
+- Each valid player movement advances the game by one tick.
+- After each tick, all enemies update their movement.
+- Movement is limited to one cell per tick.
 
-## How to Build
+### Enemy Types
+- **Goblins**: Chase the player by recalculating the shortest approach each tick.
+- **Ogres**: Patrol predefined routes across the dungeon.
 
-Explain how to compile the project using Maven:
+### Rewards
+- **Keys (Required)**: Must be collected to unlock the exit.
+- **Chests (Bonus)**: Appear temporarily and increase score if collected in time.
 
-```bash
-mvn clean install
-```
+### Punishments
+- **Spike traps**: Deduct score upon contact and disappear after activation.
 
-## How to Run 
-To run the game, use Maven from the project root directory:
-```bash
-mvn clean compile exec:java
-```
+---
 
-## How to Test
-```
-mvn test
-```
+## Architecture & Design
 
-## Test Coverage 
-Tools used: jacoco
-How to generate report:
-```
-mvn verify
-```
-Where to find it:
-```target/site.jacoco/index.html```
+The system follows a layered object-oriented architecture:
 
-Our overall coverage ended up being quite solid, with 93% instruction coverage and 83% branch coverage across the full project. These numbers show that our tests reached most of the meaningful gameplay paths, including UI behavior, enemy logic, board loading, and reward/trap interactions. Since unit test coverage in typical software projects often falls in the 70–90% range, our results sit comfortably within (and in some areas above) that expected window. Overall, the coverage suggests that the codebase is reasonably well tested and that the core mechanics behave consistently under different scenarios.
-![alt text](image.png)
+### Core Components
+- `Game` – Controls game state, tick updates, win/loss checks
+- `Board` – Loads map layout and manages grid state
+- `Cell` hierarchy – Represents walkable and non-walkable tiles
+- `Character` abstraction – Base class for Player and Enemies
+- `Reward` & `Punishment` abstractions – Encapsulate scoring logic
+- `DrawQueue` – Manages layered rendering order
+- `GamePanel` – Handles graphical output
 
+Design documentation and UML diagrams can be found in `/docs`.
 
-## Spring2026Team7
+---
 
-Members:  
-MacKinnon, James,	jam48@sfu.ca  
-Matsumoto, Yui,	yma99@sfu.ca  
-Ng, Auston,	acn8@sfu.ca  
-Pakravani, Rammy,	rpa89@sfu.ca  
-Sandilands, Xavier,	njs12@sfu.ca  
+## Members:  
+MacKinnon, James, jam48@sfu.ca  
+Matsumoto, Yui, yma99@sfu.ca  
+Ng, Auston, acn8@sfu.ca  
+Pakravani, Rammy, rpa89@sfu.ca  
+Sandilands, Xavier,	njs12@sfu.ca
